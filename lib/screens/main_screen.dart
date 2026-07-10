@@ -3,6 +3,7 @@ import '../core/theme.dart';
 import 'home_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
+import 'orders_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     const Center(child: Text('Categories Screen')),
     const CartScreen(),
-    const Center(child: Text('Orders Screen')),
+    const OrdersScreen(),
     const ProfileScreen(),
   ];
 

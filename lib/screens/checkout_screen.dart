@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
-import 'address_screen.dart';
+import 'payment_screen.dart';
 
 enum CheckoutState { normal, priceChange, processing }
 
@@ -432,7 +432,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             height: 54,
             child: ElevatedButton(
               onPressed: isProcessing ? null : () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const AddressScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentScreen()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: isProcessing ? AppTheme.greyBackground : AppTheme.black,
