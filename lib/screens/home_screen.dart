@@ -5,6 +5,8 @@ import 'search_results_screen.dart';
 import 'category_laptops_screen.dart';
 import 'category_mobiles_screen.dart';
 import 'product_details_screen.dart';
+import 'best_sellers_screen.dart';
+import 'new_arrivals_screen.dart';
 
 
 class HomeScreen extends StatelessWidget {
@@ -73,10 +75,14 @@ class HomeScreen extends StatelessWidget {
             _buildSectionHeader('Shop by Category'),
             _buildCategories(),
             const SizedBox(height: 24),
-            _buildSectionHeader('Best Sellers'),
+            _buildSectionHeader('Best Sellers', onViewAll: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const BestSellersScreen()));
+            }),
             _buildHorizontalProductList(),
             const SizedBox(height: 24),
-            _buildSectionHeader('New Arrivals'),
+            _buildSectionHeader('New Arrivals', onViewAll: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const NewArrivalsScreen()));
+            }),
             _buildHorizontalProductList(),
             const SizedBox(height: 24),
             _buildSectionHeader('Featured Products'),
@@ -120,20 +126,32 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, {VoidCallback? onViewAll}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          Row(
-            children: [
-              const Text('View All', style: TextStyle(fontSize: 12, color: AppTheme.black, fontWeight: FontWeight.w600)),
-              const SizedBox(width: 4),
-              const Icon(Icons.arrow_forward_ios, size: 12),
-            ],
-          )
+          if (onViewAll != null)
+            GestureDetector(
+              onTap: onViewAll,
+              child: Row(
+                children: [
+                  const Text('View All', style: TextStyle(fontSize: 12, color: AppTheme.black, fontWeight: FontWeight.w600)),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_forward_ios, size: 12),
+                ],
+              ),
+            )
+          else
+            Row(
+              children: [
+                const Text('View All', style: TextStyle(fontSize: 12, color: AppTheme.black, fontWeight: FontWeight.w600)),
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_forward_ios, size: 12),
+              ],
+            )
         ],
       ),
     );

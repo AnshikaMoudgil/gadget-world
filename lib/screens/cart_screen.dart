@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../core/widgets/primary_button.dart';
+import 'apply_coupon_screen.dart';
+import 'checkout_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -123,28 +125,33 @@ class CartScreen extends StatelessWidget {
               warningMessage: 'Stock updated: Only 15 left (was 25 when added to cart)',
             ),
             const SizedBox(height: 16),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppTheme.greyBorder),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.local_offer_outlined, color: AppTheme.black),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Have a coupon code?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text('Apply code to get instant discount', style: TextStyle(color: AppTheme.greyText, fontSize: 10)),
-                      ],
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ApplyCouponScreen()));
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppTheme.greyBorder),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.local_offer_outlined, color: AppTheme.black),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Have a coupon code?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                          Text('Apply code to get instant discount', style: TextStyle(color: AppTheme.greyText, fontSize: 10)),
+                        ],
+                      ),
                     ),
-                  ),
-                  Icon(Icons.keyboard_arrow_down, color: AppTheme.black),
-                ],
+                    const Icon(Icons.arrow_forward_ios, color: AppTheme.black, size: 16),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -191,7 +198,9 @@ class CartScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   PrimaryButton(
                     text: 'Proceed to Checkout',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen()));
+                    },
                   ),
                   const SizedBox(height: 16),
                 ],
