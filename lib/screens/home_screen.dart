@@ -6,6 +6,7 @@ import 'category_laptops_screen.dart';
 import 'category_mobiles_screen.dart';
 import 'product_details_screen.dart';
 import 'best_sellers_screen.dart';
+import 'new_arrivals_screen.dart';
 
 
 class HomeScreen extends StatelessWidget {
@@ -79,7 +80,9 @@ class HomeScreen extends StatelessWidget {
             }),
             _buildHorizontalProductList(),
             const SizedBox(height: 24),
-            _buildSectionHeader('New Arrivals'),
+            _buildSectionHeader('New Arrivals', onViewAll: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const NewArrivalsScreen()));
+            }),
             _buildHorizontalProductList(),
             const SizedBox(height: 24),
             _buildSectionHeader('Featured Products'),

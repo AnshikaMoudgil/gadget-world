@@ -92,16 +92,16 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 24.0),
             child: Text('Best Sellers', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.black)),
           ),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 4.0),
             child: Text('Top rated and most purchased gadgets', style: TextStyle(fontSize: 14, color: AppTheme.greyText)),
           ),
           const SizedBox(height: 16),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
@@ -145,7 +145,7 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
         return Opacity(
           opacity: _shimmerAnimation.value,
           child: GridView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               childAspectRatio: 0.82,
@@ -272,7 +272,7 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
     ];
 
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.82, // Matches mockup density
