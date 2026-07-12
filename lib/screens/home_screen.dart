@@ -53,7 +53,7 @@ class HomeScreen extends StatelessWidget {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchResultsScreen()));
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  height: 44,
                   decoration: BoxDecoration(
                     color: AppTheme.white,
                     borderRadius: BorderRadius.circular(8),
@@ -61,12 +61,17 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: const TextField(
                     enabled: false,
+                    textAlignVertical: TextAlignVertical.center,
                     decoration: InputDecoration(
+                      isDense: true,
                       hintText: 'Search for products, brands and more...',
                       hintStyle: TextStyle(color: AppTheme.greyText, fontSize: 14),
                       border: InputBorder.none,
-                      icon: Icon(Icons.search, color: AppTheme.greyText),
+                      prefixIcon: Icon(Icons.search, color: AppTheme.greyText),
+                      prefixIconConstraints: BoxConstraints(minWidth: 44, minHeight: 44),
                       suffixIcon: Icon(Icons.center_focus_weak, color: AppTheme.greyText),
+                      suffixIconConstraints: BoxConstraints(minWidth: 44, minHeight: 44),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
                     ),
                   ),
                 ),

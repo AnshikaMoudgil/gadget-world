@@ -64,24 +64,19 @@ class ProductCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 4),
-            Text(
-              price,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: AppTheme.greyBackground,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(moq, style: const TextStyle(fontSize: 8, color: AppTheme.greyText)),
-            ),
-            const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppTheme.greyBackground,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(moq, style: const TextStyle(fontSize: 10, color: AppTheme.greyText, fontWeight: FontWeight.w500)),
+                ),
                 Text(
                   stockStatus,
                   style: TextStyle(
@@ -90,15 +85,26 @@ class ProductCard extends StatelessWidget {
                     color: isLowStock ? Colors.orange : Colors.green,
                   ),
                 ),
+              ],
+            ),
+            const Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  price,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
                 GestureDetector(
                   onTap: onAdd,
                   child: Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(6),
                     decoration: const BoxDecoration(
                       color: AppTheme.black,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.add, color: AppTheme.white, size: 16),
+                    child: const Icon(Icons.add, color: AppTheme.white, size: 18),
                   ),
                 )
               ],
