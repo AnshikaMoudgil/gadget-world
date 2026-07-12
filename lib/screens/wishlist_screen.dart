@@ -212,7 +212,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.65, // Adjust for product card height
+        childAspectRatio: 0.85, // Adjust for product card height
       ),
       itemCount: _wishlistItems.length,
       itemBuilder: (context, index) {

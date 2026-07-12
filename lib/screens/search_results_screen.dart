@@ -23,12 +23,16 @@ class SearchResultsScreen extends StatelessWidget {
             border: Border.all(color: AppTheme.greyBorder),
           ),
           child: const TextField(
+            textAlignVertical: TextAlignVertical.center,
             decoration: InputDecoration(
+              isDense: true,
               hintText: 'wireless earbuds',
               border: InputBorder.none,
               prefixIcon: Icon(Icons.search, color: AppTheme.greyText),
+              prefixIconConstraints: BoxConstraints(minWidth: 40, minHeight: 40),
               suffixIcon: Icon(Icons.close, color: AppTheme.greyText),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              suffixIconConstraints: BoxConstraints(minWidth: 40, minHeight: 40),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16),
             ),
           ),
         ),
@@ -133,7 +137,7 @@ class SearchResultsScreen extends StatelessWidget {
               shrinkWrap: true,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.58,
+                childAspectRatio: 0.85,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
