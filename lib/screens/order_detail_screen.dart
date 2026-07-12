@@ -15,53 +15,79 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.white,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('Order Detail', style: TextStyle(color: AppTheme.black, fontSize: 16, fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(icon: const Icon(Icons.headphones_outlined, color: AppTheme.black), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.more_vert, color: AppTheme.black), onPressed: () {}),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+      body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeaderCard(),
-            const SizedBox(height: 16),
-            _buildStatusCard(),
-            const SizedBox(height: 24),
-            const Text('Items (3)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
-            const SizedBox(height: 16),
-            _buildItemsList(),
-            const SizedBox(height: 24),
-            _buildDeliveryTimeline(),
-            const SizedBox(height: 24),
-            const Text('Shipping Address', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
-            const SizedBox(height: 12),
-            _buildAddressCard(),
-            const SizedBox(height: 24),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildPaymentInfoCard()),
-                const SizedBox(width: 16),
-                Expanded(child: _buildOrderSummaryCard()),
-              ],
+            _buildHeader(context),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeaderCard(),
+                    const SizedBox(height: 16),
+                    _buildStatusCard(),
+                    const SizedBox(height: 24),
+                    const Text('Items (3)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                    const SizedBox(height: 16),
+                    _buildItemsList(),
+                    const SizedBox(height: 24),
+                    _buildDeliveryTimeline(),
+                    const SizedBox(height: 24),
+                    const Text('Shipping Address', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                    const SizedBox(height: 12),
+                    _buildAddressCard(),
+                    const SizedBox(height: 24),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: _buildPaymentInfoCard()),
+                        const SizedBox(width: 16),
+                        Expanded(child: _buildOrderSummaryCard()),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    _buildActionTile(Icons.download_outlined, 'Download Invoice'),
+                    const SizedBox(height: 12),
+                    _buildActionTile(Icons.local_shipping_outlined, 'Track Package'),
+                    const SizedBox(height: 12),
+                    _buildActionTile(Icons.assignment_return_outlined, 'Return or Replace'),
+                    const SizedBox(height: 48), // Bottom padding
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 32),
-            _buildActionTile(Icons.download_outlined, 'Download Invoice'),
-            const SizedBox(height: 12),
-            _buildActionTile(Icons.local_shipping_outlined, 'Track Package'),
-            const SizedBox(height: 12),
-            _buildActionTile(Icons.verified_user_outlined, 'Need help? Contact support'),
-            const SizedBox(height: 48), // Bottom padding
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: const Text('Order Detail', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+          ),
+          Row(
+            children: [
+              IconButton(icon: const Icon(Icons.headphones_outlined, color: AppTheme.black), onPressed: () {}),
+              IconButton(icon: const Icon(Icons.more_vert, color: AppTheme.black), onPressed: () {}),
+            ],
+          ),
+        ],
       ),
     );
   }

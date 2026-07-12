@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import 'add_address_screen.dart';
 
-enum AddressState { selected, unselected, empty }
-
 class AddressScreen extends StatefulWidget {
   const AddressScreen({super.key});
 
@@ -12,387 +10,344 @@ class AddressScreen extends StatefulWidget {
 }
 
 class _AddressScreenState extends State<AddressScreen> {
-  AddressState _currentState = AddressState.selected;
-  int? _selectedIndex = 0;
+  bool _isEmptyState = false;
 
-  final List<Map<String, String>> _addresses = [
+  final List<Map<String, dynamic>> _addresses = [
     {
-      'name': 'Aman Yadav',
-      'type': 'Default',
-      'address': '123, Green Park, Sector 45\nGurugram, Haryana - 122003',
-      'phone': '+91 98765 43210'
-    },
-    {
+      'type': 'Home',
+      'icon': Icons.home_outlined,
       'name': 'Rohit Sharma',
-      'type': '',
-      'address': '456, Lajpat Nagar, Part 2\nNew Delhi - 110024',
-      'phone': '+91 91234 56789'
+      'isDefault': true,
+      'address': '456, Lajpat Nagar Part 2,\nNear Metro Station, New Delhi - 110024\nDelhi, India\nPhone: +91 98765 43210'
     },
     {
-      'name': 'Neha Verma',
-      'type': '',
-      'address': '78, Koramangala 5th Block\nBangalore, Karnataka - 560095',
-      'phone': '+91 99876 54321'
+      'type': 'Office',
+      'icon': Icons.business_center_outlined,
+      'name': 'Office',
+      'isDefault': false,
+      'address': '7th Floor, Tower B,\nSector 62, Noida - 201301\nUttar Pradesh, India\nPhone: +91 91234 56789'
     },
     {
-      'name': 'Vikram Singh',
-      'type': '',
-      'address': '32, Shanti Nagar\nPune, Maharashtra - 411007',
-      'phone': '+91 87654 32109'
+      'type': 'Home',
+      'icon': Icons.home_outlined,
+      'name': 'Home',
+      'isDefault': false,
+      'address': '89, Green Park Extension,\nGreen Park, New Delhi - 110016\nDelhi, India\nPhone: +91 99887 76655'
     },
   ];
 
-  void _cycleState() {
+  void _toggleState() {
     setState(() {
-      if (_currentState == AddressState.selected) {
-        _currentState = AddressState.unselected;
-        _selectedIndex = null;
-      } else if (_currentState == AddressState.unselected) {
-        _currentState = AddressState.empty;
-        _selectedIndex = null;
-      } else {
-        _currentState = AddressState.selected;
-        _selectedIndex = 0;
-      }
+      _isEmptyState = !_isEmptyState;
     });
+  }
+
+  void _showDeleteConfirmation() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: AppTheme.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: AppTheme.greyBorder, borderRadius: BorderRadius.circular(2)),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: Colors.red.shade50, shape: BoxShape.circle),
+                child: const Icon(Icons.delete_outline, color: Colors.red, size: 28),
+              ),
+              const SizedBox(height: 16),
+              const Text('Delete Address?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+              const SizedBox(height: 8),
+              const Text(
+                'Are you sure you want to delete this address?\nThis action cannot be undone.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.4),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.black,
+                        side: const BorderSide(color: AppTheme.greyBorder),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('Cancel', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.black,
+                        foregroundColor: AppTheme.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('Delete', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.white,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.change_circle_outlined, color: AppTheme.greyText),
-            onPressed: _cycleState,
-            tooltip: 'Cycle UI State',
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 150),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 24),
-                if (_currentState == AddressState.empty)
-                  _buildEmptyState()
-                else
-                  _buildAddressList(),
-              ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                child: Column(
+                  children: [
+                    _isEmptyState ? _buildEmptyState() : _buildAddressList(),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const AddAddressScreen()));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.black,
+                        foregroundColor: AppTheme.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: const [
+                              Icon(Icons.add_circle_outline, size: 20),
+                              SizedBox(width: 8),
+                              Text('Add New Address', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const Icon(Icons.arrow_forward, size: 20),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildBottomBar(),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text('Checkout', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black)),
-              SizedBox(height: 4),
-              Text('Address', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.black)),
-              SizedBox(height: 8),
-              Text('Select a delivery address for your order', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
-            ],
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+            onPressed: () => Navigator.pop(context),
           ),
-        ),
-        SizedBox(
-          width: 80,
-          height: 80,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              const Icon(Icons.map, size: 60, color: AppTheme.greyBorder), // Placeholder for folded map
-              const Positioned(
-                top: 0,
-                child: Icon(Icons.location_on, size: 40, color: AppTheme.black),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0), // Align text baseline with icon
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text('My Addresses', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 4),
+                  Text('Manage your saved addresses', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                ],
               ),
-              Positioned(
-                bottom: 15,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.greyBorder),
-                  ),
-                  child: const Icon(Icons.home_outlined, size: 16, color: AppTheme.black),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ],
+          IconButton(
+            icon: const Icon(Icons.change_circle_outlined, color: AppTheme.greyText),
+            onPressed: _toggleState,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const AddAddressScreen()));
+              },
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(color: AppTheme.black, borderRadius: BorderRadius.circular(8)),
+                child: const Icon(Icons.add, color: AppTheme.white, size: 20),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildEmptyState() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48.0),
-      child: Column(
-        children: [
-          Container(
-            width: 160,
-            height: 160,
-            decoration: const BoxDecoration(
-              color: AppTheme.greyBackground,
-              shape: BoxShape.circle,
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                const Icon(Icons.map, size: 80, color: AppTheme.greyBorder),
-                const Positioned(
-                  top: 20,
-                  child: Icon(Icons.location_on, size: 60, color: AppTheme.black),
-                ),
-                Positioned(
-                  bottom: 40,
-                  right: 20,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppTheme.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppTheme.greyBorder),
-                    ),
-                    child: const Icon(Icons.home_outlined, size: 20, color: AppTheme.black),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
-          const Text('No saved addresses', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.black)),
-          const SizedBox(height: 12),
-          const Text(
-            'You don\'t have any saved addresses yet.\nAdd a new address to continue.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: AppTheme.greyText, height: 1.5),
-          ),
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            height: 54,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const AddAddressScreen()));
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.black,
-                foregroundColor: AppTheme.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      padding: const EdgeInsets.only(top: 100.0),
+      child: Center(
+        child: Column(
+          children: [
+            Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                color: AppTheme.greyBackground.withOpacity(0.5),
+                shape: BoxShape.circle,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
+                alignment: Alignment.center,
                 children: const [
-                  Icon(Icons.add, size: 20),
-                  SizedBox(width: 8),
-                  Text('Add New Address', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Icon(Icons.map, size: 80, color: AppTheme.white),
+                  Positioned(
+                    top: 20,
+                    child: Icon(Icons.location_on, size: 60, color: AppTheme.black),
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 32),
+            const Text('No addresses yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+            const SizedBox(height: 12),
+            const Text(
+              'Add an address to make your\ncheckout experience faster.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.4),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildAddressList() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Saved Addresses', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
-        const SizedBox(height: 16),
-        ...List.generate(_addresses.length, (index) {
-          final address = _addresses[index];
-          final isSelected = _selectedIndex == index;
-          return _buildAddressCard(address, isSelected, index);
-        }),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          height: 54,
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const AddAddressScreen()));
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.black,
-              side: const BorderSide(color: AppTheme.greyBorder),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
+      children: _addresses.map((address) => _buildAddressCard(address)).toList(),
+    );
+  }
+
+  Widget _buildAddressCard(Map<String, dynamic> data) {
+    final isDefault = data['isDefault'] as bool;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: AppTheme.white,
+        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: AppTheme.black,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.add, size: 12, color: AppTheme.white),
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(color: AppTheme.black, borderRadius: BorderRadius.circular(10)),
+                  child: Icon(data['icon'], color: AppTheme.white, size: 20),
                 ),
-                const SizedBox(width: 8),
-                const Text('Add New Address', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(data['name'], style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                          if (isDefault) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(color: AppTheme.black, borderRadius: BorderRadius.circular(6)),
+                              child: const Text('Default', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppTheme.white)),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(data['address'], style: const TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.5)),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppTheme.greyBorder),
+                        ),
+                        child: const Icon(Icons.edit_outlined, size: 14, color: AppTheme.black),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    InkWell(
+                      onTap: _showDeleteConfirmation,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppTheme.greyBorder),
+                        ),
+                        child: const Icon(Icons.delete_outline, size: 14, color: AppTheme.black),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAddressCard(Map<String, String> data, bool isSelected, int index) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedIndex = index;
-          _currentState = AddressState.selected;
-        });
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.white,
-          border: Border.all(color: isSelected ? AppTheme.black : AppTheme.greyBorder, width: isSelected ? 1.5 : 1.0),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Radio Button
+          if (isDefault) ...[
             Container(
-              margin: const EdgeInsets.only(top: 2, right: 16),
-              width: 20,
-              height: 20,
+              padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: isSelected ? AppTheme.black : AppTheme.greyBorder, width: 2),
+                color: AppTheme.greyBackground.withOpacity(0.3),
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
               ),
-              child: isSelected
-                  ? Center(
-                      child: Container(
-                        width: 10,
-                        height: 10,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.black,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    )
-                  : null,
-            ),
-            // Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(data['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.black)),
-                      if (data['type']!.isNotEmpty) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppTheme.black,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(data['type']!, style: const TextStyle(color: AppTheme.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                      const Spacer(),
-                      const Icon(Icons.more_vert, color: AppTheme.black, size: 20),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(data['address']!, style: const TextStyle(color: AppTheme.greyText, fontSize: 12, height: 1.4)),
-                  const SizedBox(height: 8),
-                  Text(data['phone']!, style: const TextStyle(color: AppTheme.black, fontSize: 12, fontWeight: FontWeight.w500)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.star, size: 14, color: AppTheme.black),
+                  SizedBox(width: 8),
+                  Text('Default shipping address', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.greyText)),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomBar() {
-    final isEmpty = _currentState == AddressState.empty;
-    final isUnselected = _currentState == AddressState.unselected;
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        border: isEmpty ? null : const Border(top: BorderSide(color: AppTheme.greyBorder, width: 1)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (!isEmpty) ...[
-            SizedBox(
-              width: double.infinity,
-              height: 54,
-              child: ElevatedButton(
-                onPressed: isUnselected ? null : () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isUnselected ? AppTheme.greyBackground : AppTheme.black,
-                  foregroundColor: isUnselected ? AppTheme.greyText : AppTheme.white,
-                  disabledBackgroundColor: AppTheme.greyBackground,
-                  disabledForegroundColor: AppTheme.greyText,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Continue', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    if (!isUnselected) ...[
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward, size: 20),
-                    ] else ...[
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward, size: 20, color: AppTheme.greyText),
-                    ]
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.shield_outlined, size: 14, color: AppTheme.greyText),
-              SizedBox(width: 6),
-              Text('Your data is safe and secure', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
-            ],
-          ),
+          ]
         ],
       ),
     );

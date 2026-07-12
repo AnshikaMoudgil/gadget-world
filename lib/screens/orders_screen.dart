@@ -32,27 +32,43 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.white,
-      appBar: _buildAppBar(),
-      body: _buildBody(),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            Expanded(child: _buildBody()),
+          ],
+        ),
+      ),
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-      automaticallyImplyLeading: false, // In main bottom nav, usually no back button
-      title: Column(
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 16, 8),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text('My Orders', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
-          SizedBox(height: 2),
-          Text('Track and manage all your orders', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text('My Orders', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                SizedBox(height: 2),
+                Text('Track and manage all your orders', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              IconButton(icon: const Icon(Icons.search, color: AppTheme.black), onPressed: () {}),
+              IconButton(icon: const Icon(Icons.filter_alt_outlined, color: AppTheme.black), onPressed: () {}),
+              IconButton(icon: const Icon(Icons.change_circle_outlined, color: AppTheme.greyText), onPressed: _cycleState, tooltip: 'Cycle UI State'),
+            ],
+          ),
         ],
       ),
-      actions: [
-        IconButton(icon: const Icon(Icons.search, color: AppTheme.black), onPressed: () {}),
-        IconButton(icon: const Icon(Icons.filter_alt_outlined, color: AppTheme.black), onPressed: () {}),
-        IconButton(icon: const Icon(Icons.change_circle_outlined, color: AppTheme.greyText), onPressed: _cycleState, tooltip: 'Cycle UI State'),
-      ],
     );
   }
 
