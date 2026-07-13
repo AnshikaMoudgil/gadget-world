@@ -5,6 +5,10 @@ import 'package:gadget_store/core/widgets/primary_button.dart';
 import 'package:gadget_store/core/widgets/logo_widget.dart';
 import 'package:gadget_store/features/auth/screens/login_screen.dart';
 import 'package:gadget_store/features/auth/screens/reset_password_screen.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
+import 'package:gadget_store/features/auth/widgets/loading_button.dart';
+import 'package:provider/provider.dart';
+import 'dart:async';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -16,17 +20,50 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
   bool _emailSent = false;
+  
+  Timer? _cooldownTimer;
+  int _cooldownSeconds = 0;
 
   @override
   void dispose() {
     _emailController.dispose();
+    _cooldownTimer?.cancel();
     super.dispose();
   }
 
-  void _sendResetLink() {
-    setState(() {
-      _emailSent = true;
+  void _startCooldown() {
+    setState(() => _cooldownSeconds = 60);
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_cooldownSeconds > 0) {
+        setState(() => _cooldownSeconds--);
+      } else {
+        timer.cancel();
+      }
     });
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
+  }
+
+  Future<void> _sendResetLink() async {
+    if (_emailController.text.isEmpty || !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(_emailController.text)) {
+      _showError('Please enter a valid email address');
+      return;
+    }
+
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final success = await auth.resetPassword(_emailController.text);
+    
+    if (success && mounted) {
+      setState(() => _emailSent = true);
+      _startCooldown();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset link sent!'), backgroundColor: Colors.green)
+      );
+    } else if (!success && auth.errorMessage != null && mounted) {
+      _showError(auth.errorMessage!);
+    }
   }
 
   @override
@@ -87,8 +124,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           controller: _emailController,
         ),
         const SizedBox(height: 32),
-        PrimaryButton(
+        LoadingButton(
           text: 'Send Reset Link',
+          isLoading: Provider.of<AuthProvider>(context).isLoading,
           onPressed: _sendResetLink,
         ),
         const SizedBox(height: 24),
@@ -190,20 +228,36 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           style: TextStyle(fontSize: 13, color: AppTheme.greyText),
         ),
         const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const ResetPasswordScreen()));
-          },
-          child: const Text(
-            'Click here to reset password',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.black,
-              decoration: TextDecoration.underline,
+        const SizedBox(height: 16),
+        if (_cooldownSeconds > 0)
+          Text(
+            'Resend link in $_cooldownSeconds seconds',
+            style: const TextStyle(fontSize: 13, color: AppTheme.greyText),
+          )
+        else
+          GestureDetector(
+            onTap: () async {
+              final auth = Provider.of<AuthProvider>(context, listen: false);
+              final success = await auth.resetPassword(_emailController.text);
+              if (success && mounted) {
+                _startCooldown();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Password reset link resent!'), backgroundColor: Colors.green)
+                );
+              } else if (!success && auth.errorMessage != null && mounted) {
+                _showError(auth.errorMessage!);
+              }
+            },
+            child: const Text(
+              'Resend Reset Link',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.black,
+                decoration: TextDecoration.underline,
+              ),
             ),
           ),
-        ),
         const SizedBox(height: 28),
         PrimaryButton(
           text: 'Back to Login',

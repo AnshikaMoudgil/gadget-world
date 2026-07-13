@@ -6,6 +6,8 @@ import 'package:gadget_store/features/profile/screens/settings_screen.dart';
 import 'package:gadget_store/features/more/screens/wishlist_screen.dart';
 import 'package:gadget_store/features/more/screens/contact_us_screen.dart';
 import 'package:gadget_store/features/more/screens/more_menu_screen.dart';
+import 'package:gadget_store/features/profile/providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 enum DashboardState { existing, newBuyer }
 
@@ -83,7 +85,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Hi, Rohit ðŸ‘‹', style: TextStyle(color: AppTheme.black, fontSize: 20, fontWeight: FontWeight.bold)),
+            Consumer<ProfileProvider>(
+              builder: (context, provider, child) {
+                final firstName = provider.profile?.fullName.split(' ').first ?? 'Guest';
+                return Text('Hi, $firstName 👋', style: const TextStyle(color: AppTheme.black, fontSize: 20, fontWeight: FontWeight.bold));
+              },
+            ),
             Row(
               children: [
                 Stack(

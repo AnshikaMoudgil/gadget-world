@@ -3,6 +3,9 @@ import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/core/widgets/primary_button.dart';
 import 'package:gadget_store/core/widgets/logo_widget.dart';
 import 'package:gadget_store/features/auth/screens/login_screen.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
+import 'package:gadget_store/features/auth/widgets/loading_button.dart';
+import 'package:provider/provider.dart';
 
 const Color _green = Color(0xFF22A854);
 const Color _red = Color(0xFFE0433D);
@@ -69,9 +72,21 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     super.dispose();
   }
 
-  void _resetPassword() {
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
+  }
+
+  Future<void> _resetPassword() async {
     if (_passwordsMatch && _strengthLevel >= 3) {
-      setState(() => _passwordReset = true);
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final success = await auth.updatePassword(_newPasswordController.text);
+      if (success && mounted) {
+        setState(() => _passwordReset = true);
+      } else if (!success && auth.errorMessage != null && mounted) {
+        _showErrorMessage(auth.errorMessage!);
+      }
+    } else {
+      _showErrorMessage('Please make sure your password is strong and matches');
     }
   }
 
@@ -136,8 +151,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         const SizedBox(height: 18),
         _buildRequirements(),
         const SizedBox(height: 24),
-        PrimaryButton(
+        LoadingButton(
           text: 'Reset Password',
+          isLoading: Provider.of<AuthProvider>(context).isLoading,
           onPressed: _resetPassword,
         ),
         const SizedBox(height: 24),

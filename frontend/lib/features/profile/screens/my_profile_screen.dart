@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/profile/screens/edit_profile_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 
 class MyProfileScreen extends StatelessWidget {
   const MyProfileScreen({super.key});
@@ -21,9 +23,9 @@ class MyProfileScreen extends StatelessWidget {
                   children: [
                     _buildProfileHeader(context),
                     const SizedBox(height: 24),
-                    _buildPersonalInfoCard(),
+                    _buildPersonalInfoCard(context),
                     const SizedBox(height: 24),
-                    _buildCompanyInfoCard(),
+                    _buildCompanyInfoCard(context),
                     const SizedBox(height: 24),
                     _buildTrustBanner(),
                     const SizedBox(height: 48), // Padding for scroll clearance
@@ -73,6 +75,8 @@ class MyProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context) {
+    final profile = Provider.of<ProfileProvider>(context).profile;
+    
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -111,7 +115,7 @@ class MyProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Rohit Sharma', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(profile?.fullName ?? 'User', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -149,7 +153,9 @@ class MyProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPersonalInfoCard() {
+  Widget _buildPersonalInfoCard(BuildContext context) {
+    final profile = Provider.of<ProfileProvider>(context).profile;
+    
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
@@ -170,18 +176,20 @@ class MyProfileScreen extends StatelessWidget {
             ),
           ),
           const Divider(color: AppTheme.greyBorder, height: 1),
-          _buildInfoRow(Icons.email_outlined, 'Full Name', 'Rohit Sharma'),
+          _buildInfoRow(Icons.person_outline, 'Full Name', profile?.fullName ?? 'Not provided'),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildInfoRow(Icons.email_outlined, 'Email Address', 'rohit.sharma@example.com'),
+          _buildInfoRow(Icons.email_outlined, 'Email Address', profile?.email ?? 'Not provided'),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildInfoRow(Icons.phone_outlined, 'Phone Number', '+91 98765 43210'),
+          _buildInfoRow(Icons.phone_outlined, 'Phone Number', profile?.phoneNumber ?? 'Not provided'),
           const SizedBox(height: 8), // Bottom padding for card content
         ],
       ),
     );
   }
 
-  Widget _buildCompanyInfoCard() {
+  Widget _buildCompanyInfoCard(BuildContext context) {
+    final profile = Provider.of<ProfileProvider>(context).profile;
+    
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
@@ -202,11 +210,11 @@ class MyProfileScreen extends StatelessWidget {
             ),
           ),
           const Divider(color: AppTheme.greyBorder, height: 1),
-          _buildInfoRow(Icons.work_outline, 'Company Name', 'Sharma Enterprises Pvt. Ltd.'),
+          _buildInfoRow(Icons.work_outline, 'Company Name', profile?.businessName ?? 'Not provided'),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildInfoRow(Icons.receipt_long_outlined, 'GSTIN', '27AABCS1234D1Z5'),
+          _buildInfoRow(Icons.receipt_long_outlined, 'GSTIN', profile?.gstin ?? 'Not provided'),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildInfoRow(Icons.local_offer_outlined, 'Business Type', 'Private Limited Company'),
+          _buildInfoRow(Icons.local_offer_outlined, 'Business Type', profile?.businessType ?? 'Not provided'),
           const SizedBox(height: 8), // Bottom padding for card content
         ],
       ),

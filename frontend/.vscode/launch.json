@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "gadget_store",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--web-port",
+                "3000"
+            ]
+        },
+        {
+            "name": "gadget_store (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "gadget_store (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
