@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'core/theme.dart';
-import 'screens/splash_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
