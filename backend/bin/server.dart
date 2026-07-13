@@ -3,22 +3,7 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
-import 'package:shelf_router/shelf_router.dart';
-
-// Configure routes.
-final _router = Router()
-  ..get('/', _rootHandler)
-  ..get('/api/status', _statusHandler);
-
-Response _rootHandler(Request req) {
-  return Response.ok('Welcome to Gadgets World API\n');
-}
-
-Response _statusHandler(Request request) {
-  return Response.ok('{"status": "ok", "message": "Backend is running!"}', headers: {
-    'Content-Type': 'application/json'
-  });
-}
+import '../lib/core/network/app_router.dart';
 
 void main(List<String> args) async {
   var parser = ArgParser()..addOption('port', abbr: 'p');
@@ -37,8 +22,13 @@ void main(List<String> args) async {
   // Use any available host or IPv4 localhost (127.0.0.1).
   final ip = InternetAddress.anyIPv4;
 
+  // Initialize the App Router
+  final appRouter = AppRouter();
+
   // Configure a pipeline that logs requests.
-  final handler = Pipeline().addMiddleware(logRequests()).addHandler(_router.call);
+  final handler = Pipeline()
+      .addMiddleware(logRequests())
+      .addHandler(appRouter.router.call);
 
   final server = await io.serve(handler, ip, port);
   print('Server listening on port ${server.port}');
