@@ -25,8 +25,6 @@ class MyProfileScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildPersonalInfoCard(context),
                     const SizedBox(height: 24),
-                    _buildCompanyInfoCard(context),
-                    const SizedBox(height: 24),
                     _buildTrustBanner(),
                     const SizedBox(height: 48), // Padding for scroll clearance
                   ],
@@ -58,7 +56,7 @@ class MyProfileScreen extends StatelessWidget {
                 children: const [
                   Text('My Profile', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
                   SizedBox(height: 4),
-                  Text('View your personal and company information', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                  Text('View your personal information', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
                 ],
               ),
             ),
@@ -76,7 +74,7 @@ class MyProfileScreen extends StatelessWidget {
 
   Widget _buildProfileHeader(BuildContext context) {
     final profile = Provider.of<ProfileProvider>(context).profile;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -155,7 +153,7 @@ class MyProfileScreen extends StatelessWidget {
 
   Widget _buildPersonalInfoCard(BuildContext context) {
     final profile = Provider.of<ProfileProvider>(context).profile;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
@@ -181,40 +179,6 @@ class MyProfileScreen extends StatelessWidget {
           _buildInfoRow(Icons.email_outlined, 'Email Address', profile?.email ?? 'Not provided'),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
           _buildInfoRow(Icons.phone_outlined, 'Phone Number', profile?.phoneNumber ?? 'Not provided'),
-          const SizedBox(height: 8), // Bottom padding for card content
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompanyInfoCard(BuildContext context) {
-    final profile = Provider.of<ProfileProvider>(context).profile;
-    
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: const [
-                Icon(Icons.business_outlined, size: 20, color: AppTheme.black),
-                SizedBox(width: 12),
-                Text('Company Information', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
-              ],
-            ),
-          ),
-          const Divider(color: AppTheme.greyBorder, height: 1),
-          _buildInfoRow(Icons.work_outline, 'Company Name', profile?.businessName ?? 'Not provided'),
-          const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildInfoRow(Icons.receipt_long_outlined, 'GSTIN', profile?.gstin ?? 'Not provided'),
-          const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildInfoRow(Icons.local_offer_outlined, 'Business Type', profile?.businessType ?? 'Not provided'),
           const SizedBox(height: 8), // Bottom padding for card content
         ],
       ),
@@ -261,7 +225,7 @@ class MyProfileScreen extends StatelessWidget {
               children: const [
                 Text('Your information is safe with us', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black)),
                 SizedBox(height: 4),
-                Text('We never share your personal or business details with anyone.', style: TextStyle(fontSize: 10, color: AppTheme.greyText, height: 1.4)),
+                Text('We never share your personal details with anyone.', style: TextStyle(fontSize: 10, color: AppTheme.greyText, height: 1.4)),
               ],
             ),
           ),

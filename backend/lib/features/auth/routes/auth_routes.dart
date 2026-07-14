@@ -1,21 +1,14 @@
-import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import '../controllers/auth_controller.dart';
 
 class AuthRoutes {
   Router get router {
     final router = Router();
+    final authController = AuthController();
 
-    router.post('/login', _loginHandler);
-    router.post('/register', _registerHandler);
+    router.post('/login', authController.login);
+    router.post('/register', authController.register);
 
     return router;
-  }
-
-  Response _loginHandler(Request request) {
-    return Response.ok('{"message": "Login endpoint"}', headers: {'Content-Type': 'application/json'});
-  }
-
-  Response _registerHandler(Request request) {
-    return Response.ok('{"message": "Register endpoint"}', headers: {'Content-Type': 'application/json'});
   }
 }
