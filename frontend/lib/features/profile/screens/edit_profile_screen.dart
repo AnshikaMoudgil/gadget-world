@@ -39,16 +39,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 16),
                     _buildFormField('Date of Birth', profile?.dateOfBirth?.toIso8601String().split('T').first ?? 'Not provided', Icons.calendar_today_outlined, isRequired: true, trailingIcon: Icons.calendar_today_outlined),
                     const SizedBox(height: 32),
-                    _buildSectionHeader(Icons.business_outlined, 'Company Information'),
-                    const SizedBox(height: 16),
-                    _buildFormField('Business Name', profile?.businessName ?? 'Not provided', Icons.business_center_outlined, isRequired: true),
-                    const SizedBox(height: 16),
-                    _buildGSTINField(profile?.gstin ?? 'Not provided'),
-                    const SizedBox(height: 16),
-                    _buildFormField('Business Type', profile?.businessType ?? 'Not provided', Icons.business_outlined, isRequired: true, trailingIcon: Icons.keyboard_arrow_down),
-                    const SizedBox(height: 24),
-                    _buildBottomInfoBanner(),
-                    const SizedBox(height: 32),
                     _buildActionButtons(context),
                     const SizedBox(height: 32), // Padding for scroll clearance
                   ],
@@ -111,7 +101,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               children: const [
                 Text('Some fields require verification', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black)),
                 SizedBox(height: 4),
-                Text('Changes to business information may require re-verification and approval.', style: TextStyle(fontSize: 10, color: AppTheme.greyText, height: 1.4)),
+                Text('Changes to verified fields may require re-verification and approval.', style: TextStyle(fontSize: 10, color: AppTheme.greyText, height: 1.4)),
               ],
             ),
           ),
@@ -189,87 +179,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           const Icon(Icons.lock_outline, color: AppTheme.greyText, size: 16),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGSTINField(String gstinValue) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: AppTheme.white,
-            border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.receipt_long_outlined, color: AppTheme.greyText, size: 20),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: const [
-                        Text('GSTIN', style: TextStyle(fontSize: 10, color: AppTheme.greyText)),
-                        SizedBox(width: 4),
-                        Text('*', style: TextStyle(fontSize: 10, color: Colors.red)),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(gstinValue, style: const TextStyle(fontSize: 14, color: AppTheme.black)),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(4)),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(Icons.check_circle_outline, size: 10, color: Colors.green),
-                              SizedBox(width: 4),
-                              Text('Verified', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.green)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.lock_outline, color: AppTheme.greyText, size: 16),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
-          child: Text('To change GSTIN, please contact support.', style: TextStyle(fontSize: 10, color: AppTheme.greyText)),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomInfoBanner() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.shade100),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline, color: Colors.blue, size: 20),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Text('Changing business information may require document verification and approval.', style: TextStyle(fontSize: 10, color: AppTheme.greyText, height: 1.4)),
-          ),
         ],
       ),
     );
