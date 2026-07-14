@@ -3,14 +3,35 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
+import '../lib/core/config/env.dart';
+import '../lib/core/database/supabase_db.dart';
 import '../lib/core/network/app_router.dart';
 
 void main(List<String> args) async {
+  // ── 1. Load environment variables & validate required keys ──
+  try {
+    Env.load();
+  } catch (e) {
+    stderr.writeln('Failed to load environment: $e');
+    exitCode = 78; // EX_CONFIG
+    return;
+  }
+
+  // ── 2. Initialize Supabase clients (anon + service-role) ──
+  try {
+    SupabaseDb.init();
+    print('Supabase client initialized');
+  } catch (e) {
+    stderr.writeln('Failed to initialize Supabase: $e');
+    exitCode = 69; // EX_UNAVAILABLE
+    return;
+  }
+
+  // ── 3. Resolve port ──
   var parser = ArgParser()..addOption('port', abbr: 'p');
   var result = parser.parse(args);
 
-  // Default port is 8080
-  var portStr = result['port'] ?? Platform.environment['PORT'] ?? '8080';
+  var portStr = result['port'] ?? Platform.environment['PORT'] ?? '${Env.port}';
   var port = int.tryParse(portStr);
 
   if (port == null) {
@@ -33,3 +54,4 @@ void main(List<String> args) async {
   final server = await io.serve(handler, ip, port);
   print('Server listening on port ${server.port}');
 }
+
