@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/auth/screens/login_screen.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
+import 'package:gadget_store/features/auth/widgets/loading_button.dart';
+import 'package:provider/provider.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -36,20 +39,26 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     super.dispose();
   }
 
-  void _handleUpdatePassword() {
-    // For demonstration, typing 'error' in current password triggers error state
-    if (_currentPasswordController.text.toLowerCase() == 'error') {
-      setState(() {
-        _hasError = true;
-      });
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
+  }
+
+  Future<void> _handleUpdatePassword() async {
+    if (_newPasswordController.text != _confirmPasswordController.text) {
+      _showError('New passwords do not match');
       return;
     }
-    
-    setState(() {
-      _hasError = false;
-    });
 
-    _showSuccessDialog();
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    // Note: Supabase doesn't strictly require current password for updateUser if session is active,
+    // but in a real app we might re-authenticate. Here we just update the password.
+    final success = await auth.updatePassword(_newPasswordController.text);
+    
+    if (success && mounted) {
+      _showSuccessDialog();
+    } else if (!success && auth.errorMessage != null && mounted) {
+      _showError(auth.errorMessage!);
+    }
   }
 
   void _showSuccessDialog() {
@@ -183,27 +192,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           },
                         ),
                         const SizedBox(height: 32),
-                        ElevatedButton(
+                        LoadingButton(
+                          text: 'Update Password',
+                          isLoading: Provider.of<AuthProvider>(context).isLoading,
                           onPressed: _handleUpdatePassword,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.black,
-                            foregroundColor: AppTheme.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: const [
-                                  Icon(Icons.lock_outline, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('Update Password', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                              const Icon(Icons.arrow_forward, size: 20),
-                            ],
-                          ),
                         ),
                       ],
                     ),

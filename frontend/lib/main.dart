@@ -1,9 +1,39 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
+import 'package:gadget_store/features/auth/screens/login_screen.dart';
+import 'package:gadget_store/features/auth/services/google_auth_service.dart';
+import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL'] ?? 'https://xyzcompany.supabase.co',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? 'public-anon-key',
+  );
+
+  // Initialize Google Sign In globally (handles the stream on Web)
+  await GoogleAuthService.init();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -15,7 +45,72 @@ class MyApp extends StatelessWidget {
       title: 'Gadget World',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
+      home: const AuthGuard(child: SplashScreen()),
     );
+  }
+}
+
+// Simple Auth Guard to handle routing based on authentication state
+class AuthGuard extends StatefulWidget {
+  final Widget child;
+  const AuthGuard({super.key, required this.child});
+
+  @override
+  State<AuthGuard> createState() => _AuthGuardState();
+}
+
+class _AuthGuardState extends State<AuthGuard> {
+  late AuthProvider _authProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen to auth changes safely
+    _authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _authProvider.addListener(_handleAuthStateChange);
+  }
+
+  @override
+  void dispose() {
+    _authProvider.removeListener(_handleAuthStateChange);
+    super.dispose();
+  }
+
+  void _handleAuthStateChange() {
+    if (!mounted) return;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+    
+    if (authProvider.isAuthenticated) {
+      // User is logged in, fetch their profile data
+      profileProvider.fetchProfile();
+    } else {
+      // User is logged out, clear profile data and redirect to Login Screen
+      profileProvider.clearProfile();
+      // We check if current route is not login/signup/splash to avoid looping
+      bool isPublicRoute = false;
+      Navigator.popUntil(context, (route) {
+        if (route.settings.name == '/login' || route.settings.name == '/signup') {
+          isPublicRoute = true;
+        }
+        return true; 
+      });
+
+      if (!isPublicRoute) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            settings: const RouteSettings(name: '/login'),
+            builder: (_) => const LoginScreen()
+          ),
+          (route) => false,
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }

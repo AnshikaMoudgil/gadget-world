@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:provider/provider.dart';
+import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -11,6 +13,8 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
+    final profile = Provider.of<ProfileProvider>(context).profile;
+
     return Scaffold(
       backgroundColor: AppTheme.white,
       body: SafeArea(
@@ -27,21 +31,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 32),
                     _buildSectionHeader(Icons.person_outline, 'Personal Information'),
                     const SizedBox(height: 16),
-                    _buildFormField('Full Name', 'Rohit Sharma', Icons.person_outline, isRequired: true),
+                    _buildFormField('Full Name', profile?.fullName ?? 'Not provided', Icons.person_outline, isRequired: true),
                     const SizedBox(height: 16),
-                    _buildFormField('Phone Number', '+91 98765 43210', Icons.phone_outlined, isRequired: true),
+                    _buildFormField('Phone Number', profile?.phoneNumber ?? 'Not provided', Icons.phone_outlined, isRequired: true),
                     const SizedBox(height: 16),
-                    _buildLockedFormField('Email Address', 'rohit.sharma@example.com', Icons.email_outlined),
+                    _buildLockedFormField('Email Address', profile?.email ?? 'Not provided', Icons.email_outlined),
                     const SizedBox(height: 16),
-                    _buildFormField('Date of Birth', '15/08/1992', Icons.calendar_today_outlined, isRequired: true, trailingIcon: Icons.calendar_today_outlined),
+                    _buildFormField('Date of Birth', profile?.dateOfBirth?.toIso8601String().split('T').first ?? 'Not provided', Icons.calendar_today_outlined, isRequired: true, trailingIcon: Icons.calendar_today_outlined),
                     const SizedBox(height: 32),
                     _buildSectionHeader(Icons.business_outlined, 'Company Information'),
                     const SizedBox(height: 16),
-                    _buildFormField('Business Name', 'Sharma Enterprises Pvt. Ltd.', Icons.business_center_outlined, isRequired: true),
+                    _buildFormField('Business Name', profile?.businessName ?? 'Not provided', Icons.business_center_outlined, isRequired: true),
                     const SizedBox(height: 16),
-                    _buildGSTINField(),
+                    _buildGSTINField(profile?.gstin ?? 'Not provided'),
                     const SizedBox(height: 16),
-                    _buildFormField('Business Type', 'Private Limited Company', Icons.business_outlined, isRequired: true, trailingIcon: Icons.keyboard_arrow_down),
+                    _buildFormField('Business Type', profile?.businessType ?? 'Not provided', Icons.business_outlined, isRequired: true, trailingIcon: Icons.keyboard_arrow_down),
                     const SizedBox(height: 24),
                     _buildBottomInfoBanner(),
                     const SizedBox(height: 32),
@@ -190,7 +194,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildGSTINField() {
+  Widget _buildGSTINField(String gstinValue) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -219,7 +223,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Text('27AABCS1234D1Z5', style: TextStyle(fontSize: 14, color: AppTheme.black)),
+                        Text(gstinValue, style: const TextStyle(fontSize: 14, color: AppTheme.black)),
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

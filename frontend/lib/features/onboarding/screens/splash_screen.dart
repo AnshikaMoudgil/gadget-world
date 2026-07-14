@@ -5,6 +5,7 @@ import 'package:gadget_store/core/widgets/logo_widget.dart';
 import 'package:gadget_store/features/onboarding/screens/onboarding_screen.dart';
 import 'package:gadget_store/features/auth/screens/login_screen.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
+import 'package:gadget_store/features/auth/services/session_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     final prefs = await SharedPreferences.getInstance();
     final bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
-    final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    final bool isLoggedIn = SessionService().hasSession;
 
     if (!hasSeenOnboarding) {
       Navigator.pushReplacement(
