@@ -31,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _lastError;
   Timer? _otpCooldownTimer;
   int _otpCooldownSeconds = 0;
+  StreamSubscription? _authSubscription;
 
   @override
   void initState() {
@@ -41,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       auth.addListener(_onAuthChange);
     });
     
-    GoogleAuthService.authSuccessStream.stream.listen((_) {
+    _authSubscription = GoogleAuthService.authSuccessStream.stream.listen((_) {
       if (mounted) _onSuccess();
     });
   }
@@ -62,6 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     _phoneController.dispose();
     _otpCooldownTimer?.cancel();
+    _authSubscription?.cancel();
     super.dispose();
   }
 

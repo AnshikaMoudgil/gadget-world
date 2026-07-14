@@ -33,6 +33,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _lastError;
   Timer? _otpCooldownTimer;
   int _otpCooldownSeconds = 0;
+  StreamSubscription? _authSubscription;
 
   @override
   void initState() {
@@ -41,7 +42,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _passwordController.addListener(() {
       _calculatePasswordStrength(_passwordController.text);
     });
-    GoogleAuthService.authSuccessStream.stream.listen((_) {
+    _authSubscription = GoogleAuthService.authSuccessStream.stream.listen((_) {
       if (mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen()));
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -69,6 +70,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _confirmPasswordController.dispose();
     _phoneLoginController.dispose();
     _otpCooldownTimer?.cancel();
+    _authSubscription?.cancel();
     super.dispose();
   }
 
