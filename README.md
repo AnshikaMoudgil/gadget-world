@@ -19,7 +19,15 @@ A B2B gadget wholesale marketplace built with Flutter (frontend) and Dart/Shelf 
 ```bash
 cd frontend
 flutter pub get
+
+# To run on desktop or mobile device
 flutter run
+
+# To run on web using the provided script (Windows)
+.\start.ps1
+
+# Or manually run on web
+flutter run -d chrome --web-port 3000
 ```
 
 ### Backend
