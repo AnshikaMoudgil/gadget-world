@@ -47,19 +47,17 @@ void main(List<String> args) async {
   final appRouter = AppRouter();
 
   // Configure a pipeline that logs requests and supports the Flutter web client.
-  final handler = Pipeline()
-      .addMiddleware(logRequests())
-      .addMiddleware((innerHandler) {
-        return (request) async {
-          final response = await innerHandler(request);
-          return response.change(headers: {
-            ...response.headers,
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type, Accept',
-          });
-        };
-      })
-      .addHandler(appRouter.router.call);
+  final handler =
+      Pipeline().addMiddleware(logRequests()).addMiddleware((innerHandler) {
+    return (request) async {
+      final response = await innerHandler(request);
+      return response.change(headers: {
+        ...response.headers,
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Accept',
+      });
+    };
+  }).addHandler(appRouter.router.call);
 
   final server = await io.serve(handler, ip, port);
   print('Server listening on port ${server.port}');

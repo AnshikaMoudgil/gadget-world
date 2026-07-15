@@ -47,7 +47,8 @@ class ProductModel {
       brandId: json['brand_id'] as String?,
       brandName: _nestedName(json['brands']) ?? json['brand_name'] as String?,
       categoryId: json['category_id'] as String?,
-      categoryName: _nestedName(json['categories']) ?? json['category_name'] as String?,
+      categoryName:
+          _nestedName(json['categories']) ?? json['category_name'] as String?,
       description: json['description'] as String?,
       aboutPoints: _strings(json['about_points']),
       images: _strings(json['images']),
@@ -84,9 +85,8 @@ class ProductModel {
       };
 }
 
-List<String> _strings(Object? value) => value is List
-    ? value.whereType<String>().toList()
-    : const [];
+List<String> _strings(Object? value) =>
+    value is List ? value.whereType<String>().toList() : const [];
 
 List<Map<String, dynamic>> _maps(Object? value) => value is List
     ? value.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList()

@@ -13,7 +13,8 @@ void main() async {
   }
 
   final client = SupabaseClient(supabaseUrl, serviceRoleKey);
-  final imageDir = Directory(r'C:\Users\ankus\.gemini\antigravity-ide\brain\0de3f2b7-5f12-422d-8b96-88a055a5f0bf');
+  final imageDir = Directory(
+      r'C:\Users\ankus\.gemini\antigravity-ide\brain\0de3f2b7-5f12-422d-8b96-88a055a5f0bf');
 
   final uploads = {
     'sony_alpha_a6400': 'cameras/sony-alpha-a6400/main.png',
@@ -30,9 +31,11 @@ void main() async {
     'dji_om6_gimbal': 'selfie-sticks-gimbles/dji-om-6/main.png',
     'mi_selfie_stick': 'selfie-sticks-gimbles/mi-selfie-stick-tripod/main.png',
     'sandisk_pendrive': 'memory-pen-drives/sandisk-extreme-pro-256gb/main.png',
-    'anker_lightning_cable': 'cables-connectors/anker-usb-c-to-lightning-cable/main.png',
+    'anker_lightning_cable':
+        'cables-connectors/anker-usb-c-to-lightning-cable/main.png',
     'anker_usbc_hub': 'cables-connectors/anker-7in1-usb-c-hub/main.png',
-    'apple_magsafe_charger': 'mobile-accessories/apple-magsafe-charger/main.png',
+    'apple_magsafe_charger':
+        'mobile-accessories/apple-magsafe-charger/main.png',
   };
 
   final files = imageDir.listSync().whereType<File>().toList();
@@ -45,9 +48,11 @@ void main() async {
     final destPath = entry.value;
 
     final file = files.cast<File?>().firstWhere(
-      (f) => f!.uri.pathSegments.last.startsWith(prefix) && f.uri.pathSegments.last.endsWith('.png'),
-      orElse: () => null,
-    );
+          (f) =>
+              f!.uri.pathSegments.last.startsWith(prefix) &&
+              f.uri.pathSegments.last.endsWith('.png'),
+          orElse: () => null,
+        );
 
     if (file == null) {
       print('[SKIP] No file found for prefix: $prefix');
@@ -56,10 +61,10 @@ void main() async {
 
     try {
       await client.storage.from('products').upload(
-        destPath,
-        file,
-        fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
-      );
+            destPath,
+            file,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
+          );
       print('[OK] Uploaded: $destPath');
       return true;
     } catch (e) {
