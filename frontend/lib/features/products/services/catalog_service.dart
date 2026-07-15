@@ -53,7 +53,7 @@ class CatalogService {
 
   Future<ProductModel> getProduct(String id) async {
     final response = await _get(
-      '/api/catalog/products/' + Uri.encodeComponent(id),
+      '/api/catalog/products/${Uri.encodeComponent(id)}',
     );
     return ProductModel.fromJson(
       Map<String, dynamic>.from(jsonDecode(response.body) as Map),
@@ -62,7 +62,7 @@ class CatalogService {
 
   Future<ProductModel> getProductBySlug(String slug) async {
     final response = await _get(
-      '/api/catalog/products/slug/' + Uri.encodeComponent(slug),
+      '/api/catalog/products/slug/${Uri.encodeComponent(slug)}',
     );
     return ProductModel.fromJson(
       Map<String, dynamic>.from(jsonDecode(response.body) as Map),
