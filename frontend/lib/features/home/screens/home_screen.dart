@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/core/widgets/logo_widget.dart';
+import 'package:gadget_store/core/widgets/product_card.dart';
 import 'package:gadget_store/features/products/screens/search_results_screen.dart';
 import 'package:gadget_store/features/products/screens/product_details_screen.dart';
 import 'package:gadget_store/features/products/screens/best_sellers_screen.dart';
@@ -21,7 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CatalogProvider>(context, listen: false).fetchCategories();
+      final provider = Provider.of<CatalogProvider>(context, listen: false);
+      provider.fetchCategories();
+      provider.fetchProducts();
     });
   }
 
@@ -321,118 +324,51 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHorizontalProductList() {
-    return SizedBox(
-      height: 240,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: 4,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProductDetailsScreen()),
+    return Consumer<CatalogProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoadingProducts) {
+          return const SizedBox(
+            height: 240,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final products = provider.products.take(6).toList();
+        if (products.isEmpty) {
+          return const SizedBox(
+            height: 120,
+            child: Center(child: Text('No products available.')),
+          );
+        }
+
+        return SizedBox(
+          height: 240,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return SizedBox(
+                width: 160,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: ProductCard.fromProduct(
+                    product: product,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductDetailsScreen(product: product),
+                      ),
+                    ),
+                    onAdd: () {},
+                  ),
+                ),
               );
             },
-            child: Container(
-              width: 160,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.greyBorder),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: AppTheme.greyBackground,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            'assets/images/laptop.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.black,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text(
-                            'Bestseller',
-                            style: TextStyle(
-                              color: AppTheme.white,
-                              fontSize: 8,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Positioned(
-                        top: 4,
-                        right: 4,
-                        child: Icon(
-                          Icons.favorite_border,
-                          size: 20,
-                          color: AppTheme.greyText,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Product Name Example Very Long',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'â‚¹999',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppTheme.black,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: AppTheme.white,
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

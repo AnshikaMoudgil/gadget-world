@@ -1,11 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_store/core/theme.dart';
+import 'package:provider/provider.dart';
 
-class ProductDetailsScreen extends StatelessWidget {
-  const ProductDetailsScreen({super.key});
+import 'package:gadget_store/core/theme.dart';
+import '../models/product_model.dart';
+import '../providers/catalog_provider.dart';
+
+class ProductDetailsScreen extends StatefulWidget {
+  final ProductModel product;
+
+  const ProductDetailsScreen({super.key, required this.product});
+
+  @override
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  final PageController _pageController = PageController();
+  late ProductModel _product;
+  int _selectedImageIndex = 0;
+  bool _isLoadingDetails = true;
+  String? _detailError;
+
+  @override
+  void initState() {
+    super.initState();
+    _product = widget.product;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadDetails());
+  }
+
+  Future<void> _loadDetails() async {
+    final result = await context.read<CatalogProvider>().fetchProductBySlug(
+      widget.product.slug,
+    );
+    if (!mounted) return;
+    setState(() {
+      _isLoadingDetails = false;
+      _detailError = result == null
+          ? context.read<CatalogProvider>().productError
+          : null;
+      if (result != null) {
+        _product = result;
+        _selectedImageIndex = 0;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final images = _product.images.isEmpty
+        ? const ['assets/images/phone.png']
+        : _product.images;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -21,516 +72,314 @@ class ProductDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Carousel
-            Container(
-              height: 300,
-              color: AppTheme.greyBackground,
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  Image.asset(
-                    'assets/images/phone.png',
-                    fit: BoxFit.contain,
-                    height: 250,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        4,
-                        (index) => Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: index == 0
-                                ? AppTheme.black
-                                : AppTheme.greyBorder,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Thumbnails
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: List.generate(
-                  4,
-                  (index) => Container(
-                    width: 60,
-                    height: 60,
-                    margin: const EdgeInsets.only(right: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: index == 0
-                            ? AppTheme.black
-                            : AppTheme.greyBorder,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                      color: AppTheme.greyBackground,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        'assets/images/phone.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            _Gallery(
+              images: images,
+              controller: _pageController,
+              selectedIndex: _selectedImageIndex,
+              onPageChanged: (index) =>
+                  setState(() => _selectedImageIndex = index),
+              onThumbnailSelected: (index) {
+                _pageController.animateToPage(
+                  index,
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOut,
+                );
+              },
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'boAt',
-                    style: TextStyle(
-                      color: Colors.blue,
+                  if (_isLoadingDetails)
+                    const LinearProgressIndicator(minHeight: 2),
+                  if (_detailError != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Some product details could not be loaded.',
+                      style: TextStyle(
+                        color: Colors.orange.shade800,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                  if (_product.brandName != null) ...[
+                    Text(
+                      _product.brandName!,
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (_product.categoryName != null)
+                      Text(
+                        _product.categoryName!,
+                        style: const TextStyle(color: AppTheme.greyText),
+                      ),
+                  ],
+                  const SizedBox(height: 8),
+                  Text(
+                    _product.name,
+                    style: const TextStyle(
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'boAt Airdopes 141 Pro\nTWS Earbuds',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Text(
-                        '4.5',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const Icon(Icons.star, size: 16, color: AppTheme.black),
-                      const SizedBox(width: 8),
                       Text(
-                        '(1,256 reviews)',
-                        style: TextStyle(
-                          color: AppTheme.greyText,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Text(
-                        'â‚¹1,299',
-                        style: TextStyle(
+                        'Rs ${_product.price.toStringAsFixed(2)}',
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'â‚¹2,499',
-                        style: TextStyle(
-                          decoration: TextDecoration.lineThrough,
-                          color: AppTheme.greyText,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        '48% OFF',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text(
-                          'In Stock',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Only 40 left!',
-                        style: TextStyle(
-                          color: Colors.orange,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.info_outline, color: Colors.blue, size: 16),
-                        SizedBox(width: 8),
+                      if (_product.mrp != null) ...[
+                        const SizedBox(width: 10),
                         Text(
-                          'Minimum order: 10 units',
-                          style: TextStyle(color: Colors.blue, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  RichText(
-                    text: const TextSpan(
-                      style: TextStyle(color: AppTheme.black),
-                      children: [
-                        TextSpan(
-                          text: 'Bulk pricing ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        TextSpan(
-                          text: '(per unit)',
-                          style: TextStyle(
+                          'Rs ${_product.mrp!.toStringAsFixed(2)}',
+                          style: const TextStyle(
                             color: AppTheme.greyText,
-                            fontSize: 12,
+                            decoration: TextDecoration.lineThrough,
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildBulkPricingTable(),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Select Variant',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('Color', style: TextStyle(fontSize: 12)),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _buildVariantChip('Active Black', Colors.black, true),
-                      _buildVariantChip(
-                        'Cool Blue',
-                        Colors.blue.shade900,
-                        false,
-                      ),
-                      _buildVariantChip('Pearl White', AppTheme.white, false),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Key Features',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(height: 12),
+                  _StockBadge(product: _product),
+                  if (_product.description?.isNotEmpty == true) ...[
+                    const SizedBox(height: 24),
+                    const _SectionTitle('Description'),
+                    const SizedBox(height: 8),
+                    Text(
+                      _product.description!,
+                      style: const TextStyle(
+                        color: AppTheme.greyText,
+                        height: 1.5,
                       ),
-                      Row(
-                        children: [
-                          const Text(
-                            'View all',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                    ),
+                  ],
+                  if (_product.aboutPoints.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    const _SectionTitle('Highlights'),
+                    const SizedBox(height: 8),
+                    ..._product.aboutPoints.map(
+                      (point) => Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(
+                              Icons.check_circle_outline,
+                              size: 18,
+                              color: Colors.green,
                             ),
-                          ),
-                          const Icon(Icons.arrow_forward_ios, size: 12),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildFeatureIcon(
-                        Icons.waves,
-                        '42dB Active\nNoise Cancellation',
-                      ),
-                      _buildFeatureIcon(
-                        Icons.battery_charging_full,
-                        'Up to 42H\nBattery Life',
-                      ),
-                      _buildFeatureIcon(
-                        Icons.water_drop_outlined,
-                        'IPX4\nWater Resistant',
-                      ),
-                      _buildFeatureIcon(
-                        Icons.bluetooth,
-                        'Bluetooth 5.3\nSeamless Connect',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(color: AppTheme.greyBorder),
-                  const ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      'Specifications',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    trailing: Icon(
-                      Icons.keyboard_arrow_down,
-                      color: AppTheme.black,
-                    ),
-                  ),
-                  _buildSpecRow('Driver Size', '10mm'),
-                  _buildSpecRow('Bluetooth Version', '5.3'),
-                  _buildSpecRow('Playback Time', 'Up to 42 Hours (with case)'),
-                  _buildSpecRow('Charging Time', 'Up to 1.5 Hours'),
-                  _buildSpecRow('Water Resistance', 'IPX4'),
-                  _buildSpecRow('Mic', 'ENxâ„¢ Technology'),
-                  const SizedBox(height: 24),
-                  RichText(
-                    text: const TextSpan(
-                      style: TextStyle(color: AppTheme.black),
-                      children: [
-                        TextSpan(
-                          text: 'Quantity ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                            const SizedBox(width: 8),
+                            Expanded(child: Text(point)),
+                          ],
                         ),
-                        TextSpan(
-                          text: '(Minimum 10 units)',
-                          style: TextStyle(
-                            color: AppTheme.greyText,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: 120,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.greyBorder),
-                      borderRadius: BorderRadius.circular(8),
+                  ],
+                  if (_product.specs.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    const _SectionTitle('Specifications'),
+                    const SizedBox(height: 8),
+                    ..._product.specs.map(
+                      (spec) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                spec.key,
+                                style: const TextStyle(
+                                  color: AppTheme.greyText,
+                                ),
+                              ),
+                            ),
+                            Expanded(child: Text(spec.value)),
+                          ],
+                        ),
+                      ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove, size: 16),
-                          onPressed: () {},
+                  ],
+                  if (_product.features.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    const _SectionTitle('Features'),
+                    const SizedBox(height: 8),
+                    ..._product.features.map(
+                      (feature) => ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.green,
                         ),
-                        const Text(
-                          '10',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add, size: 16),
-                          onPressed: () {},
-                        ),
-                      ],
+                        title: Text(feature.title),
+                        subtitle: feature.description.isEmpty
+                            ? null
+                            : Text(feature.description),
+                      ),
                     ),
-                  ),
+                  ],
+                  if (_product.variants.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    const _SectionTitle('Available variants'),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _product.variants
+                          .map((variant) => Chip(label: Text(variant.name)))
+                          .toList(),
+                    ),
+                  ],
                   const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton.icon(
+                      onPressed: _product.stockQuantity > 0 ? () {} : null,
+                      icon: const Icon(Icons.shopping_cart_outlined),
+                      label: const Text('Add to cart'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.black,
+                        foregroundColor: AppTheme.white,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.white,
-          border: Border(top: BorderSide(color: AppTheme.greyBorder)),
-        ),
-        child: SafeArea(
-          child: Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.favorite_border,
-                    color: AppTheme.black,
-                  ),
-                  label: const Text(
-                    'Add to Wishlist',
-                    style: TextStyle(color: AppTheme.black),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: AppTheme.greyBorder),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.shopping_cart_outlined,
-                    color: AppTheme.white,
-                  ),
-                  label: const Text('Add to Cart'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.black,
-                    foregroundColor: AppTheme.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
+}
 
-  Widget _buildBulkPricingTable() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: AppTheme.greyBorder),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.greyBackground,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(8),
-              ),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Quantity (Units)',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'Price (â‚¹/Unit)',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          _buildPricingRow('10 - 49', 'â‚¹1,299'),
-          const Divider(height: 1, color: AppTheme.greyBorder),
-          _buildPricingRow('50 - 199', 'â‚¹1,199'),
-          const Divider(height: 1, color: AppTheme.greyBorder),
-          _buildPricingRow('200 - 499', 'â‚¹1,099'),
-          const Divider(height: 1, color: AppTheme.greyBorder),
-          _buildPricingRow('500+', 'â‚¹999'),
-        ],
-      ),
-    );
-  }
+class _Gallery extends StatelessWidget {
+  final List<String> images;
+  final PageController controller;
+  final int selectedIndex;
+  final ValueChanged<int> onPageChanged;
+  final ValueChanged<int> onThumbnailSelected;
 
-  Widget _buildPricingRow(String qty, String price) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(qty, style: const TextStyle(fontSize: 12)),
-          Text(price, style: const TextStyle(fontSize: 12)),
-        ],
-      ),
-    );
-  }
+  const _Gallery({
+    required this.images,
+    required this.controller,
+    required this.selectedIndex,
+    required this.onPageChanged,
+    required this.onThumbnailSelected,
+  });
 
-  Widget _buildVariantChip(String label, Color color, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        border: Border.all(
-          color: isSelected ? AppTheme.black : AppTheme.greyBorder,
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 16,
-            height: 16,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.greyBorder),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeatureIcon(IconData icon, String label) {
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: AppTheme.black),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 8),
+        SizedBox(
+          height: 300,
+          child: PageView.builder(
+            controller: controller,
+            itemCount: images.length,
+            onPageChanged: onPageChanged,
+            itemBuilder: (context, index) => Container(
+              color: AppTheme.greyBackground,
+              padding: const EdgeInsets.all(24),
+              child: _ProductImage(imageUrl: images[index]),
+            ),
+          ),
         ),
+        if (images.length > 1) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 68,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              itemCount: images.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
+              itemBuilder: (context, index) => InkWell(
+                onTap: () => onThumbnailSelected(index),
+                borderRadius: BorderRadius.circular(6),
+                child: Container(
+                  width: 68,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: selectedIndex == index
+                          ? AppTheme.black
+                          : Colors.transparent,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: _ProductImage(imageUrl: images[index]),
+                ),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
+}
 
-  Widget _buildSpecRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              label,
-              style: const TextStyle(color: AppTheme.greyText, fontSize: 12),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-          ),
-        ],
+class _SectionTitle extends StatelessWidget {
+  final String title;
+
+  const _SectionTitle(this.title);
+
+  @override
+  Widget build(BuildContext context) => Text(
+    title,
+    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+  );
+}
+
+class _StockBadge extends StatelessWidget {
+  final ProductModel product;
+
+  const _StockBadge({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final inStock = product.stockQuantity > 0;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: (inStock ? Colors.green : Colors.red).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        inStock ? '${product.stockQuantity} units available' : 'Out of stock',
+        style: TextStyle(
+          color: inStock ? Colors.green : Colors.red,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
+  }
+}
+
+class _ProductImage extends StatelessWidget {
+  final String imageUrl;
+
+  const _ProductImage({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) => const Icon(Icons.image_outlined),
+      );
+    }
+    return Image.asset(imageUrl, fit: BoxFit.contain);
   }
 }
