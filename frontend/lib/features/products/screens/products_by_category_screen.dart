@@ -121,24 +121,14 @@ class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
                   itemCount: products.length,
                   itemBuilder: (context, index) {
                     final product = products[index];
-                    return ProductCard(
-                      imageUrl: product.images.isNotEmpty
-                          ? product.images.first
-                          : 'assets/images/laptop.png', // Fallback image
-                      title: product.name,
-                      price: '\$${product.price}', // Adjust currency as needed
-                      moq: 'MOQ: 1', // You can add MOQ to DB later
-                      stockStatus: product.stockQuantity > 0
-                          ? 'In Stock'
-                          : 'Out of Stock',
-                      isLowStock:
-                          product.stockQuantity > 0 &&
-                          product.stockQuantity < 5,
+                    return ProductCard.fromProduct(
+                      product: product,
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const ProductDetailsScreen(),
+                            builder: (_) =>
+                                ProductDetailsScreen(product: product),
                           ),
                         );
                       },
