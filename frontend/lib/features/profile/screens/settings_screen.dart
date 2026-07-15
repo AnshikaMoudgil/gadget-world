@@ -68,6 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         });
         setModalState(() {});
         Future.delayed(const Duration(milliseconds: 200), () {
+          if (!mounted) return;
           Navigator.pop(context);
         });
       },
@@ -214,7 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       decoration: BoxDecoration(
                         color: AppTheme.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+                        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
                       ),
                       child: Column(
                         children: [
@@ -225,7 +226,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             onTap: _showLanguageBottomSheet,
                           ),
 
-                          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5)),
+                          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5)),
                           _buildPreferenceItem(
                             icon: Icons.info_outline,
                             title: 'About App',
@@ -242,7 +243,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onPressed: _showLogoutConfirmation,
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.red,
-                          side: BorderSide(color: AppTheme.greyBorder.withOpacity(0.5)),
+                          side: BorderSide(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
@@ -296,7 +297,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       decoration: BoxDecoration(
         color: AppTheme.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.greyBackground.withOpacity(0.5),
+              color: AppTheme.greyBackground.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, size: 20, color: AppTheme.black),
@@ -324,7 +325,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppTheme.black,
+            activeThumbColor: AppTheme.black,
             activeTrackColor: AppTheme.greyBorder, // The mockup shows black thumb, greyish track for active
           ),
         ],

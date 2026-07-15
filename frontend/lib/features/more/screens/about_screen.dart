@@ -110,17 +110,17 @@ class AboutScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           _buildInfoRow(Icons.inventory_2_outlined, 'App Version', '1.2.0 (Build 45)'),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 64),
+          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 64),
           _buildInfoRow(Icons.email_outlined, 'Email', 'support@gadgetworld.com'),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 64),
+          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 64),
           _buildInfoRow(Icons.phone_outlined, 'Phone', '+91 98765 43210'),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 64),
+          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 64),
           _buildInfoRow(Icons.language_outlined, 'Website', 'www.gadgetworld.com', hasTrailing: true),
         ],
       ),
@@ -134,7 +134,7 @@ class AboutScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: AppTheme.greyBackground.withOpacity(0.5), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: AppTheme.greyBackground.withValues(alpha: 0.5), shape: BoxShape.circle),
             child: Icon(icon, color: AppTheme.black, size: 20),
           ),
           const SizedBox(width: 16),
@@ -180,7 +180,7 @@ class AboutScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.greyBackground.withOpacity(0.3),
+            color: AppTheme.greyBackground.withValues(alpha: 0.3),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: AppTheme.black, size: 24),
@@ -196,14 +196,14 @@ class AboutScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: AppTheme.greyBackground.withOpacity(0.5), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: AppTheme.greyBackground.withValues(alpha: 0.5), shape: BoxShape.circle),
             child: const Icon(Icons.shield_outlined, color: AppTheme.black, size: 20),
           ),
           const SizedBox(width: 16),

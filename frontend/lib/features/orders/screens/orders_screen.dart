@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/home/screens/home_screen.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
 
@@ -309,7 +308,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.greyBackground.withOpacity(0.5),
+        color: AppTheme.greyBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -345,7 +344,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+            border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(

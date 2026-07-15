@@ -7,14 +7,14 @@ class OTPInput extends StatefulWidget {
   final VoidCallback? onCompleted;
 
   const OTPInput({
-    Key? key,
+    super.key,
     this.length = 6,
     required this.onChanged,
     this.onCompleted,
-  }) : super(key: key);
+  });
 
   @override
-  _OTPInputState createState() => _OTPInputState();
+  State<OTPInput> createState() => _OTPInputState();
 }
 
 class _OTPInputState extends State<OTPInput> {

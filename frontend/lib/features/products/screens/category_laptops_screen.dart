@@ -55,7 +55,7 @@ class CategoryLaptopsScreen extends StatelessWidget {
                   Positioned(
                     right: -20,
                     bottom: -20,
-                    child: Icon(Icons.laptop_mac, size: 120, color: AppTheme.white.withOpacity(0.5)),
+                    child: Icon(Icons.laptop_mac, size: 120, color: AppTheme.white.withValues(alpha: 0.5)),
                   ),
                 ],
               ),

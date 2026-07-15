@@ -79,7 +79,7 @@ class SearchResultsScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Recent Searches', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Clear All', style: TextStyle(fontSize: 12, decoration: TextDecoration.underline, color: AppTheme.greyText.withOpacity(0.8))),
+                  Text('Clear All', style: TextStyle(fontSize: 12, decoration: TextDecoration.underline, color: AppTheme.greyText.withValues(alpha: 0.8))),
                 ],
               ),
             ),

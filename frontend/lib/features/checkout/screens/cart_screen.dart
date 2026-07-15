@@ -17,9 +17,9 @@ class CartScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
-                Icon(Icons.verified_user_outlined, size: 16, color: AppTheme.black.withOpacity(0.7)),
+                Icon(Icons.verified_user_outlined, size: 16, color: AppTheme.black.withValues(alpha: 0.7)),
                 const SizedBox(width: 4),
-                Text('100% Secure', style: TextStyle(fontSize: 12, color: AppTheme.black.withOpacity(0.7))),
+                Text('100% Secure', style: TextStyle(fontSize: 12, color: AppTheme.black.withValues(alpha: 0.7))),
               ],
             ),
           )
@@ -42,7 +42,7 @@ class CartScreen extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: Colors.green.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -50,7 +50,7 @@ class CartScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.2),
+                      color: Colors.green.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.local_shipping_outlined, color: Colors.green, size: 20),
@@ -157,7 +157,7 @@ class CartScreen extends StatelessWidget {
             const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(16),
-              color: AppTheme.greyBackground.withOpacity(0.5),
+              color: AppTheme.greyBackground.withValues(alpha: 0.5),
               child: Column(
                 children: [
                   _buildPriceRow('Subtotal (16 items)', 'â‚¹1,29,385'),
@@ -274,7 +274,7 @@ class CartScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: isWarning ? Colors.orange.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+                        color: isWarning ? Colors.orange.withValues(alpha: 0.1) : Colors.green.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -352,7 +352,7 @@ class CartScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
+                color: Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(

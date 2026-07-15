@@ -28,6 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final prefs = await SharedPreferences.getInstance();
     final bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
     final bool isLoggedIn = SessionService().hasSession;
+    if (!mounted) return;
 
     if (!hasSeenOnboarding) {
       Navigator.pushReplacement(

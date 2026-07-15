@@ -158,7 +158,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.black : AppTheme.white,
-          border: Border.all(color: isSelected ? AppTheme.black : AppTheme.greyBorder.withOpacity(0.5)),
+          border: Border.all(color: isSelected ? AppTheme.black : AppTheme.greyBorder.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -184,7 +184,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextField(

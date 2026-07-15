@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/core/widgets/logo_widget.dart';
 import 'package:gadget_store/features/products/screens/search_results_screen.dart';
-import 'package:gadget_store/features/products/screens/category_laptops_screen.dart';
-import 'package:gadget_store/features/products/screens/category_mobiles_screen.dart';
 import 'package:gadget_store/features/products/screens/product_details_screen.dart';
 import 'package:gadget_store/features/products/screens/best_sellers_screen.dart';
 import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart';

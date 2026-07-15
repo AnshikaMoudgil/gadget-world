@@ -27,7 +27,7 @@ class CatalogController {
     });
 
     if (result.isError) {
-      return _error(result.statusCode, result.errorMessage ?? 'Failed to fetch categories');
+      return _error(result.statusCode, result.message ?? 'Failed to fetch categories');
     }
 
     final categories = result.data!.map((e) => CategoryModel.fromJson(e)).toList();
@@ -49,7 +49,7 @@ class CatalogController {
     });
 
     if (result.isError) {
-      return _error(result.statusCode, result.errorMessage ?? 'Failed to fetch products');
+      return _error(result.statusCode, result.message ?? 'Failed to fetch products');
     }
 
     final products = result.data!.map((e) => ProductModel.fromJson(e)).toList();

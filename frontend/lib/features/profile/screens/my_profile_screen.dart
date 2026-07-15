@@ -79,7 +79,7 @@ class MyProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -100,8 +100,8 @@ class MyProfileScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppTheme.white,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.greyBorder.withOpacity(0.3)),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
+                    border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.3)),
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)],
                   ),
                   child: const Icon(Icons.camera_alt_outlined, size: 12, color: AppTheme.black),
                 ),
@@ -157,7 +157,7 @@ class MyProfileScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -192,7 +192,7 @@ class MyProfileScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: AppTheme.greyBackground.withOpacity(0.5), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: AppTheme.greyBackground.withValues(alpha: 0.5), shape: BoxShape.circle),
             child: Icon(icon, size: 16, color: AppTheme.black),
           ),
           const SizedBox(width: 16),
@@ -207,7 +207,7 @@ class MyProfileScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.greyBackground.withOpacity(0.3),
+        color: AppTheme.greyBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

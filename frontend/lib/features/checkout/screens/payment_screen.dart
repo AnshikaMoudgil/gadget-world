@@ -522,7 +522,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                     height: 140,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.green.withOpacity(0.2), width: 2),
+                      border: Border.all(color: Colors.green.withValues(alpha: 0.2), width: 2),
                     ),
                   );
                 },
@@ -635,7 +635,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
       child: Container(
         width: 2,
         height: 32,
-        color: isCompleted ? Colors.green.withOpacity(0.3) : AppTheme.greyBorder.withOpacity(0.5),
+        color: isCompleted ? Colors.green.withValues(alpha: 0.3) : AppTheme.greyBorder.withValues(alpha: 0.5),
       ),
     );
   }

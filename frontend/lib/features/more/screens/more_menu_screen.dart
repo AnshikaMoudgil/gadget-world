@@ -69,7 +69,7 @@ class MoreMenuScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -77,17 +77,17 @@ class MoreMenuScreen extends StatelessWidget {
           _buildMenuItem(Icons.info_outline, 'About', onTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen()));
           }),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 56),
+          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 56),
           _buildMenuItem(Icons.support_agent_outlined, 'Contact Us', onTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactUsScreen()));
           }),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 56),
+          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 56),
           _buildMenuItem(Icons.shield_outlined, 'Privacy Policy', onTap: () {}),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 56),
+          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 56),
           _buildMenuItem(Icons.description_outlined, 'Terms & Conditions', onTap: () {}),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 56),
+          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 56),
           _buildMenuItem(Icons.autorenew_outlined, 'Refund Policy', onTap: () {}),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 56),
+          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 56),
           _buildMenuItem(
             Icons.logout_outlined,
             'Logout',
@@ -118,7 +118,7 @@ class MoreMenuScreen extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: AppTheme.greyBackground.withOpacity(0.5), shape: BoxShape.circle),
+              decoration: BoxDecoration(color: AppTheme.greyBackground.withValues(alpha: 0.5), shape: BoxShape.circle),
               child: Icon(icon, color: AppTheme.black, size: 20),
             ),
             const SizedBox(width: 16),

@@ -227,7 +227,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
       decoration: BoxDecoration(
         color: AppTheme.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,7 +237,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
             flex: 5,
             child: Container(
               decoration: BoxDecoration(
-                color: AppTheme.greyBackground.withOpacity(0.5),
+                color: AppTheme.greyBackground.withValues(alpha: 0.5),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: Stack(
@@ -336,7 +336,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   Container(
                     width: 120,
                     height: 120,
-                    decoration: BoxDecoration(color: AppTheme.greyBackground.withOpacity(0.5), shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: AppTheme.greyBackground.withValues(alpha: 0.5), shape: BoxShape.circle),
                   ),
                   const Icon(Icons.favorite_border, size: 64, color: AppTheme.greyText),
                 ],

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
@@ -20,7 +19,7 @@ Future<void> main() async {
   // Initialize Supabase
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL'] ?? 'https://xyzcompany.supabase.co',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? 'public-anon-key',
+    publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? 'public-anon-key',
   );
 
   // Initialize Google Sign In globally (handles the stream on Web)

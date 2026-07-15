@@ -261,7 +261,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.greyBackground.withOpacity(0.5),
+        color: AppTheme.greyBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -334,7 +334,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.greyBackground.withOpacity(0.5),
+                    color: AppTheme.greyBackground.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.copy_outlined, size: 20, color: AppTheme.black),

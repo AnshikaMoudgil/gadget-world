@@ -87,8 +87,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _loginWithGoogle() async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final success = await auth.signInWithGoogle();
-    if (success && mounted) _onSuccess();
-    else if (!success && auth.errorMessage != null && mounted) _showError(auth.errorMessage!);
+    if (success && mounted) {
+      _onSuccess();
+    } else if (!success && auth.errorMessage != null && mounted) {
+      _showError(auth.errorMessage!);
+    }
   }
 
   Future<void> _sendOtp() async {
@@ -113,8 +116,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final success = await auth.verifyOTP(_phoneController.text, _currentOtp);
-    if (success && mounted) _onSuccess();
-    else if (!success && auth.errorMessage != null && mounted) _showError(auth.errorMessage!);
+    if (success && mounted) {
+      _onSuccess();
+    } else if (!success && auth.errorMessage != null && mounted) {
+      _showError(auth.errorMessage!);
+    }
   }
 
   @override
@@ -164,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Expanded(child: Divider(color: AppTheme.greyBorder)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('or continue with mobile', style: TextStyle(color: AppTheme.greyText.withOpacity(0.5))),
+                    child: Text('or continue with mobile', style: TextStyle(color: AppTheme.greyText.withValues(alpha: 0.5))),
                   ),
                   const Expanded(child: Divider(color: AppTheme.greyBorder)),
                 ],

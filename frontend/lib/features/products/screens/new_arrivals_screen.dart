@@ -184,7 +184,7 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> with SingleTicker
                 decoration: BoxDecoration(
                   color: AppTheme.greyBackground,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+                  border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
                 ),
                 padding: const EdgeInsets.all(12),
                 child: Column(
