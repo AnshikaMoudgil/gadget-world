@@ -19,19 +19,7 @@ class ProfileService {
     }
   }
 
-  Future<Profile> createProfile(Profile profile) async {
-    try {
-      final data = await _supabase
-          .from('profiles')
-          .insert(profile.toJson())
-          .select()
-          .single();
-      
-      return Profile.fromJson(data);
-    } catch (e) {
-      throw Exception('Failed to create profile: $e');
-    }
-  }
+
 
   Future<Profile> updateProfile(Profile profile) async {
     try {

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
 import 'package:gadget_store/features/auth/screens/login_screen.dart'; // To navigate on logout
-import 'package:gadget_store/features/auth/screens/change_password_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -139,8 +140,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Navigate to Login screen and clear stack
+                      onPressed: () async {
+                        // Sign out from Supabase first, then navigate
+                        await Provider.of<AuthProvider>(context, listen: false).signOut();
+                        if (!context.mounted) return;
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(builder: (context) => const LoginScreen()),
                           (Route<dynamic> route) => false,
@@ -221,15 +224,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             trailingText: '$_selectedLanguage  >',
                             onTap: _showLanguageBottomSheet,
                           ),
-                          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5)),
-                          _buildPreferenceItem(
-                            icon: Icons.lock_outline,
-                            title: 'Change Password',
-                            trailingText: '>',
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen()));
-                            },
-                          ),
+
                           Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5)),
                           _buildPreferenceItem(
                             icon: Icons.info_outline,

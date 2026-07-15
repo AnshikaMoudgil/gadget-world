@@ -90,7 +90,7 @@ class _AuthGuardState extends State<AuthGuard> {
       // We check if current route is not login/signup/splash to avoid looping
       bool isPublicRoute = false;
       Navigator.popUntil(context, (route) {
-        if (route.settings.name == '/login' || route.settings.name == '/signup') {
+        if (route.settings.name == '/login') {
           isPublicRoute = true;
         }
         return true; 
