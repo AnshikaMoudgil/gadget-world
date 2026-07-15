@@ -19,7 +19,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _phoneController = TextEditingController(text: '+91 ');
+  final TextEditingController _phoneController = TextEditingController(
+    text: '+91 ',
+  );
 
   bool _isOtpSent = false;
   String _currentOtp = '';
@@ -36,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _authProvider = Provider.of<AuthProvider>(context, listen: false);
       _authProvider!.addListener(_onAuthChange);
     });
-    
+
     _authSubscription = GoogleAuthService.authSuccessStream.stream.listen((_) {
       if (mounted) _onSuccess();
     });
@@ -77,11 +79,16 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 
   void _onSuccess() {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const MainScreen()),
+    );
   }
 
   Future<void> _loginWithGoogle() async {
@@ -142,15 +149,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 text: const TextSpan(
                   style: TextStyle(fontSize: 20, color: AppTheme.black),
                   children: [
-                    TextSpan(text: 'Gadget ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: 'Store', style: TextStyle(fontWeight: FontWeight.w300)),
+                    TextSpan(
+                      text: 'Gadget ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: 'Store',
+                      style: TextStyle(fontWeight: FontWeight.w300),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 40),
               const Text(
                 'Welcome',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.black),
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
               ),
               const SizedBox(height: 8),
               const Text(
@@ -159,18 +176,20 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 40),
 
-              GoogleButton(
-                isLoading: isLoading,
-                onPressed: _loginWithGoogle,
-              ),
-              
+              GoogleButton(isLoading: isLoading, onPressed: _loginWithGoogle),
+
               const SizedBox(height: 24),
               Row(
                 children: [
                   const Expanded(child: Divider(color: AppTheme.greyBorder)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('or continue with mobile', style: TextStyle(color: AppTheme.greyText.withValues(alpha: 0.5))),
+                    child: Text(
+                      'or continue with mobile',
+                      style: TextStyle(
+                        color: AppTheme.greyText.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ),
                   const Expanded(child: Divider(color: AppTheme.greyBorder)),
                 ],
@@ -191,10 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: _sendOtp,
                 ),
               ] else ...[
-                OTPInput(
-                  length: 6,
-                  onChanged: (val) => _currentOtp = val,
-                ),
+                OTPInput(length: 6, onChanged: (val) => _currentOtp = val),
                 const SizedBox(height: 24),
                 LoadingButton(
                   text: 'Verify OTP',
@@ -203,12 +219,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 if (_otpCooldownSeconds > 0)
-                  Text('Resend OTP in $_otpCooldownSeconds seconds', style: const TextStyle(fontSize: 13, color: AppTheme.greyText))
+                  Text(
+                    'Resend OTP in $_otpCooldownSeconds seconds',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.greyText,
+                    ),
+                  )
                 else
                   TextButton(
                     onPressed: _sendOtp,
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                    child: const Text('Resend OTP', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.black, decoration: TextDecoration.underline)),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      'Resend OTP',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.black,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
               ],
               const SizedBox(height: 40),

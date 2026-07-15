@@ -11,18 +11,31 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Cart (3)', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Your Cart (3)',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
-                Icon(Icons.verified_user_outlined, size: 16, color: AppTheme.black.withValues(alpha: 0.7)),
+                Icon(
+                  Icons.verified_user_outlined,
+                  size: 16,
+                  color: AppTheme.black.withValues(alpha: 0.7),
+                ),
                 const SizedBox(width: 4),
-                Text('100% Secure', style: TextStyle(fontSize: 12, color: AppTheme.black.withValues(alpha: 0.7))),
+                Text(
+                  '100% Secure',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.black.withValues(alpha: 0.7),
+                  ),
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -33,7 +46,10 @@ class CartScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Review your items and proceed to checkout', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                child: Text(
+                  'Review your items and proceed to checkout',
+                  style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -53,7 +69,11 @@ class CartScreen extends StatelessWidget {
                       color: Colors.green.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.local_shipping_outlined, color: Colors.green, size: 20),
+                    child: const Icon(
+                      Icons.local_shipping_outlined,
+                      color: Colors.green,
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -62,10 +82,16 @@ class CartScreen extends StatelessWidget {
                       children: [
                         RichText(
                           text: const TextSpan(
-                            style: TextStyle(color: AppTheme.black, fontSize: 12),
+                            style: TextStyle(
+                              color: AppTheme.black,
+                              fontSize: 12,
+                            ),
                             children: [
                               TextSpan(text: 'You\'re '),
-                              TextSpan(text: 'â‚¹5,000 ', style: TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                text: 'â‚¹5,000 ',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                               TextSpan(text: 'away from FREE shipping!'),
                             ],
                           ),
@@ -81,10 +107,22 @@ class CartScreen extends StatelessWidget {
                         const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('â‚¹0', style: TextStyle(fontSize: 10, color: AppTheme.greyText)),
-                            Text('â‚¹5,000', style: TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                            Text(
+                              'â‚¹0',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.greyText,
+                              ),
+                            ),
+                            Text(
+                              'â‚¹5,000',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.greyText,
+                              ),
+                            ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -111,7 +149,8 @@ class CartScreen extends StatelessWidget {
               moq: '2 units',
               stockStatus: 'Only 6 left',
               isWarning: true,
-              errorMessage: 'Minimum order is 2 units. Add 1 more unit to proceed.',
+              errorMessage:
+                  'Minimum order is 2 units. Add 1 more unit to proceed.',
             ),
             _buildCartItem(
               title: 'Mi 20000mAh Power Bank 3i',
@@ -122,34 +161,60 @@ class CartScreen extends StatelessWidget {
               moq: '5 units',
               stockStatus: 'Only 15 left',
               isWarning: true,
-              warningMessage: 'Stock updated: Only 15 left (was 25 when added to cart)',
+              warningMessage:
+                  'Stock updated: Only 15 left (was 25 when added to cart)',
             ),
             const SizedBox(height: 16),
             GestureDetector(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const ApplyCouponScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ApplyCouponScreen()),
+                );
               },
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   border: Border.all(color: AppTheme.greyBorder),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.local_offer_outlined, color: AppTheme.black),
+                    const Icon(
+                      Icons.local_offer_outlined,
+                      color: AppTheme.black,
+                    ),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Have a coupon code?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                          Text('Apply code to get instant discount', style: TextStyle(color: AppTheme.greyText, fontSize: 10)),
+                          Text(
+                            'Have a coupon code?',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            'Apply code to get instant discount',
+                            style: TextStyle(
+                              color: AppTheme.greyText,
+                              fontSize: 10,
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios, color: AppTheme.black, size: 16),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      color: AppTheme.black,
+                      size: 16,
+                    ),
                   ],
                 ),
               ),
@@ -169,9 +234,16 @@ class CartScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Text('Shipping Estimate', style: TextStyle(fontSize: 12)),
+                          const Text(
+                            'Shipping Estimate',
+                            style: TextStyle(fontSize: 12),
+                          ),
                           const SizedBox(width: 4),
-                          Icon(Icons.info_outline, size: 12, color: AppTheme.greyText),
+                          Icon(
+                            Icons.info_outline,
+                            size: 12,
+                            color: AppTheme.greyText,
+                          ),
                         ],
                       ),
                       const Text('â‚¹299', style: TextStyle(fontSize: 12)),
@@ -187,19 +259,42 @@ class CartScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Total', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(
+                            'Total',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                           SizedBox(height: 2),
-                          Text('All prices are exclusive of GST', style: TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                          Text(
+                            'All prices are exclusive of GST',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: AppTheme.greyText,
+                            ),
+                          ),
                         ],
                       ),
-                      Text('â‚¹1,24,684', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                      Text(
+                        'â‚¹1,24,684',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
                   PrimaryButton(
                     text: 'Proceed to Checkout',
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CheckoutScreen(),
+                        ),
+                      );
                     },
                   ),
                   const SizedBox(height: 16),
@@ -247,7 +342,10 @@ class CartScreen extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.asset('assets/images/phone.png', fit: BoxFit.cover),
+                  child: Image.asset(
+                    'assets/images/phone.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -262,19 +360,37 @@ class CartScreen extends StatelessWidget {
                         Expanded(
                           child: Text(
                             title,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                        const Icon(Icons.close, size: 16, color: AppTheme.greyText),
+                        const Icon(
+                          Icons.close,
+                          size: 16,
+                          color: AppTheme.greyText,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text('Color: $color', style: const TextStyle(color: AppTheme.greyText, fontSize: 10)),
+                    Text(
+                      'Color: $color',
+                      style: const TextStyle(
+                        color: AppTheme.greyText,
+                        fontSize: 10,
+                      ),
+                    ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: isWarning ? Colors.orange.withValues(alpha: 0.1) : Colors.green.withValues(alpha: 0.1),
+                        color: isWarning
+                            ? Colors.orange.withValues(alpha: 0.1)
+                            : Colors.green.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -291,12 +407,18 @@ class CartScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: AppTheme.greyBackground,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text('MOQ: $moq', style: const TextStyle(fontSize: 8)),
+                          child: Text(
+                            'MOQ: $moq',
+                            style: const TextStyle(fontSize: 8),
+                          ),
                         ),
                         Container(
                           width: 80,
@@ -309,7 +431,13 @@ class CartScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Icon(Icons.remove, size: 12),
-                              Text(qty, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                              Text(
+                                qty,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
                               const Icon(Icons.add, size: 12),
                             ],
                           ),
@@ -325,9 +453,18 @@ class CartScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(
+                price,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
               const SizedBox(width: 8),
-              Text(totalPrice, style: const TextStyle(color: AppTheme.greyText, fontSize: 10)),
+              Text(
+                totalPrice,
+                style: const TextStyle(color: AppTheme.greyText, fontSize: 10),
+              ),
             ],
           ),
           if (errorMessage != null) ...[
@@ -340,9 +477,21 @@ class CartScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.error_outline, color: AppTheme.error, size: 14),
+                  const Icon(
+                    Icons.error_outline,
+                    color: AppTheme.error,
+                    size: 14,
+                  ),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(errorMessage, style: const TextStyle(color: AppTheme.error, fontSize: 10))),
+                  Expanded(
+                    child: Text(
+                      errorMessage,
+                      style: const TextStyle(
+                        color: AppTheme.error,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -357,25 +506,55 @@ class CartScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, color: Colors.orange, size: 14),
+                  const Icon(
+                    Icons.info_outline,
+                    color: Colors.orange,
+                    size: 14,
+                  ),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(warningMessage, style: const TextStyle(color: Colors.orange, fontSize: 10))),
-                  const Text('View Details', style: TextStyle(color: Colors.orange, fontSize: 10, decoration: TextDecoration.underline)),
+                  Expanded(
+                    child: Text(
+                      warningMessage,
+                      style: const TextStyle(
+                        color: Colors.orange,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    'View Details',
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontSize: 10,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ],
               ),
             ),
-          ]
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildPriceRow(String label, String value, {Color color = AppTheme.black}) {
+  Widget _buildPriceRow(
+    String label,
+    String value, {
+    Color color = AppTheme.black,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: const TextStyle(fontSize: 12)),
-        Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: color)),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            color: color,
+          ),
+        ),
       ],
     );
   }

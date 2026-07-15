@@ -70,21 +70,42 @@ class _WishlistScreenState extends State<WishlistScreen> {
               Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(color: AppTheme.greyBorder, borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(
+                  color: AppTheme.greyBorder,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
               const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: Colors.red.shade50, shape: BoxShape.circle),
-                child: const Icon(Icons.delete_outline, color: Colors.red, size: 28),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.red,
+                  size: 28,
+                ),
               ),
               const SizedBox(height: 16),
-              const Text('Remove Item?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+              const Text(
+                'Remove Item?',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
+              ),
               const SizedBox(height: 8),
               const Text(
                 'Are you sure you want to remove this item\nfrom your wishlist?',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.4),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.greyText,
+                  height: 1.4,
+                ),
               ),
               const SizedBox(height: 32),
               Row(
@@ -95,10 +116,18 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.black,
                         side: const BorderSide(color: AppTheme.greyBorder),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: const Text('Cancel', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -116,10 +145,18 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.black,
                         foregroundColor: AppTheme.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: const Text('Remove', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Remove',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -142,12 +179,29 @@ class _WishlistScreenState extends State<WishlistScreen> {
             _buildHeader(context),
             if (!_isEmptyState)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('${_wishlistItems.length} Items', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
-                    const Text('Edit', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                    Text(
+                      '${_wishlistItems.length} Items',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.black,
+                      ),
+                    ),
+                    const Text(
+                      'Edit',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.black,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -177,9 +231,19 @@ class _WishlistScreenState extends State<WishlistScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('Wishlist', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Wishlist',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 4),
-                  Text('Saved items you love', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                  Text(
+                    'Saved items you love',
+                    style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -187,15 +251,35 @@ class _WishlistScreenState extends State<WishlistScreen> {
           Stack(
             alignment: Alignment.center,
             children: [
-              IconButton(icon: const Icon(Icons.shopping_cart_outlined, color: AppTheme.black), onPressed: () {}),
+              IconButton(
+                icon: const Icon(
+                  Icons.shopping_cart_outlined,
+                  color: AppTheme.black,
+                ),
+                onPressed: () {},
+              ),
               Positioned(
                 right: 8,
                 top: 8,
                 child: Container(
                   padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(color: AppTheme.black, shape: BoxShape.circle),
-                  constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                  child: const Text('2', style: TextStyle(color: AppTheme.white, fontSize: 10, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.black,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: const Text(
+                    '2',
+                    style: TextStyle(
+                      color: AppTheme.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ],
@@ -238,12 +322,18 @@ class _WishlistScreenState extends State<WishlistScreen> {
             child: Container(
               decoration: BoxDecoration(
                 color: AppTheme.greyBackground.withValues(alpha: 0.5),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
+                ),
               ),
               child: Stack(
                 children: [
                   Center(
-                    child: Icon(item['image'] as IconData, size: 48, color: AppTheme.black), // Placeholder for actual image
+                    child: Icon(
+                      item['image'] as IconData,
+                      size: 48,
+                      color: AppTheme.black,
+                    ), // Placeholder for actual image
                   ),
                   Positioned(
                     top: 8,
@@ -252,8 +342,15 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       onTap: () => _showRemoveBottomSheet(index),
                       child: Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(color: AppTheme.black, shape: BoxShape.circle),
-                        child: const Icon(Icons.favorite, color: AppTheme.white, size: 14),
+                        decoration: const BoxDecoration(
+                          color: AppTheme.black,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.favorite,
+                          color: AppTheme.white,
+                          size: 14,
+                        ),
                       ),
                     ),
                   ),
@@ -275,19 +372,30 @@ class _WishlistScreenState extends State<WishlistScreen> {
                     children: [
                       Text(
                         item['name'],
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.black,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         item['category'],
-                        style: const TextStyle(fontSize: 10, color: AppTheme.greyText),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: AppTheme.greyText,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         item['price'],
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.black,
+                        ),
                       ),
                     ],
                   ),
@@ -298,7 +406,9 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.black,
                         foregroundColor: AppTheme.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                       child: Row(
@@ -306,7 +416,13 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         children: const [
                           Icon(Icons.shopping_cart_outlined, size: 14),
                           SizedBox(width: 4),
-                          Text('Add to Cart', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                          Text(
+                            'Add to Cart',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -336,19 +452,37 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   Container(
                     width: 120,
                     height: 120,
-                    decoration: BoxDecoration(color: AppTheme.greyBackground.withValues(alpha: 0.5), shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                      color: AppTheme.greyBackground.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                  const Icon(Icons.favorite_border, size: 64, color: AppTheme.greyText),
+                  const Icon(
+                    Icons.favorite_border,
+                    size: 64,
+                    color: AppTheme.greyText,
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            const Text('Your wishlist is empty', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+            const Text(
+              'Your wishlist is empty',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black,
+              ),
+            ),
             const SizedBox(height: 12),
             const Text(
               'Save items you love and find them\nhere anytime.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppTheme.greyText, height: 1.4),
+              style: TextStyle(
+                fontSize: 14,
+                color: AppTheme.greyText,
+                height: 1.4,
+              ),
             ),
             const SizedBox(height: 48),
             SizedBox(
@@ -361,13 +495,21 @@ class _WishlistScreenState extends State<WishlistScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.black,
                   foregroundColor: AppTheme.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Text('Browse Catalog', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Browse Catalog',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     SizedBox(width: 8),
                     Icon(Icons.arrow_forward, size: 20),
                   ],

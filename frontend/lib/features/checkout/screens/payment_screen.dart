@@ -11,7 +11,8 @@ class PaymentScreen extends StatefulWidget {
   State<PaymentScreen> createState() => _PaymentScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProviderStateMixin {
+class _PaymentScreenState extends State<PaymentScreen>
+    with SingleTickerProviderStateMixin {
   PaymentState _currentState = PaymentState.initial;
   late AnimationController _animationController;
 
@@ -58,15 +59,12 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
         children: [
           SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 150),
-            child: _currentState == PaymentState.initial ? _buildInitialState() : _buildProcessingState(),
+            child: _currentState == PaymentState.initial
+                ? _buildInitialState()
+                : _buildProcessingState(),
           ),
           if (_currentState == PaymentState.initial)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: _buildBottomBar(),
-            )
+            Positioned(left: 0, right: 0, bottom: 0, child: _buildBottomBar())
           else
             Positioned(
               left: 24,
@@ -88,12 +86,22 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Payment', style: TextStyle(color: AppTheme.black, fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            'Payment',
+            style: TextStyle(
+              color: AppTheme.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           Row(
             children: const [
               Icon(Icons.lock_outline, size: 12, color: AppTheme.greyText),
               SizedBox(width: 4),
-              Text('Secure Payment', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+              Text(
+                'Secure Payment',
+                style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+              ),
             ],
           ),
         ],
@@ -104,14 +112,29 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
             padding: const EdgeInsets.only(right: 16.0),
             child: Row(
               children: const [
-                Icon(Icons.flash_on, size: 16, color: AppTheme.black), // Mock Razorpay logo
-                Text('Razorpay', style: TextStyle(color: AppTheme.black, fontWeight: FontWeight.w900, fontSize: 16, fontStyle: FontStyle.italic)),
+                Icon(
+                  Icons.flash_on,
+                  size: 16,
+                  color: AppTheme.black,
+                ), // Mock Razorpay logo
+                Text(
+                  'Razorpay',
+                  style: TextStyle(
+                    color: AppTheme.black,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ],
             ),
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.change_circle_outlined, color: AppTheme.greyText),
+          icon: const Icon(
+            Icons.change_circle_outlined,
+            color: AppTheme.greyText,
+          ),
           onPressed: _cycleState,
           tooltip: 'Toggle UI State',
         ),
@@ -137,14 +160,31 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Amount to Pay', style: TextStyle(color: AppTheme.greyText, fontSize: 14)),
+                  const Text(
+                    'Amount to Pay',
+                    style: TextStyle(color: AppTheme.greyText, fontSize: 14),
+                  ),
                   const SizedBox(height: 8),
-                  const Text('â‚¹7,405', style: TextStyle(color: AppTheme.black, fontSize: 32, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'â‚¹7,405',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: const [
-                      Text('View order details', style: TextStyle(color: AppTheme.black, fontSize: 12)),
-                      Icon(Icons.keyboard_arrow_down, size: 16, color: AppTheme.black),
+                      Text(
+                        'View order details',
+                        style: TextStyle(color: AppTheme.black, fontSize: 12),
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 16,
+                        color: AppTheme.black,
+                      ),
                     ],
                   ),
                 ],
@@ -156,16 +196,30 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    const Icon(Icons.shield_outlined, size: 80, color: AppTheme.greyBorder),
+                    const Icon(
+                      Icons.shield_outlined,
+                      size: 80,
+                      color: AppTheme.greyBorder,
+                    ),
                     Positioned(
                       bottom: 10,
                       right: 10,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                        decoration: BoxDecoration(color: AppTheme.black, borderRadius: BorderRadius.circular(4)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.black,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                         child: Row(
                           children: const [
-                            Icon(Icons.credit_card, size: 12, color: AppTheme.white),
+                            Icon(
+                              Icons.credit_card,
+                              size: 12,
+                              color: AppTheme.white,
+                            ),
                             SizedBox(width: 4),
                             Icon(Icons.circle, size: 4, color: Colors.green),
                           ],
@@ -183,7 +237,14 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
           ),
         ),
         const SizedBox(height: 32),
-        const Text('Choose a payment method', style: TextStyle(color: AppTheme.black, fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text(
+          'Choose a payment method',
+          style: TextStyle(
+            color: AppTheme.black,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 16),
         // Methods List
         Container(
@@ -193,15 +254,36 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
           ),
           child: Column(
             children: [
-              _buildPaymentMethodTile(Icons.flash_on, 'UPI', 'Google Pay, PhonePe, Paytm & more', onTap: _showRazorpayModal),
+              _buildPaymentMethodTile(
+                Icons.flash_on,
+                'UPI',
+                'Google Pay, PhonePe, Paytm & more',
+                onTap: _showRazorpayModal,
+              ),
               const Divider(color: AppTheme.greyBorder, height: 1),
-              _buildPaymentMethodTile(Icons.credit_card, 'Cards', 'Visa, Mastercard, RuPay & more'),
+              _buildPaymentMethodTile(
+                Icons.credit_card,
+                'Cards',
+                'Visa, Mastercard, RuPay & more',
+              ),
               const Divider(color: AppTheme.greyBorder, height: 1),
-              _buildPaymentMethodTile(Icons.account_balance, 'Netbanking', 'All major banks supported'),
+              _buildPaymentMethodTile(
+                Icons.account_balance,
+                'Netbanking',
+                'All major banks supported',
+              ),
               const Divider(color: AppTheme.greyBorder, height: 1),
-              _buildPaymentMethodTile(Icons.account_balance_wallet_outlined, 'Wallet', 'Paytm, Mobikwik & more'),
+              _buildPaymentMethodTile(
+                Icons.account_balance_wallet_outlined,
+                'Wallet',
+                'Paytm, Mobikwik & more',
+              ),
               const Divider(color: AppTheme.greyBorder, height: 1),
-              _buildPaymentMethodTile(Icons.percent, 'EMI', 'Easy EMI options available'),
+              _buildPaymentMethodTile(
+                Icons.percent,
+                'EMI',
+                'Easy EMI options available',
+              ),
             ],
           ),
         ),
@@ -221,9 +303,19 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
-                    Text('100% Secure Payments', style: TextStyle(color: AppTheme.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                    Text(
+                      '100% Secure Payments',
+                      style: TextStyle(
+                        color: AppTheme.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     SizedBox(height: 2),
-                    Text('Your payment information is safe with us', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                    Text(
+                      'Your payment information is safe with us',
+                      style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                    ),
                   ],
                 ),
               ),
@@ -235,7 +327,12 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildPaymentMethodTile(IconData icon, String title, String subtitle, {VoidCallback? onTap}) {
+  Widget _buildPaymentMethodTile(
+    IconData icon,
+    String title,
+    String subtitle, {
+    VoidCallback? onTap,
+  }) {
     return InkWell(
       onTap: onTap ?? () {},
       child: Padding(
@@ -248,9 +345,22 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: AppTheme.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: AppTheme.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: AppTheme.greyText,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -264,9 +374,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
   Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-      decoration: const BoxDecoration(
-        color: AppTheme.white,
-      ),
+      decoration: const BoxDecoration(color: AppTheme.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -275,20 +383,31 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
             height: 54,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const OrderSuccessScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const OrderSuccessScreen()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.black,
                 foregroundColor: AppTheme.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: Row(
                 children: [
                   const Icon(Icons.lock_outline, size: 20),
                   const SizedBox(width: 8),
-                  const Text('Pay Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Pay Now',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                   const Spacer(),
-                  const Text('â‚¹7,405', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'â‚¹7,405',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),
@@ -299,7 +418,10 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
             children: const [
               Icon(Icons.shield_outlined, size: 14, color: AppTheme.greyText),
               SizedBox(width: 6),
-              Text('Secured by Razorpay', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+              Text(
+                'Secured by Razorpay',
+                style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+              ),
             ],
           ),
         ],
@@ -327,7 +449,15 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                   Row(
                     children: const [
                       Icon(Icons.flash_on, size: 20, color: AppTheme.black),
-                      Text('Razorpay', style: TextStyle(color: AppTheme.black, fontWeight: FontWeight.w900, fontSize: 20, fontStyle: FontStyle.italic)),
+                      Text(
+                        'Razorpay',
+                        style: TextStyle(
+                          color: AppTheme.black,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 20,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
                     ],
                   ),
                   GestureDetector(
@@ -346,15 +476,39 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
-                      Text('Gadget Store', style: TextStyle(color: AppTheme.black, fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(
+                        'Gadget Store',
+                        style: TextStyle(
+                          color: AppTheme.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       SizedBox(height: 4),
-                      Text('Order #GS1234567890', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                      Text(
+                        'Order #GS1234567890',
+                        style: TextStyle(
+                          color: AppTheme.greyText,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                   Row(
                     children: const [
-                      Text('â‚¹7,405', style: TextStyle(color: AppTheme.black, fontSize: 16, fontWeight: FontWeight.bold)),
-                      Icon(Icons.keyboard_arrow_down, size: 20, color: AppTheme.black),
+                      Text(
+                        'â‚¹7,405',
+                        style: TextStyle(
+                          color: AppTheme.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 20,
+                        color: AppTheme.black,
+                      ),
                     ],
                   ),
                 ],
@@ -371,10 +525,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    child: Container(
-                      height: 1,
-                      color: AppTheme.greyBorder,
-                    ),
+                    child: Container(height: 1, color: AppTheme.greyBorder),
                   ),
                   Row(
                     children: [
@@ -398,9 +549,22 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
-                      Text('Pay using UPI', style: TextStyle(color: AppTheme.black, fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(
+                        'Pay using UPI',
+                        style: TextStyle(
+                          color: AppTheme.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       SizedBox(height: 4),
-                      Text('Scan any UPI QR with your preferred app', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                      Text(
+                        'Scan any UPI QR with your preferred app',
+                        style: TextStyle(
+                          color: AppTheme.greyText,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                   Container(
@@ -409,7 +573,11 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                       border: Border.all(color: AppTheme.greyBorder),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.qr_code_scanner, color: AppTheme.black, size: 20),
+                    child: const Icon(
+                      Icons.qr_code_scanner,
+                      color: AppTheme.black,
+                      size: 20,
+                    ),
                   ),
                 ],
               ),
@@ -419,7 +587,12 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
             _buildUpiAppTile('PhonePe', Colors.deepPurple, 'P'),
             _buildUpiAppTile('Paytm', Colors.lightBlue, 'pay'),
             _buildUpiAppTile('BHIM', Colors.orange, 'B'),
-            _buildUpiAppTile('Other UPI Apps', AppTheme.greyBorder, '...', iconColor: AppTheme.black),
+            _buildUpiAppTile(
+              'Other UPI Apps',
+              AppTheme.greyBorder,
+              '...',
+              iconColor: AppTheme.black,
+            ),
             const SizedBox(height: 24),
             // Footer
             Container(
@@ -430,20 +603,65 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      Icon(Icons.shield_outlined, size: 14, color: AppTheme.greyText),
+                      Icon(
+                        Icons.shield_outlined,
+                        size: 14,
+                        color: AppTheme.greyText,
+                      ),
                       SizedBox(width: 6),
-                      Text('Secure payments powered by Razorpay', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                      Text(
+                        'Secure payments powered by Razorpay',
+                        style: TextStyle(
+                          color: AppTheme.greyText,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: const [
-                      Text('PCI DSS', style: TextStyle(color: AppTheme.black, fontSize: 10, fontWeight: FontWeight.bold)),
-                      Text('VISA', style: TextStyle(color: Colors.blue, fontSize: 12, fontWeight: FontWeight.w900, fontStyle: FontStyle.italic)),
-                      Icon(Icons.circle, color: Colors.orange, size: 16), // Mastercard mockup
-                      Text('RuPay', style: TextStyle(color: Colors.indigo, fontSize: 12, fontWeight: FontWeight.w900, fontStyle: FontStyle.italic)),
-                      Text('UPI', style: TextStyle(color: AppTheme.black, fontSize: 12, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
+                      Text(
+                        'PCI DSS',
+                        style: TextStyle(
+                          color: AppTheme.black,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'VISA',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      Icon(
+                        Icons.circle,
+                        color: Colors.orange,
+                        size: 16,
+                      ), // Mastercard mockup
+                      Text(
+                        'RuPay',
+                        style: TextStyle(
+                          color: Colors.indigo,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      Text(
+                        'UPI',
+                        style: TextStyle(
+                          color: AppTheme.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -459,7 +677,9 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
     return Container(
       padding: const EdgeInsets.only(bottom: 12, right: 24),
       decoration: BoxDecoration(
-        border: isSelected ? const Border(bottom: BorderSide(color: AppTheme.black, width: 2)) : null,
+        border: isSelected
+            ? const Border(bottom: BorderSide(color: AppTheme.black, width: 2))
+            : null,
       ),
       child: Text(
         title,
@@ -472,7 +692,12 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildUpiAppTile(String name, Color color, String initial, {Color iconColor = AppTheme.white}) {
+  Widget _buildUpiAppTile(
+    String name,
+    Color color,
+    String initial, {
+    Color iconColor = AppTheme.white,
+  }) {
     return InkWell(
       onTap: () {
         Navigator.pop(context); // Close modal
@@ -489,11 +714,25 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
               height: 32,
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               alignment: Alignment.center,
-              child: Text(initial, style: TextStyle(color: iconColor, fontWeight: FontWeight.bold, fontSize: 12)),
+              child: Text(
+                initial,
+                style: TextStyle(
+                  color: iconColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Text(name, style: const TextStyle(color: AppTheme.black, fontSize: 14, fontWeight: FontWeight.w500)),
+              child: Text(
+                name,
+                style: const TextStyle(
+                  color: AppTheme.black,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
             const Icon(Icons.chevron_right, color: AppTheme.greyText),
           ],
@@ -522,7 +761,10 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                     height: 140,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.green.withValues(alpha: 0.2), width: 2),
+                      border: Border.all(
+                        color: Colors.green.withValues(alpha: 0.2),
+                        width: 2,
+                      ),
                     ),
                   );
                 },
@@ -554,14 +796,25 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                     color: Colors.green,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.lock, size: 16, color: AppTheme.white),
+                  child: const Icon(
+                    Icons.lock,
+                    size: 16,
+                    color: AppTheme.white,
+                  ),
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 48),
-        const Text('Confirming payment...', style: TextStyle(color: AppTheme.black, fontSize: 20, fontWeight: FontWeight.bold)),
+        const Text(
+          'Confirming payment...',
+          style: TextStyle(
+            color: AppTheme.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 12),
         const Text(
           'We are confirming your payment with the bank.\nThis usually takes a few seconds.',
@@ -594,7 +847,12 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildStepperItem({required bool isCompleted, required bool isActive, required String title, required String subtitle}) {
+  Widget _buildStepperItem({
+    required bool isCompleted,
+    required bool isActive,
+    required String title,
+    required String subtitle,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -603,14 +861,22 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
           child: Column(
             children: [
               if (isCompleted)
-                const Icon(Icons.check_circle_outline, color: Colors.green, size: 24)
+                const Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 24,
+                )
               else if (isActive)
                 RotationTransition(
                   turns: _animationController,
                   child: const Icon(Icons.sync, color: Colors.green, size: 24),
                 )
               else
-                const Icon(Icons.radio_button_unchecked, color: AppTheme.greyBorder, size: 24),
+                const Icon(
+                  Icons.radio_button_unchecked,
+                  color: AppTheme.greyBorder,
+                  size: 24,
+                ),
             ],
           ),
         ),
@@ -619,9 +885,25 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(color: AppTheme.black, fontSize: 14, fontWeight: isActive || isCompleted ? FontWeight.bold : FontWeight.normal)),
+              Text(
+                title,
+                style: TextStyle(
+                  color: AppTheme.black,
+                  fontSize: 14,
+                  fontWeight: isActive || isCompleted
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(subtitle, style: const TextStyle(color: AppTheme.greyText, fontSize: 12, height: 1.4)),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: AppTheme.greyText,
+                  fontSize: 12,
+                  height: 1.4,
+                ),
+              ),
             ],
           ),
         ),
@@ -635,7 +917,9 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
       child: Container(
         width: 2,
         height: 32,
-        color: isCompleted ? Colors.green.withValues(alpha: 0.3) : AppTheme.greyBorder.withValues(alpha: 0.5),
+        color: isCompleted
+            ? Colors.green.withValues(alpha: 0.3)
+            : AppTheme.greyBorder.withValues(alpha: 0.5),
       ),
     );
   }
@@ -656,9 +940,19 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('Do not press back or close the app', style: TextStyle(color: AppTheme.black, fontSize: 12, fontWeight: FontWeight.bold)),
+                Text(
+                  'Do not press back or close the app',
+                  style: TextStyle(
+                    color: AppTheme.black,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 SizedBox(height: 2),
-                Text('This may cause payment failure.', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                Text(
+                  'This may cause payment failure.',
+                  style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                ),
               ],
             ),
           ),

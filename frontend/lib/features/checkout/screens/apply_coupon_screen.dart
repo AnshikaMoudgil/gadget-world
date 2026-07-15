@@ -46,7 +46,10 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.change_circle_outlined, color: AppTheme.greyText),
+            icon: const Icon(
+              Icons.change_circle_outlined,
+              color: AppTheme.greyText,
+            ),
             onPressed: _cycleState,
             tooltip: 'Cycle UI State',
           ),
@@ -62,13 +65,24 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                 _buildHeader(),
                 const SizedBox(height: 24),
                 if (_currentState == CouponState.success) _buildSuccessBanner(),
-                if (_currentState == CouponState.success) const SizedBox(height: 16),
+                if (_currentState == CouponState.success)
+                  const SizedBox(height: 16),
                 _buildInputArea(),
                 if (_currentState == CouponState.error) _buildErrorBanner(),
                 const SizedBox(height: 32),
-                const Text('Available Offers', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                const Text(
+                  'Available Offers',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                const Text('Best offers for you, automatically applied at checkout', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                const Text(
+                  'Best offers for you, automatically applied at checkout',
+                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                ),
                 const SizedBox(height: 16),
                 _buildOfferCard(
                   code: 'SAVE20',
@@ -117,9 +131,19 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
-        Text('Apply Coupon', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.black)),
+        Text(
+          'Apply Coupon',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.black,
+          ),
+        ),
         SizedBox(height: 8),
-        Text('Enter a coupon code to get discount', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
+        Text(
+          'Enter a coupon code to get discount',
+          style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+        ),
       ],
     );
   }
@@ -139,7 +163,11 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
             child: Row(
               children: [
                 const SizedBox(width: 12),
-                Icon(Icons.local_activity_outlined, color: isDisabled ? AppTheme.greyText : AppTheme.black, size: 20),
+                Icon(
+                  Icons.local_activity_outlined,
+                  color: isDisabled ? AppTheme.greyText : AppTheme.black,
+                  size: 20,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
@@ -147,7 +175,10 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                     enabled: !isDisabled,
                     decoration: InputDecoration(
                       hintText: 'Enter coupon code',
-                      hintStyle: TextStyle(color: AppTheme.greyText, fontSize: 14),
+                      hintStyle: TextStyle(
+                        color: AppTheme.greyText,
+                        fontSize: 14,
+                      ),
                       border: InputBorder.none,
                     ),
                   ),
@@ -155,7 +186,11 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                 if (_currentState == CouponState.error)
                   Padding(
                     padding: const EdgeInsets.only(right: 12.0),
-                    child: Icon(Icons.cancel_outlined, color: AppTheme.black, size: 20),
+                    child: Icon(
+                      Icons.cancel_outlined,
+                      color: AppTheme.black,
+                      size: 20,
+                    ),
                   ),
               ],
             ),
@@ -170,7 +205,14 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Center(
-            child: Text('Apply', style: TextStyle(color: AppTheme.white, fontWeight: FontWeight.bold, fontSize: 14)),
+            child: Text(
+              'Apply',
+              style: TextStyle(
+                color: AppTheme.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
           ),
         ),
       ],
@@ -189,7 +231,14 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
         children: [
           Icon(Icons.error_outline, color: Colors.red.shade400, size: 18),
           const SizedBox(width: 8),
-          Text('Invalid or expired coupon code.', style: TextStyle(color: Colors.red.shade400, fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(
+            'Invalid or expired coupon code.',
+            style: TextStyle(
+              color: Colors.red.shade400,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
@@ -212,7 +261,11 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
               color: Colors.green.shade100,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.local_activity_outlined, color: Colors.green, size: 16),
+            child: const Icon(
+              Icons.local_activity_outlined,
+              color: Colors.green,
+              size: 16,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -221,20 +274,40 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
               children: [
                 Row(
                   children: [
-                    const Text('SAVE20', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.black)),
+                    const Text(
+                      'SAVE20',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: AppTheme.black,
+                      ),
+                    ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.green.shade100,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text('20% OFF', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        '20% OFF',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text('You saved â‚¹600', style: TextStyle(fontSize: 12, color: AppTheme.black)),
+                const Text(
+                  'You saved â‚¹600',
+                  style: TextStyle(fontSize: 12, color: AppTheme.black),
+                ),
               ],
             ),
           ),
@@ -265,7 +338,9 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: isApplied ? Colors.green.shade300 : AppTheme.greyBorder),
+        border: Border.all(
+          color: isApplied ? Colors.green.shade300 : AppTheme.greyBorder,
+        ),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -275,7 +350,10 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.greyBorder, style: BorderStyle.solid),
+              border: Border.all(
+                color: AppTheme.greyBorder,
+                style: BorderStyle.solid,
+              ),
             ),
             child: Icon(icon, size: 20, color: AppTheme.black),
           ),
@@ -287,30 +365,73 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                 if (isBestOffer)
                   Container(
                     margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.black,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Text('BEST OFFER', style: TextStyle(color: AppTheme.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'BEST OFFER',
+                      style: TextStyle(
+                        color: AppTheme.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(code, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.black)),
-                    Text(discount, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.black)),
+                    Text(
+                      code,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppTheme.black,
+                      ),
+                    ),
+                    Text(
+                      discount,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: AppTheme.black,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(minOrder, style: const TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                Text(
+                  minOrder,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(maxDiscount, style: const TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                Text(
+                  maxDiscount,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: const [
-                    Icon(Icons.calendar_today_outlined, size: 12, color: AppTheme.greyText),
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 12,
+                      color: AppTheme.greyText,
+                    ),
                     SizedBox(width: 4),
-                    Text('Valid till 31 Jul 2026', style: TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                    Text(
+                      'Valid till 31 Jul 2026',
+                      style: TextStyle(fontSize: 10, color: AppTheme.greyText),
+                    ),
                   ],
                 ),
                 if (isApplied)
@@ -318,9 +439,20 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                     padding: const EdgeInsets.only(top: 12),
                     child: Row(
                       children: const [
-                        Icon(Icons.check_circle_outline, color: Colors.green, size: 16),
+                        Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.green,
+                          size: 16,
+                        ),
                         SizedBox(width: 6),
-                        Text('Applied', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Applied',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -343,7 +475,10 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
         children: const [
           Icon(Icons.info_outline, color: AppTheme.greyText, size: 16),
           SizedBox(width: 8),
-          Text('Only one coupon can be applied per order', style: TextStyle(color: AppTheme.greyText, fontSize: 10)),
+          Text(
+            'Only one coupon can be applied per order',
+            style: TextStyle(color: AppTheme.greyText, fontSize: 10),
+          ),
         ],
       ),
     );
@@ -365,7 +500,11 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
               color: Colors.green.shade100,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.local_offer_outlined, color: Colors.green, size: 16),
+            child: const Icon(
+              Icons.local_offer_outlined,
+              color: Colors.green,
+              size: 16,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -373,13 +512,30 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: const [
-                Text('Total Savings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.black)),
+                Text(
+                  'Total Savings',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: AppTheme.black,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('You saved â‚¹600', style: TextStyle(fontSize: 12, color: AppTheme.black)),
+                Text(
+                  'You saved â‚¹600',
+                  style: TextStyle(fontSize: 12, color: AppTheme.black),
+                ),
               ],
             ),
           ),
-          const Text('20% OFF', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12)),
+          const Text(
+            '20% OFF',
+            style: TextStyle(
+              color: Colors.green,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
         ],
       ),
     );

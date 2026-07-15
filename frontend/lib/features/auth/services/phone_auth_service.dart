@@ -4,9 +4,7 @@ class PhoneAuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
   Future<void> sendOTP(String phone) async {
-    await _supabase.auth.signInWithOtp(
-      phone: phone,
-    );
+    await _supabase.auth.signInWithOtp(phone: phone);
   }
 
   Future<AuthResponse> verifyOTP(String phone, String token) async {

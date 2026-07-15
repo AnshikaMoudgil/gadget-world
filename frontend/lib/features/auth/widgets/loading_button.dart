@@ -21,9 +21,7 @@ class LoadingButton extends StatelessWidget {
         backgroundColor: AppTheme.black,
         disabledBackgroundColor: AppTheme.black.withValues(alpha: 0.6),
         minimumSize: const Size(double.infinity, 56),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,
       ),
       child: isLoading

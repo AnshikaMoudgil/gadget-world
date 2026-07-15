@@ -50,13 +50,25 @@ class MyProfileScreen extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 8.0), // Align text baseline with icon
+              padding: const EdgeInsets.only(
+                top: 8.0,
+              ), // Align text baseline with icon
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('My Profile', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'My Profile',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 4),
-                  Text('View your personal information', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                  Text(
+                    'View your personal information',
+                    style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -64,7 +76,10 @@ class MyProfileScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: AppTheme.black),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+              );
             },
           ),
         ],
@@ -89,8 +104,15 @@ class MyProfileScreen extends StatelessWidget {
               Container(
                 width: 70,
                 height: 70,
-                decoration: const BoxDecoration(color: AppTheme.greyBackground, shape: BoxShape.circle),
-                child: const Icon(Icons.person, size: 40, color: AppTheme.greyText),
+                decoration: const BoxDecoration(
+                  color: AppTheme.greyBackground,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person,
+                  size: 40,
+                  color: AppTheme.greyText,
+                ),
               ),
               Positioned(
                 bottom: 0,
@@ -100,10 +122,21 @@ class MyProfileScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppTheme.white,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.3)),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)],
+                    border: Border.all(
+                      color: AppTheme.greyBorder.withValues(alpha: 0.3),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 4,
+                      ),
+                    ],
                   ),
-                  child: const Icon(Icons.camera_alt_outlined, size: 12, color: AppTheme.black),
+                  child: const Icon(
+                    Icons.camera_alt_outlined,
+                    size: 12,
+                    color: AppTheme.black,
+                  ),
                 ),
               ),
             ],
@@ -113,10 +146,20 @@ class MyProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(profile?.fullName ?? 'User', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(
+                  profile?.fullName ?? 'User',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
                     borderRadius: BorderRadius.circular(6),
@@ -124,9 +167,20 @@ class MyProfileScreen extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
-                      Icon(Icons.check_circle_outline, size: 12, color: Colors.green),
+                      Icon(
+                        Icons.check_circle_outline,
+                        size: 12,
+                        color: Colors.green,
+                      ),
                       SizedBox(width: 4),
-                      Text('Verified', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green)),
+                      Text(
+                        'Verified',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -135,16 +189,24 @@ class MyProfileScreen extends StatelessWidget {
           ),
           ElevatedButton.icon(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.black,
               foregroundColor: AppTheme.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
             icon: const Icon(Icons.edit_outlined, size: 14),
-            label: const Text('Edit Profile', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            label: const Text(
+              'Edit Profile',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -169,16 +231,35 @@ class MyProfileScreen extends StatelessWidget {
               children: const [
                 Icon(Icons.person_outline, size: 20, color: AppTheme.black),
                 SizedBox(width: 12),
-                Text('Personal Information', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(
+                  'Personal Information',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
               ],
             ),
           ),
           const Divider(color: AppTheme.greyBorder, height: 1),
-          _buildInfoRow(Icons.person_outline, 'Full Name', profile?.fullName ?? 'Not provided'),
+          _buildInfoRow(
+            Icons.person_outline,
+            'Full Name',
+            profile?.fullName ?? 'Not provided',
+          ),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildInfoRow(Icons.email_outlined, 'Email Address', profile?.email ?? 'Not provided'),
+          _buildInfoRow(
+            Icons.email_outlined,
+            'Email Address',
+            profile?.email ?? 'Not provided',
+          ),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildInfoRow(Icons.phone_outlined, 'Phone Number', profile?.phoneNumber ?? 'Not provided'),
+          _buildInfoRow(
+            Icons.phone_outlined,
+            'Phone Number',
+            profile?.phoneNumber ?? 'Not provided',
+          ),
           const SizedBox(height: 8), // Bottom padding for card content
         ],
       ),
@@ -192,12 +273,23 @@ class MyProfileScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: AppTheme.greyBackground.withValues(alpha: 0.5), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: AppTheme.greyBackground.withValues(alpha: 0.5),
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, size: 16, color: AppTheme.black),
           ),
           const SizedBox(width: 16),
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.black))),
-          Text(value, style: const TextStyle(fontSize: 12, color: AppTheme.greyText)),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 12, color: AppTheme.black),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
+          ),
         ],
       ),
     );
@@ -215,7 +307,10 @@ class MyProfileScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.orange.shade50, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              shape: BoxShape.circle,
+            ),
             child: const Icon(Icons.security, color: Colors.orange, size: 20),
           ),
           const SizedBox(width: 16),
@@ -223,9 +318,23 @@ class MyProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('Your information is safe with us', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(
+                  'Your information is safe with us',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('We never share your personal details with anyone.', style: TextStyle(fontSize: 10, color: AppTheme.greyText, height: 1.4)),
+                Text(
+                  'We never share your personal details with anyone.',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.greyText,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),

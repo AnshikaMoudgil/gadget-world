@@ -12,7 +12,8 @@ class ProductsByCategoryScreen extends StatefulWidget {
   const ProductsByCategoryScreen({super.key, required this.category});
 
   @override
-  State<ProductsByCategoryScreen> createState() => _ProductsByCategoryScreenState();
+  State<ProductsByCategoryScreen> createState() =>
+      _ProductsByCategoryScreenState();
 }
 
 class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
@@ -20,8 +21,10 @@ class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CatalogProvider>(context, listen: false)
-          .fetchProductsByCategory(widget.category.id);
+      Provider.of<CatalogProvider>(
+        context,
+        listen: false,
+      ).fetchProductsByCategory(widget.category.id);
     });
   }
 
@@ -33,7 +36,10 @@ class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(widget.category.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text(
+          widget.category.name,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
@@ -48,7 +54,12 @@ class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
           }
 
           if (provider.productsError != null) {
-            return Center(child: Text('Error: ${provider.productsError}', style: const TextStyle(color: Colors.red)));
+            return Center(
+              child: Text(
+                'Error: ${provider.productsError}',
+                style: const TextStyle(color: Colors.red),
+              ),
+            );
           }
 
           final products = provider.currentCategoryProducts;
@@ -67,20 +78,38 @@ class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 12.0,
+                  ),
                   child: RichText(
                     text: TextSpan(
-                      style: const TextStyle(color: AppTheme.black, fontSize: 14),
+                      style: const TextStyle(
+                        color: AppTheme.black,
+                        fontSize: 14,
+                      ),
                       children: [
                         const TextSpan(text: 'Showing products for '),
-                        TextSpan(text: '"${widget.category.name}"', style: const TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: ' (${products.length} results)', style: const TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                        TextSpan(
+                          text: '"${widget.category.name}"',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' (${products.length} results)',
+                          style: const TextStyle(
+                            color: AppTheme.greyText,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
                 GridView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -93,14 +122,25 @@ class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
                   itemBuilder: (context, index) {
                     final product = products[index];
                     return ProductCard(
-                      imageUrl: product.images.isNotEmpty ? product.images.first : 'assets/images/laptop.png', // Fallback image
+                      imageUrl: product.images.isNotEmpty
+                          ? product.images.first
+                          : 'assets/images/laptop.png', // Fallback image
                       title: product.name,
                       price: '\$${product.price}', // Adjust currency as needed
                       moq: 'MOQ: 1', // You can add MOQ to DB later
-                      stockStatus: product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock',
-                      isLowStock: product.stockQuantity > 0 && product.stockQuantity < 5,
+                      stockStatus: product.stockQuantity > 0
+                          ? 'In Stock'
+                          : 'Out of Stock',
+                      isLowStock:
+                          product.stockQuantity > 0 &&
+                          product.stockQuantity < 5,
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductDetailsScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ProductDetailsScreen(),
+                          ),
+                        );
                       },
                       onAdd: () {},
                     );

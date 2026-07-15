@@ -19,7 +19,10 @@ class MoreMenuScreen extends StatelessWidget {
             _buildHeader(context),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 child: Column(
                   children: [
                     _buildMenuList(context),
@@ -53,9 +56,19 @@ class MoreMenuScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('More Menu', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'More Menu',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 4),
-                  Text('Explore more options', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                  Text(
+                    'Explore more options',
+                    style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -74,20 +87,62 @@ class MoreMenuScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildMenuItem(Icons.info_outline, 'About', onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen()));
-          }),
-          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 56),
-          _buildMenuItem(Icons.support_agent_outlined, 'Contact Us', onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactUsScreen()));
-          }),
-          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 56),
+          _buildMenuItem(
+            Icons.info_outline,
+            'About',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AboutScreen()),
+              );
+            },
+          ),
+          Divider(
+            height: 1,
+            color: AppTheme.greyBorder.withValues(alpha: 0.5),
+            indent: 56,
+          ),
+          _buildMenuItem(
+            Icons.support_agent_outlined,
+            'Contact Us',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ContactUsScreen()),
+              );
+            },
+          ),
+          Divider(
+            height: 1,
+            color: AppTheme.greyBorder.withValues(alpha: 0.5),
+            indent: 56,
+          ),
           _buildMenuItem(Icons.shield_outlined, 'Privacy Policy', onTap: () {}),
-          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 56),
-          _buildMenuItem(Icons.description_outlined, 'Terms & Conditions', onTap: () {}),
-          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 56),
-          _buildMenuItem(Icons.autorenew_outlined, 'Refund Policy', onTap: () {}),
-          Divider(height: 1, color: AppTheme.greyBorder.withValues(alpha: 0.5), indent: 56),
+          Divider(
+            height: 1,
+            color: AppTheme.greyBorder.withValues(alpha: 0.5),
+            indent: 56,
+          ),
+          _buildMenuItem(
+            Icons.description_outlined,
+            'Terms & Conditions',
+            onTap: () {},
+          ),
+          Divider(
+            height: 1,
+            color: AppTheme.greyBorder.withValues(alpha: 0.5),
+            indent: 56,
+          ),
+          _buildMenuItem(
+            Icons.autorenew_outlined,
+            'Refund Policy',
+            onTap: () {},
+          ),
+          Divider(
+            height: 1,
+            color: AppTheme.greyBorder.withValues(alpha: 0.5),
+            indent: 56,
+          ),
           _buildMenuItem(
             Icons.logout_outlined,
             'Logout',
@@ -108,7 +163,12 @@ class MoreMenuScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, {String? subtitle, required VoidCallback onTap}) {
+  Widget _buildMenuItem(
+    IconData icon,
+    String title, {
+    String? subtitle,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -118,7 +178,10 @@ class MoreMenuScreen extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: AppTheme.greyBackground.withValues(alpha: 0.5), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: AppTheme.greyBackground.withValues(alpha: 0.5),
+                shape: BoxShape.circle,
+              ),
               child: Icon(icon, color: AppTheme.black, size: 20),
             ),
             const SizedBox(width: 16),
@@ -126,10 +189,23 @@ class MoreMenuScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.black,
+                    ),
+                  ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
-                    Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.greyText,
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -153,21 +229,38 @@ class MoreMenuScreen extends StatelessWidget {
                 color: AppTheme.black,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.g_mobiledata, color: AppTheme.white, size: 32),
+              child: const Icon(
+                Icons.g_mobiledata,
+                color: AppTheme.white,
+                size: 32,
+              ),
             ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('Gadget World', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(
+                  'Gadget World',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 SizedBox(height: 2),
-                Text('Upgrade Your World', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                Text(
+                  'Upgrade Your World',
+                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                ),
               ],
             ),
           ],
         ),
         const SizedBox(height: 24),
-        const Text('Version 1.2.0 (Build 45)', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
+        const Text(
+          'Version 1.2.0 (Build 45)',
+          style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+        ),
       ],
     );
   }

@@ -12,7 +12,7 @@ import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Load environment variables
   await dotenv.load(fileName: ".env");
 
@@ -80,8 +80,11 @@ class _AuthGuardState extends State<AuthGuard> {
   void _handleAuthStateChange() {
     if (!mounted) return;
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
-    
+    final profileProvider = Provider.of<ProfileProvider>(
+      context,
+      listen: false,
+    );
+
     if (authProvider.isAuthenticated) {
       // User is logged in, fetch their profile data
       profileProvider.fetchProfile();
@@ -94,7 +97,7 @@ class _AuthGuardState extends State<AuthGuard> {
         if (route.settings.name == '/login') {
           isPublicRoute = true;
         }
-        return true; 
+        return true;
       });
 
       if (!isPublicRoute) {
@@ -102,7 +105,7 @@ class _AuthGuardState extends State<AuthGuard> {
           context,
           MaterialPageRoute(
             settings: const RouteSettings(name: '/login'),
-            builder: (_) => const LoginScreen()
+            builder: (_) => const LoginScreen(),
           ),
           (route) => false,
         );

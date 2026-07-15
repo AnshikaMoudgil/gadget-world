@@ -29,9 +29,15 @@ class SearchResultsScreen extends StatelessWidget {
               hintText: 'wireless earbuds',
               border: InputBorder.none,
               prefixIcon: Icon(Icons.search, color: AppTheme.greyText),
-              prefixIconConstraints: BoxConstraints(minWidth: 40, minHeight: 40),
+              prefixIconConstraints: BoxConstraints(
+                minWidth: 40,
+                minHeight: 40,
+              ),
               suffixIcon: Icon(Icons.close, color: AppTheme.greyText),
-              suffixIconConstraints: BoxConstraints(minWidth: 40, minHeight: 40),
+              suffixIconConstraints: BoxConstraints(
+                minWidth: 40,
+                minHeight: 40,
+              ),
               contentPadding: EdgeInsets.symmetric(horizontal: 16),
             ),
           ),
@@ -54,20 +60,38 @@ class SearchResultsScreen extends StatelessWidget {
                 children: [
                   OutlinedButton.icon(
                     onPressed: () {},
-                    icon: const Icon(Icons.filter_list, size: 16, color: AppTheme.black),
-                    label: const Text('Filter', style: TextStyle(color: AppTheme.black)),
+                    icon: const Icon(
+                      Icons.filter_list,
+                      size: 16,
+                      color: AppTheme.black,
+                    ),
+                    label: const Text(
+                      'Filter',
+                      style: TextStyle(color: AppTheme.black),
+                    ),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppTheme.greyBorder),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                   OutlinedButton.icon(
                     onPressed: () {},
-                    icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: AppTheme.black),
-                    label: const Text('Sort by: Relevance', style: TextStyle(color: AppTheme.black)),
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 16,
+                      color: AppTheme.black,
+                    ),
+                    label: const Text(
+                      'Sort by: Relevance',
+                      style: TextStyle(color: AppTheme.black),
+                    ),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppTheme.greyBorder),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ],
@@ -78,8 +102,18 @@ class SearchResultsScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Recent Searches', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Clear All', style: TextStyle(fontSize: 12, decoration: TextDecoration.underline, color: AppTheme.greyText.withValues(alpha: 0.8))),
+                  const Text(
+                    'Recent Searches',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Clear All',
+                    style: TextStyle(
+                      fontSize: 12,
+                      decoration: TextDecoration.underline,
+                      color: AppTheme.greyText.withValues(alpha: 0.8),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -108,8 +142,17 @@ class SearchResultsScreen extends StatelessWidget {
                       style: TextStyle(color: AppTheme.black, fontSize: 14),
                       children: [
                         TextSpan(text: 'Results for '),
-                        TextSpan(text: '"wireless earbuds"', style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: ' (124 results)', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                        TextSpan(
+                          text: '"wireless earbuds"',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' (124 results)',
+                          style: TextStyle(
+                            color: AppTheme.greyText,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -121,12 +164,16 @@ class SearchResultsScreen extends StatelessWidget {
                           color: AppTheme.black,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Icon(Icons.grid_view, size: 16, color: AppTheme.white),
+                        child: const Icon(
+                          Icons.grid_view,
+                          size: 16,
+                          color: AppTheme.white,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       const Icon(Icons.list, size: 20, color: AppTheme.black),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -144,14 +191,21 @@ class SearchResultsScreen extends StatelessWidget {
               itemCount: 6,
               itemBuilder: (context, index) {
                 return ProductCard(
-                  imageUrl: index.isEven ? 'assets/images/laptop.png' : 'assets/images/phone.png',
+                  imageUrl: index.isEven
+                      ? 'assets/images/laptop.png'
+                      : 'assets/images/phone.png',
                   title: 'boAt Airdopes 141 Pro TWS Earbuds',
                   price: 'â‚¹1,299',
                   moq: 'MOQ: 5 units',
                   stockStatus: index == 2 ? 'Low Stock (7 left)' : 'In Stock',
                   isLowStock: index == 2,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductDetailsScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProductDetailsScreen(),
+                      ),
+                    );
                   },
                   onAdd: () {},
                 );
@@ -174,18 +228,37 @@ class SearchResultsScreen extends StatelessWidget {
                       color: AppTheme.white,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.search, size: 32, color: AppTheme.black),
+                    child: const Icon(
+                      Icons.search,
+                      size: 32,
+                      color: AppTheme.black,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('No results found for "wireless earbudss"', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'No results found for "wireless earbudss"',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         const SizedBox(height: 8),
-                        const Text('We couldn\'t find any products matching your search. Try checking the spelling or use different keywords.', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                        const Text(
+                          'We couldn\'t find any products matching your search. Try checking the spelling or use different keywords.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.greyText,
+                          ),
+                        ),
                         const SizedBox(height: 16),
-                        const Text('Suggestions:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Suggestions:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
@@ -196,7 +269,7 @@ class SearchResultsScreen extends StatelessWidget {
                             _buildSuggestionChip('bluetooth earbuds'),
                             _buildSuggestionChip('earphones'),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),

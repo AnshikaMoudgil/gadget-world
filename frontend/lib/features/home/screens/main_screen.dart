@@ -24,7 +24,6 @@ class _MainScreenState extends State<MainScreen> {
     const ProfileScreen(),
   ];
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,8 +40,14 @@ class _MainScreenState extends State<MainScreen> {
             });
           },
           items: [
-            const BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
-            const BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Categories'),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.home_filled),
+              label: 'Home',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.grid_view),
+              label: 'Categories',
+            ),
             BottomNavigationBarItem(
               icon: Stack(
                 children: [
@@ -56,16 +61,33 @@ class _MainScreenState extends State<MainScreen> {
                         color: AppTheme.black,
                         shape: BoxShape.circle,
                       ),
-                      constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
-                      child: const Text('2', style: TextStyle(color: AppTheme.white, fontSize: 8, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                      constraints: const BoxConstraints(
+                        minWidth: 14,
+                        minHeight: 14,
+                      ),
+                      child: const Text(
+                        '2',
+                        style: TextStyle(
+                          color: AppTheme.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                 ],
               ),
               label: 'Cart',
             ),
-            const BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), label: 'Orders'),
-            const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.inventory_2_outlined),
+              label: 'Orders',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              label: 'Profile',
+            ),
           ],
         ),
       ),

@@ -27,10 +27,12 @@ class CatalogController {
     });
 
     if (result.isError) {
-      return _error(result.statusCode, result.message ?? 'Failed to fetch categories');
+      return _error(
+          result.statusCode, result.message ?? 'Failed to fetch categories');
     }
 
-    final categories = result.data!.map((e) => CategoryModel.fromJson(e)).toList();
+    final categories =
+        result.data!.map((e) => CategoryModel.fromJson(e)).toList();
     return _ok(categories.map((c) => c.toJson()).toList());
   }
 
@@ -39,17 +41,19 @@ class CatalogController {
     final categoryId = request.url.queryParameters['categoryId'];
 
     final result = await SupabaseDb.query<List<Map<String, dynamic>>>(() async {
-      var query = SupabaseDb.client.from('products').select().eq('is_active', true);
-      
+      var query =
+          SupabaseDb.client.from('products').select().eq('is_active', true);
+
       if (categoryId != null && categoryId.isNotEmpty) {
         query = query.eq('category_id', categoryId);
       }
-      
+
       return await query.order('created_at', ascending: false);
     });
 
     if (result.isError) {
-      return _error(result.statusCode, result.message ?? 'Failed to fetch products');
+      return _error(
+          result.statusCode, result.message ?? 'Failed to fetch products');
     }
 
     final products = result.data!.map((e) => ProductModel.fromJson(e)).toList();

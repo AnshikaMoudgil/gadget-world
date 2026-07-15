@@ -32,16 +32,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             children: [
               const LogoWidget(size: 32),
               const SizedBox(width: 8),
-              const Text('All Categories', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              const Text(
+                'All Categories',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
             ],
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-        ],
+        actions: [IconButton(icon: const Icon(Icons.search), onPressed: () {})],
       ),
       body: Consumer<CatalogProvider>(
         builder: (context, provider, child) {
@@ -50,13 +48,23 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           }
 
           if (provider.categoriesError != null) {
-            return Center(child: Text('Error: ${provider.categoriesError}', style: const TextStyle(color: Colors.red)));
+            return Center(
+              child: Text(
+                'Error: ${provider.categoriesError}',
+                style: const TextStyle(color: Colors.red),
+              ),
+            );
           }
 
           final categories = provider.categories;
 
           if (categories.isEmpty) {
-            return const Center(child: Text('No categories available.', style: TextStyle(fontWeight: FontWeight.bold)));
+            return const Center(
+              child: Text(
+                'No categories available.',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            );
           }
 
           return GridView.builder(
@@ -75,7 +83,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ProductsByCategoryScreen(category: category),
+                      builder: (_) =>
+                          ProductsByCategoryScreen(category: category),
                     ),
                   );
                 },
@@ -100,9 +109,16 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         child: category.imageUrl != null
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(32),
-                                child: Image.network(category.imageUrl!, fit: BoxFit.cover),
+                                child: Image.network(
+                                  category.imageUrl!,
+                                  fit: BoxFit.cover,
+                                ),
                               )
-                            : const Icon(Icons.category_outlined, size: 32, color: AppTheme.black),
+                            : const Icon(
+                                Icons.category_outlined,
+                                size: 32,
+                                color: AppTheme.black,
+                              ),
                       ),
                       const SizedBox(height: 12),
                       Padding(
@@ -112,7 +128,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],

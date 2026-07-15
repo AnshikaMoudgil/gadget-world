@@ -89,7 +89,8 @@ class UpdateAddressRequest {
     if (state != null && state!.trim().isEmpty) {
       errors.add('state cannot be blank');
     }
-    if (postalCode != null && !RegExp(r'^[1-9][0-9]{5}$').hasMatch(postalCode!)) {
+    if (postalCode != null &&
+        !RegExp(r'^[1-9][0-9]{5}$').hasMatch(postalCode!)) {
       errors.add('postal_code must be a valid 6-digit Indian PIN code');
     }
     return errors;

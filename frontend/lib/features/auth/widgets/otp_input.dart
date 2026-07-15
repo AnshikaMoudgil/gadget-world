@@ -25,7 +25,10 @@ class _OTPInputState extends State<OTPInput> {
   void initState() {
     super.initState();
     _focusNodes = List.generate(widget.length, (index) => FocusNode());
-    _controllers = List.generate(widget.length, (index) => TextEditingController());
+    _controllers = List.generate(
+      widget.length,
+      (index) => TextEditingController(),
+    );
   }
 
   @override
@@ -43,7 +46,9 @@ class _OTPInputState extends State<OTPInput> {
     if (value.isNotEmpty) {
       if (value.length > 1) {
         // Handle paste
-        String pastedValue = value.substring(0, widget.length).replaceAll(RegExp(r'[^0-9]'), '');
+        String pastedValue = value
+            .substring(0, widget.length)
+            .replaceAll(RegExp(r'[^0-9]'), '');
         for (int i = 0; i < pastedValue.length; i++) {
           if (index + i < widget.length) {
             _controllers[index + i].text = pastedValue[i];

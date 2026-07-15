@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileProvider extends ChangeNotifier {
   final ProfileService _profileService = ProfileService();
-  
+
   Profile? _profile;
   bool _isLoading = false;
   String? _errorMessage;

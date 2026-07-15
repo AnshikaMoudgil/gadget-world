@@ -12,8 +12,10 @@ class CatalogService {
           .select()
           .eq('is_active', true)
           .order('name', ascending: true);
-      
-      return (data as List).map((json) => CategoryModel.fromJson(json)).toList();
+
+      return (data as List)
+          .map((json) => CategoryModel.fromJson(json))
+          .toList();
     } catch (e) {
       throw Exception('Failed to fetch categories: $e');
     }
@@ -22,13 +24,13 @@ class CatalogService {
   Future<List<ProductModel>> getProducts({String? categoryId}) async {
     try {
       var query = _supabase.from('products').select().eq('is_active', true);
-      
+
       if (categoryId != null && categoryId.isNotEmpty) {
         query = query.eq('category_id', categoryId);
       }
-      
+
       final data = await query.order('created_at', ascending: false);
-      
+
       return (data as List).map((json) => ProductModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to fetch products: $e');
