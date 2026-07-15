@@ -4,6 +4,7 @@ import 'package:gadget_store/features/home/screens/home_screen.dart';
 import 'package:gadget_store/features/checkout/screens/cart_screen.dart';
 import 'package:gadget_store/features/profile/screens/profile_screen.dart';
 import 'package:gadget_store/features/orders/screens/orders_screen.dart';
+import 'package:gadget_store/features/products/screens/categories_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,7 +18,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const Center(child: Text('Categories Screen')),
+    const CategoriesScreen(),
     const CartScreen(),
     const OrdersScreen(),
     const ProfileScreen(),

@@ -9,6 +9,7 @@ import 'package:gadget_store/features/auth/providers/auth_provider.dart';
 import 'package:gadget_store/features/auth/screens/login_screen.dart';
 import 'package:gadget_store/features/auth/services/google_auth_service.dart';
 import 'package:gadget_store/features/profile/providers/profile_provider.dart';
+import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +31,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => CatalogProvider()),
       ],
       child: const MyApp(),
     ),
