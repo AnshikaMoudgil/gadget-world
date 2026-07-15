@@ -7,10 +7,26 @@ import 'package:gadget_store/features/products/screens/category_mobiles_screen.d
 import 'package:gadget_store/features/products/screens/product_details_screen.dart';
 import 'package:gadget_store/features/products/screens/best_sellers_screen.dart';
 import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:gadget_store/features/products/providers/catalog_provider.dart';
+import 'package:gadget_store/features/products/screens/products_by_category_screen.dart';
 
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CatalogProvider>(context, listen: false).fetchCategories();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,56 +179,68 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildCategories() {
-    final categories = [
-      {'icon': Icons.phone_android, 'name': 'Mobile\nPhones'},
-      {'icon': Icons.laptop, 'name': 'Laptops &\nTablets'},
-      {'icon': Icons.headphones, 'name': 'Audio'},
-      {'icon': Icons.watch, 'name': 'Wearables'},
-      {'icon': Icons.cable, 'name': 'Chargers &\nCables'},
-      {'icon': Icons.grid_view, 'name': 'More\nCategories'},
-    ];
+    return Consumer<CatalogProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoadingCategories) {
+          return const SizedBox(height: 120, child: Center(child: CircularProgressIndicator()));
+        }
 
-    return SizedBox(
-      height: 120,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              if (index == 0) {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoryMobilesScreen()));
-              } else if (index == 1) {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoryLaptopsScreen()));
-              }
+        final categories = provider.categories;
+
+        if (categories.isEmpty) {
+          return const SizedBox(height: 120, child: Center(child: Text('No categories available.')));
+        }
+
+        return SizedBox(
+          height: 120,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ProductsByCategoryScreen(category: category)));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: AppTheme.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppTheme.greyBorder),
+                        ),
+                        child: category.imageUrl != null 
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.network(category.imageUrl!, fit: BoxFit.cover),
+                              )
+                            : const Icon(Icons.category_outlined, size: 32),
+                      ),
+                      const SizedBox(height: 4),
+                      SizedBox(
+                        width: 72,
+                        child: Text(
+                          category.name,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 10),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
             },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Column(
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: AppTheme.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppTheme.greyBorder),
-                    ),
-                    child: Icon(categories[index]['icon'] as IconData, size: 32),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    categories[index]['name'] as String,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
