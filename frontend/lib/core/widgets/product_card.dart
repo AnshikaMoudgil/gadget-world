@@ -63,17 +63,17 @@ class ProductCard extends StatelessWidget {
                       child: _ProductImage(imageUrl: imageUrl),
                     ),
                   ),
-                const Positioned(
-                  top: 4,
-                  right: 4,
-                  child: Icon(
-                    Icons.favorite_border,
-                    size: 20,
-                    color: AppTheme.greyText,
+                  const Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Icon(
+                      Icons.favorite_border,
+                      size: 20,
+                      color: AppTheme.greyText,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             ),
             const SizedBox(height: 8),
             Text(
