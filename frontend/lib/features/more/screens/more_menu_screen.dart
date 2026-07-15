@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
 import 'package:gadget_store/features/more/screens/about_screen.dart';
 import 'package:gadget_store/features/more/screens/contact_us_screen.dart';
 import 'package:gadget_store/features/auth/screens/login_screen.dart'; // For logout
@@ -90,7 +92,10 @@ class MoreMenuScreen extends StatelessWidget {
             Icons.logout_outlined,
             'Logout',
             subtitle: 'Sign out of your account',
-            onTap: () {
+            onTap: () async {
+              // Sign out from Supabase first, then navigate
+              await Provider.of<AuthProvider>(context, listen: false).signOut();
+              if (!context.mounted) return;
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (_) => const LoginScreen()),

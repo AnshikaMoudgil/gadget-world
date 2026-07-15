@@ -5,15 +5,11 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart' as google;
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../profile/models/profile_model.dart';
-import '../../profile/services/profile_service.dart';
 
 class GoogleAuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
-  final ProfileService _profileService = ProfileService();
   
   static String? _currentNonce;
-  static bool isSignUpIntent = false;
   static final StreamController<String> authErrorStream = StreamController<String>.broadcast();
   static final StreamController<void> authSuccessStream = StreamController<void>.broadcast();
 
@@ -32,14 +28,17 @@ class GoogleAuthService {
   /// Call this once at app startup
   static Future<void> init() async {
     const webClientId = '1066748448834-ltr6bv67jk0oa6jdcs39sphdklqcfjj2.apps.googleusercontent.com';
-    const iosClientId = 'my-ios-client-id';
 
     _currentNonce = _generateNonce();
     final hashedNonce = _sha256ofString(_currentNonce!);
 
-    // Initialize the singleton
+    // Initialize the singleton.
+    // Web: clientId identifies the app to Google Identity Services.
+    // Android: serverClientId (the web client ID) is required to get an ID token.
+    // iOS: not configured yet — needs its own clientId when iOS support is added.
     await google.GoogleSignIn.instance.initialize(
-      clientId: kIsWeb ? webClientId : iosClientId,
+      clientId: kIsWeb ? webClientId : null,
+      serverClientId: kIsWeb ? null : webClientId,
       nonce: hashedNonce, // Google gets the hashed nonce
     );
 
@@ -48,7 +47,7 @@ class GoogleAuthService {
       google.GoogleSignIn.instance.authenticationEvents.listen((event) async {
         if (event is google.GoogleSignInAuthenticationEventSignIn) {
           final account = event.user;
-          final googleAuth = await account.authentication;
+          final googleAuth = account.authentication;
           final idToken = googleAuth.idToken;
           
           if (idToken != null) {
@@ -64,27 +63,9 @@ class GoogleAuthService {
                 nonce: _currentNonce,
               );
               
-              final user = res.user;
-              if (user != null) {
-                final profileService = ProfileService();
-                final profile = await profileService.getProfile(user.id);
-                
-                if (profile == null) {
-                  if (isSignUpIntent) {
-                    await profileService.createProfile(Profile(
-                      id: user.id,
-                      fullName: account.displayName ?? 'Google User',
-                      email: account.email,
-                    ));
-                    authSuccessStream.add(null);
-                  } else {
-                    await Supabase.instance.client.auth.signOut();
-                    // We must signal the UI that login failed because no account exists
-                    throw const AuthException('No account exists with this Google account. Please sign up first.');
-                  }
-                } else {
-                  authSuccessStream.add(null);
-                }
+              if (res.user != null) {
+                // Profile row is auto-created by the DB trigger (handle_new_user_signup).
+                authSuccessStream.add(null);
               }
             } catch (e) {
               debugPrint("Supabase sign in failed from stream: $e");
@@ -100,15 +81,16 @@ class GoogleAuthService {
     }
   }
 
-  // Sign in manually (used for Android/iOS primarily)
-  Future<AuthResponse?> signInWithGoogle({bool isSignUp = false}) async {
+  // Sign in with Google (used for Android/iOS primarily)
+  // On web, the renderButton handles it via the stream listener above.
+  Future<AuthResponse?> signInWithGoogle() async {
     if (kIsWeb) {
       // On web, we don't manually call authenticate(). The renderButton does it.
       // Returning null here because the actual login happens in the stream listener above.
       return null;
     }
 
-    google.GoogleSignInAccount? googleUser;
+    google.GoogleSignInAccount googleUser;
     try {
       googleUser = await google.GoogleSignIn.instance.authenticate();
     } catch (e) {
@@ -116,9 +98,7 @@ class GoogleAuthService {
       return null;
     }
 
-    if (googleUser == null) return null;
-
-    final googleAuth = await googleUser.authentication;
+    final googleAuth = googleUser.authentication;
     final idToken = googleAuth.idToken;
 
     if (idToken == null) throw 'No ID Token found.';
@@ -133,23 +113,7 @@ class GoogleAuthService {
       nonce: _currentNonce,
     );
 
-    final user = res.user;
-    if (user != null) {
-      final profile = await _profileService.getProfile(user.id);
-      if (profile == null) {
-        if (isSignUp) {
-          await _profileService.createProfile(Profile(
-            id: user.id,
-            fullName: googleUser.displayName ?? 'Google User',
-            email: googleUser.email,
-          ));
-        } else {
-          await _supabase.auth.signOut();
-          throw const AuthException('No account exists with this Google account. Please sign up first.');
-        }
-      }
-    }
-
+    // Profile row is auto-created by the DB trigger (handle_new_user_signup).
     return res;
   }
 }

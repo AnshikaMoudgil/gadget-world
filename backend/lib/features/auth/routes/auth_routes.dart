@@ -1,13 +1,11 @@
 import 'package:shelf_router/shelf_router.dart';
-import '../controllers/auth_controller.dart';
 
 class AuthRoutes {
   Router get router {
     final router = Router();
-    final authController = AuthController();
-
-    router.post('/login', authController.login);
-    router.post('/register', authController.register);
+    
+    // Auth routes have been removed as authentication is handled directly 
+    // by Supabase on the client side via Google and Phone OTP.
 
     return router;
   }

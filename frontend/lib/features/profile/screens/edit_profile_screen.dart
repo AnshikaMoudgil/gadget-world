@@ -11,9 +11,84 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  late TextEditingController _nameController;
+  late TextEditingController _phoneController;
+  DateTime? _selectedDate;
+  bool _isInit = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInit) {
+      final profile = Provider.of<ProfileProvider>(context, listen: false).profile;
+      _nameController = TextEditingController(text: profile?.fullName ?? '');
+      _phoneController = TextEditingController(text: profile?.phoneNumber ?? '');
+      _selectedDate = profile?.dateOfBirth;
+      _isInit = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.deepPurple,
+              onPrimary: AppTheme.white,
+              onSurface: AppTheme.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
+  Future<void> _saveChanges() async {
+    final provider = Provider.of<ProfileProvider>(context, listen: false);
+    final currentProfile = provider.profile;
+    if (currentProfile == null) return;
+    
+    final updatedProfile = currentProfile.copyWith(
+      fullName: _nameController.text,
+      phoneNumber: _phoneController.text,
+      dateOfBirth: _selectedDate,
+    );
+
+    final success = await provider.updateProfile(updatedProfile);
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated successfully')),
+      );
+      Navigator.pop(context);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(provider.errorMessage ?? 'Failed to update profile')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final profile = Provider.of<ProfileProvider>(context).profile;
+    final provider = Provider.of<ProfileProvider>(context);
+    final profile = provider.profile;
 
     return Scaffold(
       backgroundColor: AppTheme.white,
@@ -31,15 +106,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 32),
                     _buildSectionHeader(Icons.person_outline, 'Personal Information'),
                     const SizedBox(height: 16),
-                    _buildFormField('Full Name', profile?.fullName ?? 'Not provided', Icons.person_outline, isRequired: true),
+                    _buildTextField(
+                      label: 'Full Name',
+                      controller: _nameController,
+                      leadingIcon: Icons.person_outline,
+                      isRequired: true,
+                    ),
                     const SizedBox(height: 16),
-                    _buildFormField('Phone Number', profile?.phoneNumber ?? 'Not provided', Icons.phone_outlined, isRequired: true),
+                    _buildTextField(
+                      label: 'Phone Number',
+                      controller: _phoneController,
+                      leadingIcon: Icons.phone_outlined,
+                      isRequired: true,
+                    ),
                     const SizedBox(height: 16),
-                    _buildLockedFormField('Email Address', profile?.email ?? 'Not provided', Icons.email_outlined),
+                    _buildLockedFormField(
+                      'Email Address',
+                      profile?.email ?? 'Not provided',
+                      Icons.email_outlined,
+                    ),
                     const SizedBox(height: 16),
-                    _buildFormField('Date of Birth', profile?.dateOfBirth?.toIso8601String().split('T').first ?? 'Not provided', Icons.calendar_today_outlined, isRequired: true, trailingIcon: Icons.calendar_today_outlined),
+                    GestureDetector(
+                      onTap: () => _selectDate(context),
+                      child: _buildDateField(
+                        label: 'Date of Birth',
+                        value: _selectedDate?.toIso8601String().split('T').first ?? 'Not provided',
+                        leadingIcon: Icons.calendar_today_outlined,
+                        isRequired: true,
+                        trailingIcon: Icons.calendar_today_outlined,
+                      ),
+                    ),
                     const SizedBox(height: 32),
-                    _buildActionButtons(context),
+                    _buildActionButtons(context, provider.isLoading),
                     const SizedBox(height: 32), // Padding for scroll clearance
                   ],
                 ),
@@ -64,7 +162,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 8.0), // Align text baseline with icon
+              padding: const EdgeInsets.only(top: 8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
@@ -120,7 +218,64 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildFormField(String label, String value, IconData leadingIcon, {bool isRequired = false, IconData? trailingIcon}) {
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required IconData leadingIcon,
+    bool isRequired = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppTheme.white,
+        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(leadingIcon, color: AppTheme.greyText, size: 20),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    children: [
+                      Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                      if (isRequired) ...[
+                        const SizedBox(width: 4),
+                        const Text('*', style: TextStyle(fontSize: 10, color: Colors.red)),
+                      ]
+                    ],
+                  ),
+                ),
+                TextField(
+                  controller: controller,
+                  style: const TextStyle(fontSize: 14, color: AppTheme.black),
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.only(bottom: 8, top: 4),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateField({
+    required String label,
+    required String value,
+    required IconData leadingIcon,
+    bool isRequired = false,
+    IconData? trailingIcon,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -184,28 +339,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, bool isLoading) {
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () {},
+          child: ElevatedButton(
+            onPressed: isLoading ? null : _saveChanges,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.deepPurple,
               foregroundColor: AppTheme.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            icon: const Icon(Icons.save_outlined, size: 18),
-            label: const Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            child: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(color: AppTheme.white, strokeWidth: 2),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.save_outlined, size: 18),
+                      SizedBox(width: 8),
+                      Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
           ),
         ),
         const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: isLoading ? null : () => Navigator.pop(context),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.deepPurple,
               side: const BorderSide(color: Colors.deepPurple),

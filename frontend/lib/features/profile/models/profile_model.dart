@@ -18,8 +18,10 @@ class Profile {
   factory Profile.fromJson(Map<String, dynamic> json) {
     return Profile(
       id: json['id'] as String,
-      fullName: json['full_name'] as String,
-      email: json['email'] as String,
+      // Trigger-created rows can have these as NULL (e.g. phone signups have
+      // no email, and full_name is only set when signup metadata provides it).
+      fullName: json['full_name'] as String? ?? '',
+      email: json['email'] as String? ?? '',
       phoneNumber: json['phone_number'] as String?,
       dateOfBirth: json['date_of_birth'] != null ? DateTime.tryParse(json['date_of_birth']) : null,
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
