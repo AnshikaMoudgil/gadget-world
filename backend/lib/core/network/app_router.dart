@@ -10,9 +10,8 @@ class AppRouter {
 
     // Health check route
     router.get('/health', (Request request) {
-      return Response.ok('{"status": "ok", "message": "Backend is running!"}', headers: {
-        'Content-Type': 'application/json'
-      });
+      return Response.ok('{"status": "ok", "message": "Backend is running!"}',
+          headers: {'Content-Type': 'application/json'});
     });
 
     // Mount Feature Routes

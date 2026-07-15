@@ -47,11 +47,9 @@ void main(List<String> args) async {
   final appRouter = AppRouter();
 
   // Configure a pipeline that logs requests.
-  final handler = Pipeline()
-      .addMiddleware(logRequests())
-      .addHandler(appRouter.router.call);
+  final handler =
+      Pipeline().addMiddleware(logRequests()).addHandler(appRouter.router.call);
 
   final server = await io.serve(handler, ip, port);
   print('Server listening on port ${server.port}');
 }
-

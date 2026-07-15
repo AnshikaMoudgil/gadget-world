@@ -48,7 +48,9 @@ class CatalogProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _currentCategoryProducts = await _service.getProducts(categoryId: categoryId);
+      _currentCategoryProducts = await _service.getProducts(
+        categoryId: categoryId,
+      );
     } catch (e) {
       _productsError = e.toString();
     } finally {

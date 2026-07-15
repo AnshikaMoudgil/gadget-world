@@ -20,9 +20,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInit) {
-      final profile = Provider.of<ProfileProvider>(context, listen: false).profile;
+      final profile = Provider.of<ProfileProvider>(
+        context,
+        listen: false,
+      ).profile;
       _nameController = TextEditingController(text: profile?.fullName ?? '');
-      _phoneController = TextEditingController(text: profile?.phoneNumber ?? '');
+      _phoneController = TextEditingController(
+        text: profile?.phoneNumber ?? '',
+      );
       _selectedDate = profile?.dateOfBirth;
       _isInit = true;
     }
@@ -65,7 +70,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final provider = Provider.of<ProfileProvider>(context, listen: false);
     final currentProfile = provider.profile;
     if (currentProfile == null) return;
-    
+
     final updatedProfile = currentProfile.copyWith(
       fullName: _nameController.text,
       phoneNumber: _phoneController.text,
@@ -80,7 +85,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       Navigator.pop(context);
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.errorMessage ?? 'Failed to update profile')),
+        SnackBar(
+          content: Text(provider.errorMessage ?? 'Failed to update profile'),
+        ),
       );
     }
   }
@@ -104,7 +111,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   children: [
                     _buildTopWarningBanner(),
                     const SizedBox(height: 32),
-                    _buildSectionHeader(Icons.person_outline, 'Personal Information'),
+                    _buildSectionHeader(
+                      Icons.person_outline,
+                      'Personal Information',
+                    ),
                     const SizedBox(height: 16),
                     _buildTextField(
                       label: 'Full Name',
@@ -130,7 +140,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       onTap: () => _selectDate(context),
                       child: _buildDateField(
                         label: 'Date of Birth',
-                        value: _selectedDate?.toIso8601String().split('T').first ?? 'Not provided',
+                        value:
+                            _selectedDate?.toIso8601String().split('T').first ??
+                            'Not provided',
                         leadingIcon: Icons.calendar_today_outlined,
                         isRequired: true,
                         trailingIcon: Icons.calendar_today_outlined,
@@ -166,13 +178,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('Edit Profile', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Edit Profile',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.verified_user_outlined, color: AppTheme.black),
+            icon: const Icon(
+              Icons.verified_user_outlined,
+              color: AppTheme.black,
+            ),
             onPressed: () {},
           ),
         ],
@@ -197,9 +219,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('Some fields require verification', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(
+                  'Some fields require verification',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('Changes to verified fields may require re-verification and approval.', style: TextStyle(fontSize: 10, color: AppTheme.greyText, height: 1.4)),
+                Text(
+                  'Changes to verified fields may require re-verification and approval.',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.greyText,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),
@@ -213,7 +249,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       children: [
         Icon(icon, color: Colors.deepPurple, size: 20),
         const SizedBox(width: 8),
-        Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.black,
+          ),
+        ),
       ],
     );
   }
@@ -228,7 +271,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -244,11 +287,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   padding: const EdgeInsets.only(top: 8),
                   child: Row(
                     children: [
-                      Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: AppTheme.greyText,
+                        ),
+                      ),
                       if (isRequired) ...[
                         const SizedBox(width: 4),
-                        const Text('*', style: TextStyle(fontSize: 10, color: Colors.red)),
-                      ]
+                        const Text(
+                          '*',
+                          style: TextStyle(fontSize: 10, color: Colors.red),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -280,7 +332,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -293,30 +345,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               children: [
                 Row(
                   children: [
-                    Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppTheme.greyText,
+                      ),
+                    ),
                     if (isRequired) ...[
                       const SizedBox(width: 4),
-                      const Text('*', style: TextStyle(fontSize: 10, color: Colors.red)),
-                    ]
+                      const Text(
+                        '*',
+                        style: TextStyle(fontSize: 10, color: Colors.red),
+                      ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(value, style: const TextStyle(fontSize: 14, color: AppTheme.black)),
+                Text(
+                  value,
+                  style: const TextStyle(fontSize: 14, color: AppTheme.black),
+                ),
               ],
             ),
           ),
-          if (trailingIcon != null) Icon(trailingIcon, color: AppTheme.greyText, size: 20),
+          if (trailingIcon != null)
+            Icon(trailingIcon, color: AppTheme.greyText, size: 20),
         ],
       ),
     );
   }
 
-  Widget _buildLockedFormField(String label, String value, IconData leadingIcon) {
+  Widget _buildLockedFormField(
+    String label,
+    String value,
+    IconData leadingIcon,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.greyBackground.withOpacity(0.3),
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        color: AppTheme.greyBackground.withValues(alpha: 0.3),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -327,9 +396,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.greyText,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(value, style: const TextStyle(fontSize: 14, color: AppTheme.greyText)),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.greyText,
+                  ),
+                ),
               ],
             ),
           ),
@@ -349,21 +430,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.deepPurple,
               foregroundColor: AppTheme.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
             child: isLoading
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(color: AppTheme.white, strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                      color: AppTheme.white,
+                      strokeWidth: 2,
+                    ),
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
                       Icon(Icons.save_outlined, size: 18),
                       SizedBox(width: 8),
-                      Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                      Text(
+                        'Save Changes',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
           ),
@@ -376,10 +468,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.deepPurple,
               side: const BorderSide(color: Colors.deepPurple),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text('Cancel', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
           ),
         ),
       ],

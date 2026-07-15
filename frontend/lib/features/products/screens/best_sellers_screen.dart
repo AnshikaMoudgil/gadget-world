@@ -12,7 +12,8 @@ class BestSellersScreen extends StatefulWidget {
   State<BestSellersScreen> createState() => _BestSellersScreenState();
 }
 
-class _BestSellersScreenState extends State<BestSellersScreen> with SingleTickerProviderStateMixin {
+class _BestSellersScreenState extends State<BestSellersScreen>
+    with SingleTickerProviderStateMixin {
   ViewState _currentState = ViewState.loading;
   late AnimationController _shimmerController;
   late Animation<double> _shimmerAnimation;
@@ -20,9 +21,14 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
   @override
   void initState() {
     super.initState();
-    _shimmerController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat(reverse: true);
-    _shimmerAnimation = Tween<double>(begin: 0.3, end: 0.8).animate(CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut));
-    
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+    _shimmerAnimation = Tween<double>(begin: 0.3, end: 0.8).animate(
+      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
+    );
+
     // Simulate network load
     Timer(const Duration(seconds: 2), () {
       if (mounted) {
@@ -63,7 +69,10 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
         actions: [
           // Debug toggle to cycle states
           IconButton(
-            icon: const Icon(Icons.change_circle_outlined, color: AppTheme.greyText),
+            icon: const Icon(
+              Icons.change_circle_outlined,
+              color: AppTheme.greyText,
+            ),
             onPressed: _cycleState,
             tooltip: 'Cycle UI State',
           ),
@@ -71,7 +80,10 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.shopping_cart_outlined, color: AppTheme.black),
+                icon: const Icon(
+                  Icons.shopping_cart_outlined,
+                  color: AppTheme.black,
+                ),
                 onPressed: () {},
               ),
               Positioned(
@@ -79,10 +91,20 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
                 right: 8,
                 child: Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(color: AppTheme.black, shape: BoxShape.circle),
-                  child: const Text('2', style: TextStyle(color: AppTheme.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.black,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Text(
+                    '2',
+                    style: TextStyle(
+                      color: AppTheme.white,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              )
+              ),
             ],
           ),
           const SizedBox(width: 8),
@@ -93,11 +115,21 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
         children: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text('Best Sellers', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.black)),
+            child: Text(
+              'Best Sellers',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black,
+              ),
+            ),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 4.0),
-            child: Text('Top rated and most purchased gadgets', style: TextStyle(fontSize: 14, color: AppTheme.greyText)),
+            child: Text(
+              'Top rated and most purchased gadgets',
+              style: TextStyle(fontSize: 14, color: AppTheme.greyText),
+            ),
           ),
           const SizedBox(height: 16),
           Padding(
@@ -112,16 +144,19 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
                 children: [
                   const Icon(Icons.tune, size: 20, color: AppTheme.black),
                   const SizedBox(width: 8),
-                  const Expanded(child: Text('Sort by: Popular', style: TextStyle(fontSize: 14, color: AppTheme.black))),
+                  const Expanded(
+                    child: Text(
+                      'Sort by: Popular',
+                      style: TextStyle(fontSize: 14, color: AppTheme.black),
+                    ),
+                  ),
                   const Icon(Icons.keyboard_arrow_down, color: AppTheme.black),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: _buildBodyContent(),
-          ),
+          Expanded(child: _buildBodyContent()),
         ],
       ),
     );
@@ -158,7 +193,9 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
                 decoration: BoxDecoration(
                   color: AppTheme.greyBackground,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+                  border: Border.all(
+                    color: AppTheme.greyBorder.withValues(alpha: 0.5),
+                  ),
                 ),
                 padding: const EdgeInsets.all(12),
                 child: Column(
@@ -173,14 +210,26 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Container(height: 12, width: double.infinity, color: Colors.grey.shade300),
+                    Container(
+                      height: 12,
+                      width: double.infinity,
+                      color: Colors.grey.shade300,
+                    ),
                     const SizedBox(height: 8),
-                    Container(height: 12, width: 60, color: Colors.grey.shade300),
+                    Container(
+                      height: 12,
+                      width: 60,
+                      color: Colors.grey.shade300,
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(height: 14, width: 40, color: Colors.grey.shade300),
+                        Container(
+                          height: 14,
+                          width: 40,
+                          color: Colors.grey.shade300,
+                        ),
                         Container(
                           width: 24,
                           height: 24,
@@ -216,18 +265,30 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
                 color: AppTheme.greyBackground,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.inventory_2_outlined, size: 64, color: AppTheme.greyText),
+              child: const Icon(
+                Icons.inventory_2_outlined,
+                size: 64,
+                color: AppTheme.greyText,
+              ),
             ),
             const SizedBox(height: 32),
             const Text(
               'No best sellers yet',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.black),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black,
+              ),
             ),
             const SizedBox(height: 12),
             const Text(
               'We\'re working on bringing you the\nbest gadgets.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppTheme.greyText, height: 1.5),
+              style: TextStyle(
+                fontSize: 14,
+                color: AppTheme.greyText,
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -243,12 +304,20 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.black,
                   foregroundColor: AppTheme.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Text('Explore All Products', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Explore All Products',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     SizedBox(width: 8),
                     Icon(Icons.arrow_forward, size: 20),
                   ],
@@ -263,12 +332,32 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
 
   Widget _buildLoadedState() {
     final products = [
-      {'name': 'Apple AirPods Pro 2', 'subtitle': 'Wireless Earbuds', 'price': 'â‚¹18,999'},
-      {'name': 'boAt Wave Ultima', 'subtitle': 'Smartwatch', 'price': 'â‚¹2,499'},
-      {'name': 'Sony WH-1000XM5', 'subtitle': 'Wireless Headphones', 'price': 'â‚¹24,990'},
+      {
+        'name': 'Apple AirPods Pro 2',
+        'subtitle': 'Wireless Earbuds',
+        'price': 'â‚¹18,999',
+      },
+      {
+        'name': 'boAt Wave Ultima',
+        'subtitle': 'Smartwatch',
+        'price': 'â‚¹2,499',
+      },
+      {
+        'name': 'Sony WH-1000XM5',
+        'subtitle': 'Wireless Headphones',
+        'price': 'â‚¹24,990',
+      },
       {'name': 'iPhone 15', 'subtitle': '128GB', 'price': 'â‚¹69,900'},
-      {'name': 'JBL Flip 6', 'subtitle': 'Portable Bluetooth Speaker', 'price': 'â‚¹8,999'},
-      {'name': 'Ambrane 20000mAh', 'subtitle': 'Power Bank', 'price': 'â‚¹1,499'},
+      {
+        'name': 'JBL Flip 6',
+        'subtitle': 'Portable Bluetooth Speaker',
+        'price': 'â‚¹8,999',
+      },
+      {
+        'name': 'Ambrane 20000mAh',
+        'subtitle': 'Power Bank',
+        'price': 'â‚¹1,499',
+      },
     ];
 
     return GridView.builder(
@@ -283,7 +372,10 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductDetailsScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProductDetailsScreen()),
+            );
           },
           child: Container(
             padding: const EdgeInsets.all(12),
@@ -305,25 +397,42 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Center(
-                          child: Icon(Icons.image_outlined, color: AppTheme.greyBorder, size: 32),
+                          child: Icon(
+                            Icons.image_outlined,
+                            color: AppTheme.greyBorder,
+                            size: 32,
+                          ),
                         ),
                       ),
                       Positioned(
                         top: 8,
                         left: 8,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AppTheme.black,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text('Best Seller', style: TextStyle(color: AppTheme.white, fontSize: 8)),
+                          child: const Text(
+                            'Best Seller',
+                            style: TextStyle(
+                              color: AppTheme.white,
+                              fontSize: 8,
+                            ),
+                          ),
                         ),
                       ),
                       const Positioned(
                         top: 4,
                         right: 4,
-                        child: Icon(Icons.favorite_border, size: 18, color: AppTheme.greyText),
+                        child: Icon(
+                          Icons.favorite_border,
+                          size: 18,
+                          color: AppTheme.greyText,
+                        ),
                       ),
                     ],
                   ),
@@ -331,24 +440,37 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
                 const SizedBox(height: 12),
                 Text(
                   products[index]['name']!,
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: AppTheme.black),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    color: AppTheme.black,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   products[index]['subtitle']!,
-                  style: const TextStyle(color: AppTheme.greyText, fontSize: 10),
+                  style: const TextStyle(
+                    color: AppTheme.greyText,
+                    fontSize: 10,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 12), // Replaced Spacer() with fixed tight spacing
+                const SizedBox(
+                  height: 12,
+                ), // Replaced Spacer() with fixed tight spacing
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       products[index]['price']!,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.black),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: AppTheme.black,
+                      ),
                     ),
                     Container(
                       width: 24,
@@ -357,7 +479,11 @@ class _BestSellersScreenState extends State<BestSellersScreen> with SingleTicker
                         color: AppTheme.black,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.add, color: AppTheme.white, size: 16),
+                      child: const Icon(
+                        Icons.add,
+                        color: AppTheme.white,
+                        size: 16,
+                      ),
                     ),
                   ],
                 ),

@@ -18,21 +18,24 @@ class _AddressScreenState extends State<AddressScreen> {
       'icon': Icons.home_outlined,
       'name': 'Rohit Sharma',
       'isDefault': true,
-      'address': '456, Lajpat Nagar Part 2,\nNear Metro Station, New Delhi - 110024\nDelhi, India\nPhone: +91 98765 43210'
+      'address':
+          '456, Lajpat Nagar Part 2,\nNear Metro Station, New Delhi - 110024\nDelhi, India\nPhone: +91 98765 43210',
     },
     {
       'type': 'Office',
       'icon': Icons.business_center_outlined,
       'name': 'Office',
       'isDefault': false,
-      'address': '7th Floor, Tower B,\nSector 62, Noida - 201301\nUttar Pradesh, India\nPhone: +91 91234 56789'
+      'address':
+          '7th Floor, Tower B,\nSector 62, Noida - 201301\nUttar Pradesh, India\nPhone: +91 91234 56789',
     },
     {
       'type': 'Home',
       'icon': Icons.home_outlined,
       'name': 'Home',
       'isDefault': false,
-      'address': '89, Green Park Extension,\nGreen Park, New Delhi - 110016\nDelhi, India\nPhone: +91 99887 76655'
+      'address':
+          '89, Green Park Extension,\nGreen Park, New Delhi - 110016\nDelhi, India\nPhone: +91 99887 76655',
     },
   ];
 
@@ -61,21 +64,42 @@ class _AddressScreenState extends State<AddressScreen> {
               Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(color: AppTheme.greyBorder, borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(
+                  color: AppTheme.greyBorder,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
               const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: Colors.red.shade50, shape: BoxShape.circle),
-                child: const Icon(Icons.delete_outline, color: Colors.red, size: 28),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.red,
+                  size: 28,
+                ),
               ),
               const SizedBox(height: 16),
-              const Text('Delete Address?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+              const Text(
+                'Delete Address?',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
+              ),
               const SizedBox(height: 8),
               const Text(
                 'Are you sure you want to delete this address?\nThis action cannot be undone.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.4),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.greyText,
+                  height: 1.4,
+                ),
               ),
               const SizedBox(height: 32),
               Row(
@@ -86,10 +110,18 @@ class _AddressScreenState extends State<AddressScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.black,
                         side: const BorderSide(color: AppTheme.greyBorder),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: const Text('Cancel', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -99,10 +131,18 @@ class _AddressScreenState extends State<AddressScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.black,
                         foregroundColor: AppTheme.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: const Text('Delete', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -132,13 +172,23 @@ class _AddressScreenState extends State<AddressScreen> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const AddAddressScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AddAddressScreen(),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.black,
                         foregroundColor: AppTheme.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 24,
+                        ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,7 +197,13 @@ class _AddressScreenState extends State<AddressScreen> {
                             children: const [
                               Icon(Icons.add_circle_outline, size: 20),
                               SizedBox(width: 8),
-                              Text('Add New Address', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                              Text(
+                                'Add New Address',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ],
                           ),
                           const Icon(Icons.arrow_forward, size: 20),
@@ -177,31 +233,52 @@ class _AddressScreenState extends State<AddressScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 8.0), // Align text baseline with icon
+              padding: const EdgeInsets.only(
+                top: 8.0,
+              ), // Align text baseline with icon
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('My Addresses', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'My Addresses',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 4),
-                  Text('Manage your saved addresses', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                  Text(
+                    'Manage your saved addresses',
+                    style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                  ),
                 ],
               ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.change_circle_outlined, color: AppTheme.greyText),
+            icon: const Icon(
+              Icons.change_circle_outlined,
+              color: AppTheme.greyText,
+            ),
             onPressed: _toggleState,
           ),
           Padding(
             padding: const EdgeInsets.only(top: 4.0),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const AddAddressScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddAddressScreen()),
+                );
               },
               child: Container(
                 width: 36,
                 height: 36,
-                decoration: BoxDecoration(color: AppTheme.black, borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                  color: AppTheme.black,
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: const Icon(Icons.add, color: AppTheme.white, size: 20),
               ),
             ),
@@ -221,7 +298,7 @@ class _AddressScreenState extends State<AddressScreen> {
               width: 160,
               height: 160,
               decoration: BoxDecoration(
-                color: AppTheme.greyBackground.withOpacity(0.5),
+                color: AppTheme.greyBackground.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
               child: Stack(
@@ -230,18 +307,33 @@ class _AddressScreenState extends State<AddressScreen> {
                   Icon(Icons.map, size: 80, color: AppTheme.white),
                   Positioned(
                     top: 20,
-                    child: Icon(Icons.location_on, size: 60, color: AppTheme.black),
+                    child: Icon(
+                      Icons.location_on,
+                      size: 60,
+                      color: AppTheme.black,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 32),
-            const Text('No addresses yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+            const Text(
+              'No addresses yet',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black,
+              ),
+            ),
             const SizedBox(height: 12),
             const Text(
               'Add an address to make your\ncheckout experience faster.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.4),
+              style: TextStyle(
+                fontSize: 12,
+                color: AppTheme.greyText,
+                height: 1.4,
+              ),
             ),
           ],
         ),
@@ -251,7 +343,9 @@ class _AddressScreenState extends State<AddressScreen> {
 
   Widget _buildAddressList() {
     return Column(
-      children: _addresses.map((address) => _buildAddressCard(address)).toList(),
+      children: _addresses
+          .map((address) => _buildAddressCard(address))
+          .toList(),
     );
   }
 
@@ -261,7 +355,7 @@ class _AddressScreenState extends State<AddressScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -275,7 +369,10 @@ class _AddressScreenState extends State<AddressScreen> {
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(color: AppTheme.black, borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(
+                    color: AppTheme.black,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: Icon(data['icon'], color: AppTheme.white, size: 20),
                 ),
                 const SizedBox(width: 16),
@@ -285,19 +382,46 @@ class _AddressScreenState extends State<AddressScreen> {
                     children: [
                       Row(
                         children: [
-                          Text(data['name'], style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                          Text(
+                            data['name'],
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.black,
+                            ),
+                          ),
                           if (isDefault) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(color: AppTheme.black, borderRadius: BorderRadius.circular(6)),
-                              child: const Text('Default', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppTheme.white)),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.black,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text(
+                                'Default',
+                                style: TextStyle(
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.white,
+                                ),
+                              ),
                             ),
                           ],
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text(data['address'], style: const TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.5)),
+                      Text(
+                        data['address'],
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.greyText,
+                          height: 1.5,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -311,7 +435,11 @@ class _AddressScreenState extends State<AddressScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(color: AppTheme.greyBorder),
                         ),
-                        child: const Icon(Icons.edit_outlined, size: 14, color: AppTheme.black),
+                        child: const Icon(
+                          Icons.edit_outlined,
+                          size: 14,
+                          color: AppTheme.black,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -323,7 +451,11 @@ class _AddressScreenState extends State<AddressScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(color: AppTheme.greyBorder),
                         ),
-                        child: const Icon(Icons.delete_outline, size: 14, color: AppTheme.black),
+                        child: const Icon(
+                          Icons.delete_outline,
+                          size: 14,
+                          color: AppTheme.black,
+                        ),
                       ),
                     ),
                   ],
@@ -335,19 +467,28 @@ class _AddressScreenState extends State<AddressScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: AppTheme.greyBackground.withOpacity(0.3),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+                color: AppTheme.greyBackground.withValues(alpha: 0.3),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(16),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   Icon(Icons.star, size: 14, color: AppTheme.black),
                   SizedBox(width: 8),
-                  Text('Default shipping address', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.greyText)),
+                  Text(
+                    'Default shipping address',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.greyText,
+                    ),
+                  ),
                 ],
               ),
             ),
-          ]
+          ],
         ],
       ),
     );

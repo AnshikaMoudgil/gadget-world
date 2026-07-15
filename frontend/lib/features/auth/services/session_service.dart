@@ -6,7 +6,7 @@ class SessionService {
   bool get hasSession => _supabase.auth.currentSession != null;
 
   Session? get currentSession => _supabase.auth.currentSession;
-  
+
   User? get currentUser => _supabase.auth.currentUser;
 
   // Supabase automatically restores sessions from local storage when initialized.

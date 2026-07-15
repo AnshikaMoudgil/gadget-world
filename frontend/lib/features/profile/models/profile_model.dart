@@ -23,8 +23,12 @@ class Profile {
       fullName: json['full_name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       phoneNumber: json['phone_number'] as String?,
-      dateOfBirth: json['date_of_birth'] != null ? DateTime.tryParse(json['date_of_birth']) : null,
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
+      dateOfBirth: json['date_of_birth'] != null
+          ? DateTime.tryParse(json['date_of_birth'])
+          : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
     );
   }
 
@@ -34,7 +38,8 @@ class Profile {
       'full_name': fullName,
       'email': email,
       if (phoneNumber != null) 'phone_number': phoneNumber,
-      if (dateOfBirth != null) 'date_of_birth': dateOfBirth!.toIso8601String().split('T').first,
+      if (dateOfBirth != null)
+        'date_of_birth': dateOfBirth!.toIso8601String().split('T').first,
     };
   }
 

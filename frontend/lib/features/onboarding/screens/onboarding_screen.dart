@@ -19,7 +19,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasCompletedOnboarding', true);
     if (!mounted) return;
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
   }
 
   @override
@@ -38,7 +41,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
               const Text(
                 'Gadget World',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.black),
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
               ),
               const SizedBox(height: 8),
               const Text(
@@ -57,17 +64,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   children: [
                     _buildOnboardingCard(
                       title: 'Bulk pricing that\nadjusts as you buy',
-                      subtitle: 'Get more for less. Our tiered pricing\nensures better value on every order.',
+                      subtitle:
+                          'Get more for less. Our tiered pricing\nensures better value on every order.',
                       icon: Icons.percent,
                     ),
                     _buildOnboardingCard(
                       title: 'Secure & fast\ntransactions',
-                      subtitle: 'Experience seamless payments with\nour trusted B2B payment gateway.',
+                      subtitle:
+                          'Experience seamless payments with\nour trusted B2B payment gateway.',
                       icon: Icons.security,
                     ),
                     _buildOnboardingCard(
                       title: 'Direct delivery to\nyour warehouse',
-                      subtitle: 'Track your orders in real-time and\nget them delivered fast.',
+                      subtitle:
+                          'Track your orders in real-time and\nget them delivered fast.',
                       icon: Icons.local_shipping,
                     ),
                   ],
@@ -82,12 +92,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Already have an account? ', style: TextStyle(color: AppTheme.greyText)),
+                  const Text(
+                    'Already have an account? ',
+                    style: TextStyle(color: AppTheme.greyText),
+                  ),
                   GestureDetector(
                     onTap: _completeOnboarding,
                     child: const Text(
                       'Log in',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.black),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.black,
+                      ),
                     ),
                   ),
                 ],
@@ -100,7 +116,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildOnboardingCard({required String title, required String subtitle, required IconData icon}) {
+  Widget _buildOnboardingCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       padding: const EdgeInsets.all(24),
@@ -109,7 +129,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -125,9 +145,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 color: AppTheme.greyBackground,
                 shape: BoxShape.circle,
               ),
-              child: Center(
-                child: Icon(icon, size: 80, color: AppTheme.black),
-              ),
+              child: Center(child: Icon(icon, size: 80, color: AppTheme.black)),
             ),
           ),
           const SizedBox(height: 40),
@@ -141,7 +159,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 height: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _currentPage == index ? AppTheme.black : AppTheme.greyBorder,
+                  color: _currentPage == index
+                      ? AppTheme.black
+                      : AppTheme.greyBorder,
                 ),
               ),
             ),
@@ -150,7 +170,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.black),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.black,
+            ),
           ),
           const SizedBox(height: 16),
           Text(

@@ -23,7 +23,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _toggleState() {
     setState(() {
-      _currentState = _currentState == DashboardState.existing ? DashboardState.newBuyer : DashboardState.existing;
+      _currentState = _currentState == DashboardState.existing
+          ? DashboardState.newBuyer
+          : DashboardState.existing;
     });
   }
 
@@ -38,40 +40,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildCustomHeader(),
-            const SizedBox(height: 24),
-            if (isExisting) _buildExistingHeroCard() else _buildNewBuyerHeroCard(),
-            const SizedBox(height: 32),
-            
-            if (isExisting) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Recent Orders', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
-                  Text('View All', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue.shade700)),
-                ],
+            children: [
+              _buildCustomHeader(),
+              const SizedBox(height: 24),
+              if (isExisting)
+                _buildExistingHeroCard()
+              else
+                _buildNewBuyerHeroCard(),
+              const SizedBox(height: 32),
+
+              if (isExisting) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Recent Orders',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.black,
+                      ),
+                    ),
+                    Text(
+                      'View All',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildRecentOrders(),
+              ] else ...[
+                _buildEmptyOrdersState(),
+              ],
+
+              const SizedBox(height: 32),
+              const Text(
+                'Quick Actions',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
               ),
               const SizedBox(height: 16),
-              _buildRecentOrders(),
-            ] else ...[
-              _buildEmptyOrdersState(),
+              _buildQuickActionsGrid(),
+
+              const SizedBox(height: 32),
+              const Text(
+                'Account',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildAccountMenu(context),
+
+              const SizedBox(height: 48), // Bottom padding
             ],
-            
-            const SizedBox(height: 32),
-            const Text('Quick Actions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
-            const SizedBox(height: 16),
-            _buildQuickActionsGrid(),
-            
-            const SizedBox(height: 32),
-            const Text('Account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
-            const SizedBox(height: 16),
-            _buildAccountMenu(context),
-            
-            const SizedBox(height: 48), // Bottom padding
-          ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -87,8 +120,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Consumer<ProfileProvider>(
               builder: (context, provider, child) {
-                final firstName = provider.profile?.fullName.split(' ').first ?? 'Guest';
-                return Text('Hi, $firstName 👋', style: const TextStyle(color: AppTheme.black, fontSize: 20, fontWeight: FontWeight.bold));
+                final firstName =
+                    provider.profile?.fullName.split(' ').first ?? 'Guest';
+                return Text(
+                  'Hi, $firstName 👋',
+                  style: const TextStyle(
+                    color: AppTheme.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
               },
             ),
             Row(
@@ -96,31 +137,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Stack(
                   alignment: Alignment.center,
                   children: [
-                    IconButton(icon: const Icon(Icons.notifications_none, color: AppTheme.black), onPressed: _toggleState),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.notifications_none,
+                        color: AppTheme.black,
+                      ),
+                      onPressed: _toggleState,
+                    ),
                     Positioned(
                       right: 10,
                       top: 10,
                       child: Container(
                         padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                        constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
-                        child: const Text('3', style: TextStyle(color: AppTheme.white, fontSize: 8, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 14,
+                          minHeight: 14,
+                        ),
+                        child: const Text(
+                          '3',
+                          style: TextStyle(
+                            color: AppTheme.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   ],
                 ),
                 IconButton(
-            icon: const Icon(Icons.settings_outlined, color: AppTheme.black),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
-            },
-          ),
+                  icon: const Icon(
+                    Icons.settings_outlined,
+                    color: AppTheme.black,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    );
+                  },
+                ),
               ],
             ),
           ],
         ),
         Text(
-          isExisting ? 'Welcome back! Glad to see you.' : 'Welcome! Let\'s get you started.',
+          isExisting
+              ? 'Welcome back! Glad to see you.'
+              : 'Welcome! Let\'s get you started.',
           style: const TextStyle(color: AppTheme.greyText, fontSize: 12),
         ),
       ],
@@ -140,20 +209,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Your Orders', style: TextStyle(fontSize: 12, color: Colors.green.shade800)),
+                Text(
+                  'Your Orders',
+                  style: TextStyle(fontSize: 12, color: Colors.green.shade800),
+                ),
                 const SizedBox(height: 4),
-                const Text('3 Active Orders', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                const Text(
+                  '3 Active Orders',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                const Text('2 delivered in the last 30 days', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                const Text(
+                  '2 delivered in the last 30 days',
+                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                ),
                 const SizedBox(height: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.white,
                     border: Border.all(color: Colors.green.shade200),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text('View All Orders', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
+                  child: const Text(
+                    'View All Orders',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -168,20 +260,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   width: 60,
                   height: 60,
-                  decoration: BoxDecoration(color: Colors.green.shade200.withOpacity(0.5), shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade200.withValues(alpha: 0.5),
+                    shape: BoxShape.circle,
+                  ),
                 ),
                 Positioned(
                   left: 0,
                   top: 10,
-                  child: Icon(Icons.inventory_2, color: Colors.brown.shade300, size: 40),
+                  child: Icon(
+                    Icons.inventory_2,
+                    color: Colors.brown.shade300,
+                    size: 40,
+                  ),
                 ),
                 Positioned(
                   right: 0,
                   bottom: 10,
                   child: Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: AppTheme.white, borderRadius: BorderRadius.circular(8), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)]),
-                    child: const Icon(Icons.shopping_bag, color: AppTheme.black, size: 24),
+                    decoration: BoxDecoration(
+                      color: AppTheme.white,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.shopping_bag,
+                      color: AppTheme.black,
+                      size: 24,
+                    ),
                   ),
                 ),
               ],
@@ -206,21 +318,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Welcome to Gadget Store!', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                const Text(
+                  'Welcome to Gadget Store!',
+                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                ),
                 const SizedBox(height: 4),
-                const Text('Place your first order', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                const Text(
+                  'Place your first order',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                const Text('Explore our best products and enjoy a seamless shopping experience.', style: TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.4)),
+                const Text(
+                  'Explore our best products and enjoy a seamless shopping experience.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                    height: 1.4,
+                  ),
+                ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.black,
                     foregroundColor: AppTheme.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
-                  child: const Text('Start Shopping', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Start Shopping',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
@@ -237,15 +374,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Positioned(
                     right: 0,
                     top: 20,
-                    child: Icon(Icons.inventory_2_outlined, color: Colors.brown.shade300, size: 60),
+                    child: Icon(
+                      Icons.inventory_2_outlined,
+                      color: Colors.brown.shade300,
+                      size: 60,
+                    ),
                   ),
                   Positioned(
                     left: 0,
                     bottom: 10,
                     child: Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: AppTheme.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)]),
-                      child: const Icon(Icons.shopping_bag, color: AppTheme.black, size: 40),
+                      decoration: BoxDecoration(
+                        color: AppTheme.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.shopping_bag,
+                        color: AppTheme.black,
+                        size: 40,
+                      ),
                     ),
                   ),
                 ],
@@ -260,21 +414,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildRecentOrders() {
     return Column(
       children: [
-        _buildCompactOrderCard('#GS1234567890', 'Delivered', '09 Jul 2025', 'â‚¹7,405', '3 Items', Icons.headphones, Colors.green),
+        _buildCompactOrderCard(
+          '#GS1234567890',
+          'Delivered',
+          '09 Jul 2025',
+          'â‚¹7,405',
+          '3 Items',
+          Icons.headphones,
+          Colors.green,
+        ),
         const SizedBox(height: 12),
-        _buildCompactOrderCard('#GS1234567889', 'Shipped', '07 Jul 2025', 'â‚¹5,998', '2 Items', Icons.watch, Colors.blue),
+        _buildCompactOrderCard(
+          '#GS1234567889',
+          'Shipped',
+          '07 Jul 2025',
+          'â‚¹5,998',
+          '2 Items',
+          Icons.watch,
+          Colors.blue,
+        ),
         const SizedBox(height: 12),
-        _buildCompactOrderCard('#GS1234567887', 'Confirmed', '05 Jul 2025', 'â‚¹2,598', '2 Items', Icons.earbuds, Colors.orange),
+        _buildCompactOrderCard(
+          '#GS1234567887',
+          'Confirmed',
+          '05 Jul 2025',
+          'â‚¹2,598',
+          '2 Items',
+          Icons.earbuds,
+          Colors.orange,
+        ),
       ],
     );
   }
 
-  Widget _buildCompactOrderCard(String id, String status, String date, String price, String items, IconData icon, Color statusColor) {
+  Widget _buildCompactOrderCard(
+    String id,
+    String status,
+    String date,
+    String price,
+    String items,
+    IconData icon,
+    Color statusColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -282,7 +468,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             width: 50,
             height: 50,
-            decoration: BoxDecoration(color: AppTheme.greyBackground, borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+              color: AppTheme.greyBackground,
+              borderRadius: BorderRadius.circular(8),
+            ),
             child: Icon(icon, color: AppTheme.black),
           ),
           const SizedBox(width: 16),
@@ -292,19 +481,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Row(
                   children: [
-                    Text('Order $id', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                    Text(
+                      'Order $id',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.black,
+                      ),
+                    ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: statusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                      child: Text(status, style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: statusColor)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        status,
+                        style: TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                          color: statusColor,
+                        ),
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 6),
-                Text('$date â€¢ $price', style: const TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                Text(
+                  '$date â€¢ $price',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.greyText,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(items, style: const TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                Text(
+                  items,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.greyText,
+                  ),
+                ),
               ],
             ),
           ),
@@ -319,20 +540,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
       decoration: BoxDecoration(
-        color: AppTheme.greyBackground.withOpacity(0.3),
+        color: AppTheme.greyBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.3)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
-          Icon(Icons.shopping_bag_outlined, size: 60, color: AppTheme.greyBorder),
+          Icon(
+            Icons.shopping_bag_outlined,
+            size: 60,
+            color: AppTheme.greyBorder,
+          ),
           const SizedBox(height: 16),
-          const Text('No orders yet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
+          const Text(
+            'No orders yet',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.black,
+            ),
+          ),
           const SizedBox(height: 8),
           const Text(
             'When you place your first order,\nit will appear here.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.4),
+            style: TextStyle(
+              fontSize: 12,
+              color: AppTheme.greyText,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -340,10 +576,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.black,
               foregroundColor: AppTheme.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            child: const Text('Start Shopping', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Start Shopping',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -355,9 +596,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         Row(
           children: [
-            Expanded(child: _buildActionTile(Icons.refresh, 'Reorder', 'Buy again easily', Colors.blue, onTap: () {})),
+            Expanded(
+              child: _buildActionTile(
+                Icons.refresh,
+                'Reorder',
+                'Buy again easily',
+                Colors.blue,
+                onTap: () {},
+              ),
+            ),
             const SizedBox(width: 16),
-            Expanded(child: _buildActionTile(Icons.local_shipping_outlined, 'Track Order', 'Check delivery status', Colors.green, onTap: () {})),
+            Expanded(
+              child: _buildActionTile(
+                Icons.local_shipping_outlined,
+                'Track Order',
+                'Check delivery status',
+                Colors.green,
+                onTap: () {},
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -370,7 +627,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Your saved items',
                 Colors.red,
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const WishlistScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const WishlistScreen()),
+                  );
                 },
               ),
             ),
@@ -382,7 +642,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Get help & support',
                 Colors.purple,
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactUsScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ContactUsScreen()),
+                  );
                 },
               ),
             ),
@@ -392,7 +655,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildActionTile(IconData icon, String title, String subtitle, Color color, {required VoidCallback onTap}) {
+  Widget _buildActionTile(
+    IconData icon,
+    String title,
+    String subtitle,
+    Color color, {
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -400,14 +669,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppTheme.white,
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
               child: Icon(icon, color: color, size: 20),
             ),
             const SizedBox(width: 12),
@@ -415,9 +687,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.black,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppTheme.greyText,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -431,32 +716,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
-          _buildMenuItem(Icons.person_outline, 'Profile', 'Manage your personal info', () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const MyProfileScreen()));
-          }),
+          _buildMenuItem(
+            Icons.person_outline,
+            'Profile',
+            'Manage your personal info',
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MyProfileScreen()),
+              );
+            },
+          ),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildMenuItem(Icons.location_on_outlined, 'Addresses', 'Manage saved addresses', () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const AddressScreen()));
-          }),
+          _buildMenuItem(
+            Icons.location_on_outlined,
+            'Addresses',
+            'Manage saved addresses',
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AddressScreen()),
+              );
+            },
+          ),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildMenuItem(Icons.credit_card_outlined, 'Payment Methods', 'Cards, UPI & more', () {}),
+          _buildMenuItem(
+            Icons.credit_card_outlined,
+            'Payment Methods',
+            'Cards, UPI & more',
+            () {},
+          ),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildMenuItem(Icons.settings_outlined, 'Settings', 'App preferences', () {}),
+          _buildMenuItem(
+            Icons.settings_outlined,
+            'Settings',
+            'App preferences',
+            () {},
+          ),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildMenuItem(Icons.more_horiz, 'More Options', 'About, Policies & Logout', () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const MoreMenuScreen()));
-          }),
+          _buildMenuItem(
+            Icons.more_horiz,
+            'More Options',
+            'About, Policies & Logout',
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MoreMenuScreen()),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, String subtitle, VoidCallback onTap) {
+  Widget _buildMenuItem(
+    IconData icon,
+    String title,
+    String subtitle,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -469,9 +793,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.black,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.greyText,
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -21,7 +21,8 @@ class AddressService {
   }
 
   /// Insert a new address for [userId].
-  Future<Address> createAddress(String userId, CreateAddressRequest request) async {
+  Future<Address> createAddress(
+      String userId, CreateAddressRequest request) async {
     // TODO: Implement with Supabase client
     // The DB trigger handles demoting the old default when is_default = true.
     final data = request.toJson();

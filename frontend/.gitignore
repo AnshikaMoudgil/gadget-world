@@ -33,7 +33,7 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
-
+.kotlin/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
@@ -42,7 +42,7 @@ build/
 **/generated_plugin_registrant.*
 **/generated_plugins.cmake
 **/GeneratedPluginRegistrant.*
-
+*.pfx
 # Symbolication related
 app.*.symbols
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/home/screens/home_screen.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
 
@@ -54,17 +53,43 @@ class _OrdersScreenState extends State<OrdersScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('My Orders', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  'My Orders',
+                  style: TextStyle(
+                    color: AppTheme.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 SizedBox(height: 2),
-                Text('Track and manage all your orders', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                Text(
+                  'Track and manage all your orders',
+                  style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                ),
               ],
             ),
           ),
           Row(
             children: [
-              IconButton(icon: const Icon(Icons.search, color: AppTheme.black), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.filter_alt_outlined, color: AppTheme.black), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.change_circle_outlined, color: AppTheme.greyText), onPressed: _cycleState, tooltip: 'Cycle UI State'),
+              IconButton(
+                icon: const Icon(Icons.search, color: AppTheme.black),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.filter_alt_outlined,
+                  color: AppTheme.black,
+                ),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.change_circle_outlined,
+                  color: AppTheme.greyText,
+                ),
+                onPressed: _cycleState,
+                tooltip: 'Cycle UI State',
+              ),
             ],
           ),
         ],
@@ -85,11 +110,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
         if (_currentState == OrdersState.loaded)
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text('Orders (6)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
+            child: Text(
+              'Orders (6)',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black,
+              ),
+            ),
           ),
         const SizedBox(height: 16),
         Expanded(
-          child: _currentState == OrdersState.loaded ? _buildLoadedList() : _buildLoadingList(),
+          child: _currentState == OrdersState.loaded
+              ? _buildLoadedList()
+              : _buildLoadingList(),
         ),
       ],
     );
@@ -114,7 +148,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, {bool isSelected = false, bool isLoading = false}) {
+  Widget _buildFilterChip(
+    String label, {
+    bool isSelected = false,
+    bool isLoading = false,
+  }) {
     if (isLoading) {
       return Container(
         margin: const EdgeInsets.only(right: 8),
@@ -132,7 +170,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: isSelected ? AppTheme.black : AppTheme.white,
-        border: Border.all(color: isSelected ? AppTheme.black : AppTheme.greyBorder),
+        border: Border.all(
+          color: isSelected ? AppTheme.black : AppTheme.greyBorder,
+        ),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Text(
@@ -242,74 +282,118 @@ class _OrdersScreenState extends State<OrdersScreen> {
       builder: (context) {
         return GestureDetector(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const OrderDetailScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const OrderDetailScreen()),
+            );
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 60,
-            height: 60,
             decoration: BoxDecoration(
-              color: AppTheme.greyBackground,
-              borderRadius: BorderRadius.circular(8),
+              color: AppTheme.white,
+              border: Border.all(color: AppTheme.greyBorder),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppTheme.black, size: 30),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('Order $id', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
-                const SizedBox(height: 4),
-                Text(date, style: const TextStyle(fontSize: 12, color: AppTheme.greyText)),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: statusBgColor,
-                        borderRadius: BorderRadius.circular(4),
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: AppTheme.greyBackground,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: AppTheme.black, size: 30),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Order $id',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.black,
+                        ),
                       ),
-                      child: Text(status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: statusColor)),
+                      const SizedBox(height: 4),
+                      Text(
+                        date,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.greyText,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: statusBgColor,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              status,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: statusColor,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            items,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.greyText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Icon(
+                      Icons.chevron_right,
+                      color: AppTheme.black,
+                      size: 20,
                     ),
-                    const SizedBox(width: 8),
-                    Text(items, style: const TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                    const SizedBox(height: 16),
+                    Text(
+                      price,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.black,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Icon(Icons.chevron_right, color: AppTheme.black, size: 20),
-              const SizedBox(height: 16),
-              Text(price, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
-            ],
-          ),
-        ],
-      ),
-    ),
-    );
+        );
       },
     );
   }
+
   Widget _buildHelpCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.greyBackground.withOpacity(0.5),
+        color: AppTheme.greyBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -317,17 +401,38 @@ class _OrdersScreenState extends State<OrdersScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.orange.shade100, borderRadius: BorderRadius.circular(8)),
-            child: const Icon(Icons.inventory_2, color: Colors.orange, size: 20),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade100,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.inventory_2,
+              color: Colors.orange,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('Can\'t find your order?', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(
+                  'Can\'t find your order?',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('Make sure you\'re using the email ID you placed the order with.', style: TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.4)),
+                Text(
+                  'Make sure you\'re using the email ID you placed the order with.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),
@@ -345,7 +450,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+            border: Border.all(
+              color: AppTheme.greyBorder.withValues(alpha: 0.5),
+            ),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -355,7 +462,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
               Container(
                 width: 60,
                 height: 60,
-                decoration: BoxDecoration(color: AppTheme.greyBackground, borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                  color: AppTheme.greyBackground,
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -363,17 +473,36 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Title shimmer
-                    Container(width: 150, height: 14, color: AppTheme.greyBackground),
+                    Container(
+                      width: 150,
+                      height: 14,
+                      color: AppTheme.greyBackground,
+                    ),
                     const SizedBox(height: 8),
                     // Date shimmer
-                    Container(width: 120, height: 12, color: AppTheme.greyBackground),
+                    Container(
+                      width: 120,
+                      height: 12,
+                      color: AppTheme.greyBackground,
+                    ),
                     const SizedBox(height: 12),
                     // Status and items shimmer
                     Row(
                       children: [
-                        Container(width: 60, height: 20, decoration: BoxDecoration(color: AppTheme.greyBackground, borderRadius: BorderRadius.circular(4))),
+                        Container(
+                          width: 60,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: AppTheme.greyBackground,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
                         const SizedBox(width: 8),
-                        Container(width: 40, height: 12, color: AppTheme.greyBackground),
+                        Container(
+                          width: 40,
+                          height: 12,
+                          color: AppTheme.greyBackground,
+                        ),
                       ],
                     ),
                   ],
@@ -383,9 +512,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Icon(Icons.chevron_right, color: AppTheme.greyBorder, size: 20),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: AppTheme.greyBorder,
+                    size: 20,
+                  ),
                   const SizedBox(height: 16),
-                  Container(width: 50, height: 14, color: AppTheme.greyBackground),
+                  Container(
+                    width: 50,
+                    height: 14,
+                    color: AppTheme.greyBackground,
+                  ),
                 ],
               ),
             ],
@@ -409,10 +546,34 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 alignment: Alignment.center,
                 children: [
                   // Decorative stars
-                  Positioned(top: 20, left: 20, child: Icon(Icons.star, size: 12, color: AppTheme.greyBorder)),
-                  Positioned(top: 50, right: 30, child: Icon(Icons.star, size: 16, color: AppTheme.greyBorder)),
-                  Positioned(bottom: 40, left: 10, child: Icon(Icons.star, size: 14, color: AppTheme.greyBorder)),
-                  
+                  Positioned(
+                    top: 20,
+                    left: 20,
+                    child: Icon(
+                      Icons.star,
+                      size: 12,
+                      color: AppTheme.greyBorder,
+                    ),
+                  ),
+                  Positioned(
+                    top: 50,
+                    right: 30,
+                    child: Icon(
+                      Icons.star,
+                      size: 16,
+                      color: AppTheme.greyBorder,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 40,
+                    left: 10,
+                    child: Icon(
+                      Icons.star,
+                      size: 14,
+                      color: AppTheme.greyBorder,
+                    ),
+                  ),
+
                   // Clipboard
                   Container(
                     width: 100,
@@ -425,9 +586,23 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     child: Column(
                       children: [
                         const SizedBox(height: 12),
-                        Container(width: 40, height: 8, color: AppTheme.greyBorder, margin: const EdgeInsets.only(bottom: 12)),
-                        Container(width: 60, height: 8, color: AppTheme.greyBorder, margin: const EdgeInsets.only(bottom: 12)),
-                        Container(width: 50, height: 8, color: AppTheme.greyBorder),
+                        Container(
+                          width: 40,
+                          height: 8,
+                          color: AppTheme.greyBorder,
+                          margin: const EdgeInsets.only(bottom: 12),
+                        ),
+                        Container(
+                          width: 60,
+                          height: 8,
+                          color: AppTheme.greyBorder,
+                          margin: const EdgeInsets.only(bottom: 12),
+                        ),
+                        Container(
+                          width: 50,
+                          height: 8,
+                          color: AppTheme.greyBorder,
+                        ),
                       ],
                     ),
                   ),
@@ -442,7 +617,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       ),
                     ),
                   ),
-                  
+
                   // Shopping Bag
                   Positioned(
                     bottom: 0,
@@ -456,7 +631,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         border: Border.all(color: AppTheme.greyBorder),
                       ),
                       child: const Center(
-                        child: Icon(Icons.shopping_bag, size: 40, color: AppTheme.black),
+                        child: Icon(
+                          Icons.shopping_bag,
+                          size: 40,
+                          color: AppTheme.black,
+                        ),
                       ),
                     ),
                   ),
@@ -464,12 +643,23 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
             ),
             const SizedBox(height: 48),
-            const Text('No orders yet', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.black)),
+            const Text(
+              'No orders yet',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black,
+              ),
+            ),
             const SizedBox(height: 12),
             const Text(
               'Looks like you haven\'t placed any orders.\nWhat are you waiting for?',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppTheme.greyText, height: 1.5),
+              style: TextStyle(
+                fontSize: 14,
+                color: AppTheme.greyText,
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 32),
             SizedBox(
@@ -488,14 +678,22 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.black,
                   foregroundColor: AppTheme.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
                     Icon(Icons.shopping_bag_outlined, size: 20),
                     SizedBox(width: 8),
-                    Text('Start Shopping', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Start Shopping',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),

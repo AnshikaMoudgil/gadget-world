@@ -11,15 +11,13 @@ class ProfileService {
           .select()
           .eq('id', userId)
           .maybeSingle();
-      
+
       if (data == null) return null;
       return Profile.fromJson(data);
     } catch (e) {
       throw Exception('Failed to fetch profile: $e');
     }
   }
-
-
 
   Future<Profile> updateProfile(Profile profile) async {
     try {
@@ -29,7 +27,7 @@ class ProfileService {
           .eq('id', profile.id)
           .select()
           .single();
-      
+
       return Profile.fromJson(data);
     } catch (e) {
       throw Exception('Failed to update profile: $e');

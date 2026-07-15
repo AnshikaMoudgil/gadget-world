@@ -28,6 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final prefs = await SharedPreferences.getInstance();
     final bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
     final bool isLoggedIn = SessionService().hasSession;
+    if (!mounted) return;
 
     if (!hasSeenOnboarding) {
       Navigator.pushReplacement(
@@ -68,8 +69,14 @@ class _SplashScreenState extends State<SplashScreen> {
                     text: const TextSpan(
                       style: TextStyle(fontSize: 36, color: AppTheme.black),
                       children: [
-                        TextSpan(text: 'Gadget ', style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: 'World', style: TextStyle(fontWeight: FontWeight.w300)),
+                        TextSpan(
+                          text: 'Gadget ',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: 'World',
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
                       ],
                     ),
                   ),
@@ -95,7 +102,11 @@ class _SplashScreenState extends State<SplashScreen> {
               right: 0,
               child: const Column(
                 children: [
-                  Icon(Icons.shopping_cart_outlined, color: AppTheme.white, size: 28),
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    color: AppTheme.white,
+                    size: 28,
+                  ),
                   SizedBox(height: 16),
                   Text(
                     'Wholesale. Reliable. Futures Ready.',
@@ -129,7 +140,7 @@ class SplashBackgroundPainter extends CustomPainter {
     final lightGrayPaint = Paint()
       ..color = const Color(0xFFF5F5F5)
       ..style = PaintingStyle.fill;
-    
+
     // Top left triangle
     final path1 = Path();
     path1.moveTo(0, 0);
@@ -159,26 +170,30 @@ class SplashBackgroundPainter extends CustomPainter {
     blackPath.lineTo(0, size.height * 0.80);
     // Curve to the right edge at about 55% down
     blackPath.quadraticBezierTo(
-      size.width * 0.3, size.height * 0.65, // Control point
-      size.width, size.height * 0.55,       // End point
+      size.width * 0.3,
+      size.height * 0.65, // Control point
+      size.width,
+      size.height * 0.55, // End point
     );
     // Go down the right edge to the bottom right
     blackPath.lineTo(size.width, size.height);
     blackPath.close();
 
     canvas.drawPath(blackPath, blackPaint);
-    
+
     // There is a thin gray curved line above the black shape
     final linePaint = Paint()
       ..color = const Color(0xFFEEEEEE)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-      
+
     final linePath = Path();
     linePath.moveTo(0, size.height * 0.70);
     linePath.quadraticBezierTo(
-      size.width * 0.4, size.height * 0.55,
-      size.width, size.height * 0.35,
+      size.width * 0.4,
+      size.height * 0.55,
+      size.width,
+      size.height * 0.35,
     );
     canvas.drawPath(linePath, linePaint);
   }

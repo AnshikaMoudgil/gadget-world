@@ -32,10 +32,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     return Scaffold(
       backgroundColor: AppTheme.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Usually no back button on success screen
+        automaticallyImplyLeading:
+            false, // Usually no back button on success screen
         actions: [
           IconButton(
-            icon: const Icon(Icons.change_circle_outlined, color: AppTheme.greyText),
+            icon: const Icon(
+              Icons.change_circle_outlined,
+              color: AppTheme.greyText,
+            ),
             onPressed: _cycleState,
             tooltip: 'Cycle View State',
           ),
@@ -82,11 +86,47 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             alignment: Alignment.center,
             children: [
               // Confetti dots
-              Positioned(top: 10, left: 20, child: Icon(Icons.circle, size: 6, color: Colors.green.shade200)),
-              Positioned(top: 20, right: 30, child: Icon(Icons.circle, size: 8, color: Colors.green.shade400)),
-              Positioned(bottom: 20, left: 10, child: Icon(Icons.circle, size: 4, color: AppTheme.greyBorder)),
-              Positioned(bottom: 30, right: 10, child: Icon(Icons.circle, size: 6, color: Colors.green.shade300)),
-              Positioned(top: 40, left: 0, child: Icon(Icons.circle, size: 5, color: Colors.green.shade100)),
+              Positioned(
+                top: 10,
+                left: 20,
+                child: Icon(
+                  Icons.circle,
+                  size: 6,
+                  color: Colors.green.shade200,
+                ),
+              ),
+              Positioned(
+                top: 20,
+                right: 30,
+                child: Icon(
+                  Icons.circle,
+                  size: 8,
+                  color: Colors.green.shade400,
+                ),
+              ),
+              Positioned(
+                bottom: 20,
+                left: 10,
+                child: Icon(Icons.circle, size: 4, color: AppTheme.greyBorder),
+              ),
+              Positioned(
+                bottom: 30,
+                right: 10,
+                child: Icon(
+                  Icons.circle,
+                  size: 6,
+                  color: Colors.green.shade300,
+                ),
+              ),
+              Positioned(
+                top: 40,
+                left: 0,
+                child: Icon(
+                  Icons.circle,
+                  size: 5,
+                  color: Colors.green.shade100,
+                ),
+              ),
               // Main Check
               Container(
                 width: 64,
@@ -101,7 +141,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        const Text('Order Placed Successfully!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.black)),
+        const Text(
+          'Order Placed Successfully!',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.black,
+          ),
+        ),
         const SizedBox(height: 8),
         const Text(
           'Thank you for shopping with us.\nYour order has been placed.',
@@ -129,9 +176,19 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('Order Number', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                  Text(
+                    'Order Number',
+                    style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                  ),
                   SizedBox(height: 4),
-                  Text('GS1234567890', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                  Text(
+                    'GS1234567890',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
                 ],
               ),
               Container(
@@ -151,11 +208,18 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           RichText(
             text: const TextSpan(
               text: 'A confirmation email has been sent to\n',
-              style: TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.5),
+              style: TextStyle(
+                fontSize: 12,
+                color: AppTheme.greyText,
+                height: 1.5,
+              ),
               children: [
                 TextSpan(
                   text: 'rohit.sharma@example.com',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.black),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
                 ),
               ],
             ),
@@ -169,7 +233,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Order Summary', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
+        const Text(
+          'Order Summary',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.black,
+          ),
+        ),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(16),
@@ -184,12 +255,20 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 padding: EdgeInsets.symmetric(vertical: 12.0),
                 child: Divider(color: AppTheme.greyBorder, height: 1),
               ),
-              _buildSummaryRow(Icons.currency_rupee, 'Total Amount', 'â‚¹7,405'),
+              _buildSummaryRow(
+                Icons.currency_rupee,
+                'Total Amount',
+                'â‚¹7,405',
+              ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0),
                 child: Divider(color: AppTheme.greyBorder, height: 1),
               ),
-              _buildSummaryRow(Icons.calendar_today_outlined, 'Placed On', '09 Jul 2025, 10:41 AM'),
+              _buildSummaryRow(
+                Icons.calendar_today_outlined,
+                'Placed On',
+                '09 Jul 2025, 10:41 AM',
+              ),
             ],
           ),
         ),
@@ -204,9 +283,15 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
       children: [
         Icon(icon, size: 18, color: AppTheme.black),
         const SizedBox(width: 12),
-        Text(label, style: const TextStyle(fontSize: 14, color: AppTheme.black)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14, color: AppTheme.black),
+        ),
         const Spacer(),
-        Text(value, style: const TextStyle(fontSize: 14, color: AppTheme.greyText)),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 14, color: AppTheme.greyText),
+        ),
       ],
     );
   }
@@ -218,8 +303,22 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: const [
-            Text('Order Summary', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
-            Text('3 Items â€¢ â‚¹7,405', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+            Text(
+              'Order Summary',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black,
+              ),
+            ),
+            Text(
+              '3 Items â€¢ â‚¹7,405',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -247,22 +346,51 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               color: AppTheme.greyBackground,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.headphones, color: AppTheme.black), // Placeholder
+            child: const Icon(
+              Icons.headphones,
+              color: AppTheme.black,
+            ), // Placeholder
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(color, style: const TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                Text(
+                  color,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('Qty: $qty', style: const TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                Text(
+                  'Qty: $qty',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                  ),
+                ),
               ],
             ),
           ),
-          Text(price, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+          Text(
+            price,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.black,
+            ),
+          ),
         ],
       ),
     );
@@ -283,14 +411,21 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               color: Colors.green.shade100,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.local_shipping_outlined, color: Colors.green, size: 20),
+            child: const Icon(
+              Icons.local_shipping_outlined,
+              color: Colors.green,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('We\'ll notify you once your order is shipped.', style: TextStyle(fontSize: 12, color: AppTheme.black)),
+                const Text(
+                  'We\'ll notify you once your order is shipped.',
+                  style: TextStyle(fontSize: 12, color: AppTheme.black),
+                ),
                 const SizedBox(height: 2),
                 RichText(
                   text: const TextSpan(
@@ -299,7 +434,10 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                     children: [
                       TextSpan(
                         text: '12 - 16 Jul 2025',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
                       ),
                     ],
                   ),
@@ -322,8 +460,16 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             alignment: Alignment.center,
             children: [
               // Confetti/dots for graphic
-              Positioned(top: 20, left: 40, child: Icon(Icons.circle, size: 6, color: AppTheme.greyBorder)),
-              Positioned(bottom: 20, right: 20, child: Icon(Icons.circle, size: 4, color: AppTheme.greyBorder)),
+              Positioned(
+                top: 20,
+                left: 40,
+                child: Icon(Icons.circle, size: 6, color: AppTheme.greyBorder),
+              ),
+              Positioned(
+                bottom: 20,
+                right: 20,
+                child: Icon(Icons.circle, size: 4, color: AppTheme.greyBorder),
+              ),
               // Shopping Bag Placeholder
               Container(
                 width: 80,
@@ -333,7 +479,13 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppTheme.greyBorder),
                 ),
-                child: const Center(child: Icon(Icons.shopping_bag, size: 40, color: AppTheme.black)),
+                child: const Center(
+                  child: Icon(
+                    Icons.shopping_bag,
+                    size: 40,
+                    color: AppTheme.black,
+                  ),
+                ),
               ),
               // Credit Card Placeholder
               Positioned(
@@ -346,7 +498,13 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                     color: AppTheme.black,
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Center(child: Icon(Icons.credit_card, size: 20, color: AppTheme.white)),
+                  child: const Center(
+                    child: Icon(
+                      Icons.credit_card,
+                      size: 20,
+                      color: AppTheme.white,
+                    ),
+                  ),
                 ),
               ),
               // Checkmark badge
@@ -359,7 +517,11 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                     color: Colors.green,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.check, size: 16, color: AppTheme.white),
+                  child: const Icon(
+                    Icons.check,
+                    size: 16,
+                    color: AppTheme.white,
+                  ),
                 ),
               ),
             ],
@@ -392,7 +554,15 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             child: Icon(icon, color: AppTheme.black, size: 24),
           ),
           const SizedBox(height: 8),
-          Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: AppTheme.black, fontWeight: FontWeight.bold)),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppTheme.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -401,9 +571,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   Widget _buildBottomBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-      decoration: const BoxDecoration(
-        color: AppTheme.white,
-      ),
+      decoration: const BoxDecoration(color: AppTheme.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -412,17 +580,25 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             height: 54,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const OrderDetailScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const OrderDetailScreen()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.black,
                 foregroundColor: AppTheme.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
-                  Text('View Order', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(
+                    'View Order',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                   SizedBox(width: 8),
                   Icon(Icons.arrow_forward, size: 20),
                 ],
@@ -444,9 +620,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.black,
                 side: const BorderSide(color: AppTheme.black, width: 1),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: const Text('Continue Shopping', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Continue Shopping',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],

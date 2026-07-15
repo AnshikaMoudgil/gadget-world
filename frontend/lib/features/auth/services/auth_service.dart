@@ -10,7 +10,7 @@ class AuthService {
 
   // Get current user
   User? get currentUser => _supabase.auth.currentUser;
-  
+
   // Listen to auth changes
   Stream<AuthState> get onAuthStateChange => _supabase.auth.onAuthStateChange;
 }

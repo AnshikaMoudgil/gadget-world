@@ -46,11 +46,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
           decoration: InputDecoration(
             hintText: widget.hintText,
             hintStyle: const TextStyle(color: AppTheme.greyText),
-            prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon, color: AppTheme.black) : null,
+            prefixIcon: widget.prefixIcon != null
+                ? Icon(widget.prefixIcon, color: AppTheme.black)
+                : null,
             suffixIcon: widget.isPassword
                 ? IconButton(
                     icon: Icon(
-                      _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      _obscureText
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
                       color: AppTheme.black,
                     ),
                     onPressed: () {
@@ -62,7 +66,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 : widget.suffixIcon,
             filled: true,
             fillColor: AppTheme.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(color: AppTheme.greyBorder),

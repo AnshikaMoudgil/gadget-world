@@ -27,13 +27,23 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Address Type', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                        const Text(
+                          'Address Type',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.black,
+                          ),
+                        ),
                         const SizedBox(height: 12),
                         Row(
                           children: [
                             _buildTypeChip('Home', Icons.home),
                             const SizedBox(width: 12),
-                            _buildTypeChip('Office', Icons.business_center_outlined),
+                            _buildTypeChip(
+                              'Office',
+                              Icons.business_center_outlined,
+                            ),
                             const SizedBox(width: 12),
                             _buildTypeChip('Other', Icons.location_on_outlined),
                           ],
@@ -46,7 +56,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                         _buildTextField('Enter phone number'),
                         const SizedBox(height: 16),
                         _buildLabel('Pincode'),
-                        _buildTextField('Enter pincode', trailingIcon: Icons.search),
+                        _buildTextField(
+                          'Enter pincode',
+                          trailingIcon: Icons.search,
+                        ),
                         const SizedBox(height: 16),
                         _buildLabel('Address Line 1'),
                         _buildTextField('House no., Building, Street'),
@@ -71,7 +84,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   _buildLabel('State'),
-                                  _buildTextField('Select state', trailingIcon: Icons.keyboard_arrow_down),
+                                  _buildTextField(
+                                    'Select state',
+                                    trailingIcon: Icons.keyboard_arrow_down,
+                                  ),
                                 ],
                               ),
                             ),
@@ -88,8 +104,13 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.black,
                             foregroundColor: AppTheme.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 24,
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -98,7 +119,13 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                 children: const [
                                   Icon(Icons.save_outlined, size: 20),
                                   SizedBox(width: 8),
-                                  Text('Save Address', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                                  Text(
+                                    'Save Address',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ],
                               ),
                               const Icon(Icons.arrow_forward, size: 20),
@@ -130,13 +157,25 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 8.0), // Align text baseline with icon
+              padding: const EdgeInsets.only(
+                top: 8.0,
+              ), // Align text baseline with icon
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('Add New Address', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Add New Address',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 4),
-                  Text('Add a new shipping address', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                  Text(
+                    'Add a new shipping address',
+                    style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -158,14 +197,29 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.black : AppTheme.white,
-          border: Border.all(color: isSelected ? AppTheme.black : AppTheme.greyBorder.withOpacity(0.5)),
+          border: Border.all(
+            color: isSelected
+                ? AppTheme.black
+                : AppTheme.greyBorder.withValues(alpha: 0.5),
+          ),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 16, color: isSelected ? AppTheme.white : AppTheme.black),
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? AppTheme.white : AppTheme.black,
+            ),
             const SizedBox(width: 8),
-            Text(label, style: TextStyle(fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, color: isSelected ? AppTheme.white : AppTheme.black)),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? AppTheme.white : AppTheme.black,
+              ),
+            ),
           ],
         ),
       ),
@@ -175,7 +229,14 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(text, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.black)),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: AppTheme.black,
+        ),
+      ),
     );
   }
 
@@ -184,7 +245,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextField(
@@ -192,8 +253,12 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           border: InputBorder.none,
           hintText: hint,
           hintStyle: const TextStyle(color: AppTheme.greyText, fontSize: 12),
-          suffixIcon: trailingIcon != null ? Icon(trailingIcon, color: AppTheme.black, size: 20) : null,
-          suffixIconConstraints: trailingIcon != null ? const BoxConstraints(minWidth: 40) : null,
+          suffixIcon: trailingIcon != null
+              ? Icon(trailingIcon, color: AppTheme.black, size: 20)
+              : null,
+          suffixIconConstraints: trailingIcon != null
+              ? const BoxConstraints(minWidth: 40)
+              : null,
         ),
         style: const TextStyle(fontSize: 14, color: AppTheme.black),
       ),

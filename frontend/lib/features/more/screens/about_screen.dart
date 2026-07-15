@@ -14,7 +14,10 @@ class AboutScreen extends StatelessWidget {
             _buildHeader(context),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -29,7 +32,10 @@ class AboutScreen extends StatelessWidget {
                     const Center(
                       child: Text(
                         'Â© 2025 Gadget World. All rights reserved.',
-                        style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.greyText,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -60,9 +66,19 @@ class AboutScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('About', style: TextStyle(color: AppTheme.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'About',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 4),
-                  Text('Learn more about us', style: TextStyle(color: AppTheme.greyText, fontSize: 12)),
+                  Text(
+                    'Learn more about us',
+                    style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -84,15 +100,29 @@ class AboutScreen extends StatelessWidget {
                 color: AppTheme.black,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.g_mobiledata, color: AppTheme.white, size: 40), // Placeholder for G logo
+              child: const Icon(
+                Icons.g_mobiledata,
+                color: AppTheme.white,
+                size: 40,
+              ), // Placeholder for G logo
             ),
             const SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('Gadget World', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(
+                  'Gadget World',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('Upgrade Your World', style: TextStyle(fontSize: 14, color: AppTheme.greyText)),
+                Text(
+                  'Upgrade Your World',
+                  style: TextStyle(fontSize: 14, color: AppTheme.greyText),
+                ),
               ],
             ),
           ],
@@ -110,31 +140,64 @@ class AboutScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
-          _buildInfoRow(Icons.inventory_2_outlined, 'App Version', '1.2.0 (Build 45)'),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 64),
-          _buildInfoRow(Icons.email_outlined, 'Email', 'support@gadgetworld.com'),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 64),
+          _buildInfoRow(
+            Icons.inventory_2_outlined,
+            'App Version',
+            '1.2.0 (Build 45)',
+          ),
+          Divider(
+            height: 1,
+            color: AppTheme.greyBorder.withValues(alpha: 0.5),
+            indent: 64,
+          ),
+          _buildInfoRow(
+            Icons.email_outlined,
+            'Email',
+            'support@gadgetworld.com',
+          ),
+          Divider(
+            height: 1,
+            color: AppTheme.greyBorder.withValues(alpha: 0.5),
+            indent: 64,
+          ),
           _buildInfoRow(Icons.phone_outlined, 'Phone', '+91 98765 43210'),
-          Divider(height: 1, color: AppTheme.greyBorder.withOpacity(0.5), indent: 64),
-          _buildInfoRow(Icons.language_outlined, 'Website', 'www.gadgetworld.com', hasTrailing: true),
+          Divider(
+            height: 1,
+            color: AppTheme.greyBorder.withValues(alpha: 0.5),
+            indent: 64,
+          ),
+          _buildInfoRow(
+            Icons.language_outlined,
+            'Website',
+            'www.gadgetworld.com',
+            hasTrailing: true,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String title, String subtitle, {bool hasTrailing = false}) {
+  Widget _buildInfoRow(
+    IconData icon,
+    String title,
+    String subtitle, {
+    bool hasTrailing = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: AppTheme.greyBackground.withOpacity(0.5), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: AppTheme.greyBackground.withValues(alpha: 0.5),
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, color: AppTheme.black, size: 20),
           ),
           const SizedBox(width: 16),
@@ -142,13 +205,27 @@ class AboutScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.greyText)),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                  ),
+                ),
               ],
             ),
           ),
-          if (hasTrailing) const Icon(Icons.chevron_right, color: AppTheme.greyText, size: 20),
+          if (hasTrailing)
+            const Icon(Icons.chevron_right, color: AppTheme.greyText, size: 20),
         ],
       ),
     );
@@ -158,14 +235,27 @@ class AboutScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Follow Us', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.black)),
+        const Text(
+          'Follow Us',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.black,
+          ),
+        ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildSocialIcon(Icons.facebook, 'Facebook'),
-            _buildSocialIcon(Icons.camera_alt_outlined, 'Instagram'), // Using camera for IG placeholder
-            _buildSocialIcon(Icons.alternate_email, 'Twitter'), // Using @ for Twitter
+            _buildSocialIcon(
+              Icons.camera_alt_outlined,
+              'Instagram',
+            ), // Using camera for IG placeholder
+            _buildSocialIcon(
+              Icons.alternate_email,
+              'Twitter',
+            ), // Using @ for Twitter
             _buildSocialIcon(Icons.play_circle_outline, 'YouTube'),
             _buildSocialIcon(Icons.work_outline, 'LinkedIn'),
           ],
@@ -180,13 +270,16 @@ class AboutScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.greyBackground.withOpacity(0.3),
+            color: AppTheme.greyBackground.withValues(alpha: 0.3),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: AppTheme.black, size: 24),
         ),
         const SizedBox(height: 8),
-        Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.greyText)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 10, color: AppTheme.greyText),
+        ),
       ],
     );
   }
@@ -196,24 +289,45 @@ class AboutScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: AppTheme.greyBackground.withOpacity(0.5), shape: BoxShape.circle),
-            child: const Icon(Icons.shield_outlined, color: AppTheme.black, size: 20),
+            decoration: BoxDecoration(
+              color: AppTheme.greyBackground.withValues(alpha: 0.5),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.shield_outlined,
+              color: AppTheme.black,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('Your Data is Safe', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.black)),
+                Text(
+                  'Your Data is Safe',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('We respect your privacy and are committed to keeping your data secure.', style: TextStyle(fontSize: 12, color: AppTheme.greyText, height: 1.4)),
+                Text(
+                  'We respect your privacy and are committed to keeping your data secure.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),

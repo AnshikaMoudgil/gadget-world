@@ -53,7 +53,11 @@ class ProductCard extends StatelessWidget {
                 const Positioned(
                   top: 4,
                   right: 4,
-                  child: Icon(Icons.favorite_border, size: 20, color: AppTheme.greyText),
+                  child: Icon(
+                    Icons.favorite_border,
+                    size: 20,
+                    color: AppTheme.greyText,
+                  ),
                 ),
               ],
             ),
@@ -70,12 +74,22 @@ class ProductCard extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.greyBackground,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Text(moq, style: const TextStyle(fontSize: 10, color: AppTheme.greyText, fontWeight: FontWeight.w500)),
+                  child: Text(
+                    moq,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppTheme.greyText,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
                 Text(
                   stockStatus,
@@ -94,7 +108,10 @@ class ProductCard extends StatelessWidget {
               children: [
                 Text(
                   price,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
                 GestureDetector(
                   onTap: onAdd,
@@ -104,11 +121,15 @@ class ProductCard extends StatelessWidget {
                       color: AppTheme.black,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.add, color: AppTheme.white, size: 18),
+                    child: const Icon(
+                      Icons.add,
+                      color: AppTheme.white,
+                      size: 18,
+                    ),
                   ),
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),

@@ -103,9 +103,8 @@ class SupabaseDb {
     } on AuthException catch (e) {
       return DbResult.error(
         e.message,
-        statusCode: e.statusCode != null
-            ? int.tryParse(e.statusCode!) ?? 401
-            : 401,
+        statusCode:
+            e.statusCode != null ? int.tryParse(e.statusCode!) ?? 401 : 401,
       );
     } catch (e) {
       return DbResult.error(
@@ -138,9 +137,8 @@ class SupabaseDb {
     } on AuthException catch (e) {
       return DbResult.error(
         e.message,
-        statusCode: e.statusCode != null
-            ? int.tryParse(e.statusCode!) ?? 401
-            : 401,
+        statusCode:
+            e.statusCode != null ? int.tryParse(e.statusCode!) ?? 401 : 401,
       );
     } catch (e) {
       return DbResult.error(
@@ -162,9 +160,8 @@ class SupabaseDb {
     } on AuthException catch (e) {
       return DbResult.error(
         e.message,
-        statusCode: e.statusCode != null
-            ? int.tryParse(e.statusCode!) ?? 401
-            : 401,
+        statusCode:
+            e.statusCode != null ? int.tryParse(e.statusCode!) ?? 401 : 401,
       );
     } catch (e) {
       return DbResult.error(
