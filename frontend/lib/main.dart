@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
@@ -22,9 +23,6 @@ Future<void> main() async {
     publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? 'public-anon-key',
   );
 
-  // Initialize Google Sign In globally (handles the stream on Web)
-  await GoogleAuthService.init();
-
   runApp(
     MultiProvider(
       providers: [
@@ -35,6 +33,18 @@ Future<void> main() async {
       child: const MyApp(),
     ),
   );
+
+  // Do not block the first frame on optional Google Sign-In setup.
+  unawaited(_initializeGoogleSignIn());
+}
+
+Future<void> _initializeGoogleSignIn() async {
+  try {
+    await GoogleAuthService.init();
+  } catch (error, stackTrace) {
+    debugPrint('Google Sign-In initialization failed: $error');
+    debugPrintStack(stackTrace: stackTrace);
+  }
 }
 
 class MyApp extends StatelessWidget {
