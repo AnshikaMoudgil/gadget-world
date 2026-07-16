@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 import '../theme.dart';
+import '../../features/products/models/product_model.dart';
 
 class ProductCard extends StatelessWidget {
   final String imageUrl;
   final String title;
   final String price;
-  final String moq;
-  final String stockStatus;
-  final bool isLowStock;
   final VoidCallback onTap;
   final VoidCallback onAdd;
 
@@ -16,12 +16,25 @@ class ProductCard extends StatelessWidget {
     required this.imageUrl,
     required this.title,
     required this.price,
-    required this.moq,
-    required this.stockStatus,
-    this.isLowStock = false,
     required this.onTap,
     required this.onAdd,
   });
+
+  factory ProductCard.fromProduct({
+    Key? key,
+    required ProductModel product,
+    required VoidCallback onTap,
+    required VoidCallback onAdd,
+  }) {
+    return ProductCard(
+      key: key,
+      imageUrl: product.imageUrl ?? 'assets/images/laptop.png',
+      title: product.name,
+      price: NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0).format(product.price),
+      onTap: onTap,
+      onAdd: onAdd,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,41 +50,31 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
-              children: [
-                Container(
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: AppTheme.greyBackground,
-                    borderRadius: BorderRadius.circular(8),
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: AppTheme.greyBackground,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: _ProductImage(imageUrl: imageUrl),
+                    ),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: imageUrl.startsWith('http')
-                        ? Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.broken_image, color: Colors.grey),
-                          )
-                        : Image.asset(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          ),
+                  const Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Icon(
+                      Icons.favorite_border,
+                      size: 20,
+                      color: AppTheme.greyText,
+                    ),
                   ),
-                ),
-                const Positioned(
-                  top: 4,
-                  right: 4,
-                  child: Icon(
-                    Icons.favorite_border,
-                    size: 20,
-                    color: AppTheme.greyText,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -80,43 +83,9 @@ class ProductCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 6),
-            Wrap(
-              spacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.greyBackground,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    moq,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: AppTheme.greyText,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Text(
-                  stockStatus,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: isLowStock ? Colors.orange : Colors.green,
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   price,
@@ -146,5 +115,23 @@ class ProductCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _ProductImage extends StatelessWidget {
+  final String imageUrl;
+
+  const _ProductImage({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => const Icon(Icons.image_outlined),
+      );
+    }
+    return Image.asset(imageUrl, fit: BoxFit.cover);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/core/widgets/logo_widget.dart';
+import 'package:gadget_store/core/widgets/product_card.dart';
 import 'package:gadget_store/features/products/screens/search_results_screen.dart';
 import 'package:gadget_store/features/products/screens/product_details_screen.dart';
 import 'package:gadget_store/features/products/screens/best_sellers_screen.dart';
@@ -8,8 +9,6 @@ import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart'
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 import 'package:gadget_store/features/products/screens/products_by_category_screen.dart';
-import 'package:gadget_store/core/widgets/product_card.dart';
-import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,15 +18,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final formatCurrency = NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0);
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<CatalogProvider>(context, listen: false);
       provider.fetchCategories();
-      provider.fetchFeaturedProducts();
+      provider.fetchProducts();
     });
   }
 
@@ -329,18 +326,18 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHorizontalProductList() {
     return Consumer<CatalogProvider>(
       builder: (context, provider, child) {
-        if (provider.isLoadingFeatured) {
+        if (provider.isLoadingProducts) {
           return const SizedBox(
             height: 260,
             child: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final products = provider.featuredProducts;
+        final products = provider.products.take(6).toList();
         if (products.isEmpty) {
           return const SizedBox(
-            height: 260,
-            child: Center(child: Text('No products available')),
+            height: 120,
+            child: Center(child: Text('No products available.')),
           );
         }
 
@@ -352,27 +349,20 @@ class _HomeScreenState extends State<HomeScreen> {
             itemCount: products.length,
             itemBuilder: (context, index) {
               final product = products[index];
-              return Container(
+              return SizedBox(
                 width: 160,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                child: ProductCard(
-                  imageUrl: product.images.isNotEmpty
-                      ? product.images.first
-                      : 'assets/images/laptop.png',
-                  title: product.name,
-                  price: formatCurrency.format(product.price),
-                  moq: 'MOQ: 1',
-                  stockStatus: product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock',
-                  isLowStock: product.stockQuantity > 0 && product.stockQuantity < 5,
-                  onTap: () {
-                    Navigator.push(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: ProductCard.fromProduct(
+                    product: product,
+                    onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => ProductDetailsScreen(product: product),
                       ),
-                    );
-                  },
-                  onAdd: () {},
+                    ),
+                    onAdd: () {},
+                  ),
                 ),
               );
             },
