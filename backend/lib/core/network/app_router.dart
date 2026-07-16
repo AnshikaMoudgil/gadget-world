@@ -3,6 +3,7 @@ import 'package:shelf_router/shelf_router.dart';
 import '../../features/auth/routes/auth_routes.dart';
 import '../../features/address/routes/address_routes.dart';
 import '../../features/products/routes/catalog_routes.dart';
+import '../../features/cart/routes/cart_routes.dart';
 
 class AppRouter {
   Router get router {
@@ -18,6 +19,7 @@ class AppRouter {
     router.mount('/api/auth', AuthRoutes().router.call);
     router.mount('/api/addresses', AddressRoutes().router.call);
     router.mount('/api/catalog', CatalogRoutes().router.call);
+    router.mount('/api/cart', CartRoutes().handler);
 
     return router;
   }

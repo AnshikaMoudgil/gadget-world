@@ -5,6 +5,7 @@ import 'package:gadget_store/core/widgets/product_card.dart';
 import 'package:gadget_store/features/products/screens/product_details_screen.dart';
 import '../models/category_model.dart';
 import '../providers/catalog_provider.dart';
+import 'package:intl/intl.dart';
 
 class ProductsByCategoryScreen extends StatefulWidget {
   final CategoryModel category;
@@ -17,6 +18,8 @@ class ProductsByCategoryScreen extends StatefulWidget {
 }
 
 class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
+  final formatCurrency = NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0);
+
   @override
   void initState() {
     super.initState();
@@ -114,7 +117,7 @@ class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
                   shrinkWrap: true,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.85,
+                    childAspectRatio: 0.70,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
@@ -126,7 +129,7 @@ class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
                           ? product.images.first
                           : 'assets/images/laptop.png', // Fallback image
                       title: product.name,
-                      price: '\$${product.price}', // Adjust currency as needed
+                      price: formatCurrency.format(product.price), // Adjust currency as needed
                       moq: 'MOQ: 1', // You can add MOQ to DB later
                       stockStatus: product.stockQuantity > 0
                           ? 'In Stock'
@@ -138,7 +141,7 @@ class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const ProductDetailsScreen(),
+                            builder: (_) => ProductDetailsScreen(product: product),
                           ),
                         );
                       },

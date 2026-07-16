@@ -8,6 +8,8 @@ import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart'
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 import 'package:gadget_store/features/products/screens/products_by_category_screen.dart';
+import 'package:gadget_store/core/widgets/product_card.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,11 +19,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final formatCurrency = NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0);
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CatalogProvider>(context, listen: false).fetchCategories();
+      final provider = Provider.of<CatalogProvider>(context, listen: false);
+      provider.fetchCategories();
+      provider.fetchFeaturedProducts();
     });
   }
 
@@ -321,118 +327,58 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHorizontalProductList() {
-    return SizedBox(
-      height: 240,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: 4,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProductDetailsScreen()),
+    return Consumer<CatalogProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoadingFeatured) {
+          return const SizedBox(
+            height: 260,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final products = provider.featuredProducts;
+        if (products.isEmpty) {
+          return const SizedBox(
+            height: 260,
+            child: Center(child: Text('No products available')),
+          );
+        }
+
+        return SizedBox(
+          height: 260,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return Container(
+                width: 160,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                child: ProductCard(
+                  imageUrl: product.images.isNotEmpty
+                      ? product.images.first
+                      : 'assets/images/laptop.png',
+                  title: product.name,
+                  price: formatCurrency.format(product.price),
+                  moq: 'MOQ: 1',
+                  stockStatus: product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock',
+                  isLowStock: product.stockQuantity > 0 && product.stockQuantity < 5,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductDetailsScreen(product: product),
+                      ),
+                    );
+                  },
+                  onAdd: () {},
+                ),
               );
             },
-            child: Container(
-              width: 160,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.greyBorder),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: AppTheme.greyBackground,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            'assets/images/laptop.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.black,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text(
-                            'Bestseller',
-                            style: TextStyle(
-                              color: AppTheme.white,
-                              fontSize: 8,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Positioned(
-                        top: 4,
-                        right: 4,
-                        child: Icon(
-                          Icons.favorite_border,
-                          size: 20,
-                          color: AppTheme.greyText,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Product Name Example Very Long',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'â‚¹999',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppTheme.black,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: AppTheme.white,
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

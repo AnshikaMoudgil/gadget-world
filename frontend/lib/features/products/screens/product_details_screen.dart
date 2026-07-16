@@ -1,8 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:provider/provider.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
-class ProductDetailsScreen extends StatelessWidget {
-  const ProductDetailsScreen({super.key});
+import 'package:gadget_store/features/products/models/product_model.dart';
+
+class ProductDetailsScreen extends StatefulWidget {
+  final ProductModel? product;
+  const ProductDetailsScreen({super.key, this.product});
+
+  @override
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  final formatCurrency = NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0);
+  String? _productId;
+  int _quantity = 1; // Default to 1 instead of 10 for standard retail
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.product != null) {
+      _productId = widget.product!.id;
+    } else {
+      _fetchProductId();
+    }
+  }
+
+  Future<void> _fetchProductId() async {
+    try {
+      final res = await Supabase.instance.client.from('products').select('id').limit(1);
+      if (res.isNotEmpty) {
+        setState(() {
+          _productId = res.first['id'] as String;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch dummy product: $e');
+    }
+  }
+
+  Future<void> _addToCart() async {
+    if (_productId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No product available to add')),
+      );
+      return;
+    }
+    
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    await cartProvider.addToCart(_productId!, _quantity);
+    
+    if (cartProvider.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed: ${cartProvider.error}')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Added to Cart!')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +75,16 @@ class ProductDetailsScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.share_outlined), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () {
+              if (widget.product != null) {
+                Share.share(
+                  'Check out ${widget.product!.name} for ${formatCurrency.format(widget.product!.price)} at Gadget World!',
+                );
+              }
+            },
+          ),
           IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
         ],
       ),
@@ -28,11 +99,17 @@ class ProductDetailsScreen extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.bottomCenter,
                 children: [
-                  Image.asset(
-                    'assets/images/phone.png',
-                    fit: BoxFit.contain,
-                    height: 250,
-                  ),
+                  widget.product?.images.isNotEmpty == true 
+                      ? Image.network(
+                          widget.product!.images.first,
+                          fit: BoxFit.contain,
+                          height: 250,
+                        )
+                      : Image.asset(
+                          'assets/images/phone.png',
+                          fit: BoxFit.contain,
+                          height: 250,
+                        ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: Row(
@@ -91,17 +168,17 @@ class ProductDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'boAt',
-                    style: TextStyle(
+                  Text(
+                    widget.product?.name ?? 'boAt',
+                    style: const TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'boAt Airdopes 141 Pro\nTWS Earbuds',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Text(
+                    widget.product?.name ?? 'boAt Airdopes 141 Pro\nTWS Earbuds',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -125,17 +202,17 @@ class ProductDetailsScreen extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text(
-                        'â‚¹1,299',
-                        style: TextStyle(
+                      Text(
+                        widget.product != null ? formatCurrency.format(widget.product!.price) : '₹1,299',
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'â‚¹2,499',
-                        style: TextStyle(
+                        widget.product != null ? formatCurrency.format(widget.product!.price * 1.2) : '₹2,499',
+                        style: const TextStyle(
                           decoration: TextDecoration.lineThrough,
                           color: AppTheme.greyText,
                           fontSize: 14,
@@ -307,16 +384,16 @@ class ProductDetailsScreen extends StatelessWidget {
                   _buildSpecRow('Mic', 'ENxâ„¢ Technology'),
                   const SizedBox(height: 24),
                   RichText(
-                    text: const TextSpan(
-                      style: TextStyle(color: AppTheme.black),
+                    text: TextSpan(
+                      style: const TextStyle(color: AppTheme.black),
                       children: [
-                        TextSpan(
+                        const TextSpan(
                           text: 'Quantity ',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
-                          text: '(Minimum 10 units)',
-                          style: TextStyle(
+                          text: widget.product != null ? '' : '(Minimum 10 units)',
+                          style: const TextStyle(
                             color: AppTheme.greyText,
                             fontSize: 12,
                           ),
@@ -336,15 +413,19 @@ class ProductDetailsScreen extends StatelessWidget {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.remove, size: 16),
-                          onPressed: () {},
+                          onPressed: () {
+                            if (_quantity > 1) setState(() => _quantity--);
+                          },
                         ),
-                        const Text(
-                          '10',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Text(
+                          '$_quantity',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         IconButton(
                           icon: const Icon(Icons.add, size: 16),
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() => _quantity++);
+                          },
                         ),
                       ],
                     ),
@@ -387,21 +468,31 @@ class ProductDetailsScreen extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.shopping_cart_outlined,
-                    color: AppTheme.white,
-                  ),
-                  label: const Text('Add to Cart'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.black,
-                    foregroundColor: AppTheme.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                child: Consumer<CartProvider>(
+                  builder: (context, cartProvider, child) {
+                    return ElevatedButton.icon(
+                      onPressed: cartProvider.isLoading ? null : _addToCart,
+                      icon: cartProvider.isLoading 
+                          ? const SizedBox(
+                              width: 16, 
+                              height: 16, 
+                              child: CircularProgressIndicator(color: AppTheme.white, strokeWidth: 2)
+                            )
+                          : const Icon(
+                              Icons.shopping_cart_outlined,
+                              color: AppTheme.white,
+                            ),
+                      label: Text(cartProvider.isLoading ? 'Adding...' : 'Add to Cart'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.black,
+                        foregroundColor: AppTheme.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    );
+                  }
                 ),
               ),
             ],
@@ -435,19 +526,19 @@ class ProductDetailsScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'Price (â‚¹/Unit)',
+                  'Price (₹/Unit)',
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
-          _buildPricingRow('10 - 49', 'â‚¹1,299'),
+          _buildPricingRow('10 - 49', '₹1,299'),
           const Divider(height: 1, color: AppTheme.greyBorder),
-          _buildPricingRow('50 - 199', 'â‚¹1,199'),
+          _buildPricingRow('50 - 199', '₹1,199'),
           const Divider(height: 1, color: AppTheme.greyBorder),
-          _buildPricingRow('200 - 499', 'â‚¹1,099'),
+          _buildPricingRow('200 - 499', '₹1,099'),
           const Divider(height: 1, color: AppTheme.greyBorder),
-          _buildPricingRow('500+', 'â‚¹999'),
+          _buildPricingRow('500+', '₹999'),
         ],
       ),
     );

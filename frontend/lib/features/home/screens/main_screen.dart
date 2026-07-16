@@ -5,7 +5,8 @@ import 'package:gadget_store/features/checkout/screens/cart_screen.dart';
 import 'package:gadget_store/features/profile/screens/profile_screen.dart';
 import 'package:gadget_store/features/orders/screens/orders_screen.dart';
 import 'package:gadget_store/features/products/screens/categories_screen.dart';
-
+import 'package:provider/provider.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -52,29 +53,34 @@ class _MainScreenState extends State<MainScreen> {
               icon: Stack(
                 children: [
                   const Icon(Icons.shopping_cart_outlined),
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.black,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 14,
-                        minHeight: 14,
-                      ),
-                      child: const Text(
-                        '2',
-                        style: TextStyle(
-                          color: AppTheme.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
+                  Consumer<CartProvider>(
+                    builder: (context, cartProvider, child) {
+                      if (cartProvider.itemCount == 0) return const SizedBox.shrink();
+                      return Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.black,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 14,
+                            minHeight: 14,
+                          ),
+                          child: Text(
+                            '${cartProvider.itemCount}',
+                            style: const TextStyle(
+                              color: AppTheme.white,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ],
               ),
