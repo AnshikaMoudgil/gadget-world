@@ -68,12 +68,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.share_outlined),
-            onPressed: () {
+            onPressed: () async {
               final formatCurrency = NumberFormat.simpleCurrency(
                 name: 'INR',
                 decimalDigits: 0,
               );
-              Share.share(
+              // ignore: deprecated_member_use
+              await Share.share(
                 'Check out ${_product.name} for ${formatCurrency.format(_product.price)} at Gadget World!',
               );
             },

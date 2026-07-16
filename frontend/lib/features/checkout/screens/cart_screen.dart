@@ -103,12 +103,9 @@ class _CartScreenState extends State<CartScreen> {
                       _buildFreeShippingProgress(subtotal),
                       const SizedBox(height: 16),
                       // List of items
-                      ...items
-                          .map(
-                            (item) =>
-                                _buildCartItem(context, item, cartProvider),
-                          )
-                          .toList(),
+                      ...items.map(
+                        (item) => _buildCartItem(context, item, cartProvider),
+                      ),
                       const SizedBox(height: 16),
                       GestureDetector(
                         onTap: () {

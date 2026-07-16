@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
-import 'package:shelf_router/shelf_router.dart';
 import '../services/cart_service.dart';
 import '../models/add_to_cart_request.dart';
 
@@ -12,7 +11,7 @@ class CartController {
     final result = await _cartService.getCart(userId);
 
     if (result.isError) {
-      return Response(result.statusCode ?? 500,
+      return Response(result.statusCode,
           body: jsonEncode({'error': result.message}),
           headers: {'Content-Type': 'application/json'});
     }
@@ -38,7 +37,7 @@ class CartController {
 
       final result = await _cartService.addToCart(userId, addRequest);
       if (result.isError) {
-        return Response(result.statusCode ?? 500,
+        return Response(result.statusCode,
             body: jsonEncode({'error': result.message}),
             headers: {'Content-Type': 'application/json'});
       }
@@ -70,7 +69,7 @@ class CartController {
           await _cartService.updateCartItemQuantity(userId, itemId, quantity);
 
       if (result.isError) {
-        return Response(result.statusCode ?? 500,
+        return Response(result.statusCode,
             body: jsonEncode({'error': result.message}),
             headers: {'Content-Type': 'application/json'});
       }
@@ -90,7 +89,7 @@ class CartController {
     final result = await _cartService.removeFromCart(userId, itemId);
 
     if (result.isError) {
-      return Response(result.statusCode ?? 500,
+      return Response(result.statusCode,
           body: jsonEncode({'error': result.message}),
           headers: {'Content-Type': 'application/json'});
     }

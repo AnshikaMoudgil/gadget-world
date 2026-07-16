@@ -56,8 +56,9 @@ class _MainScreenState extends State<MainScreen> {
                   const Icon(Icons.shopping_cart_outlined),
                   Consumer<CartProvider>(
                     builder: (context, cartProvider, child) {
-                      if (cartProvider.itemCount == 0)
+                      if (cartProvider.itemCount == 0) {
                         return const SizedBox.shrink();
+                      }
                       return Positioned(
                         right: 0,
                         top: 0,

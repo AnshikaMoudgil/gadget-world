@@ -37,11 +37,10 @@ class CartApiService {
     final response = await http.post(
       Uri.parse(baseUrl),
       headers: await _getHeaders(),
-      body: jsonEncode({
-        'product_id': productId,
-        'quantity': quantity,
-        if (variantId != null) 'variant_id': variantId,
-      }),
+      body: jsonEncode(
+        {'product_id': productId, 'quantity': quantity}
+          ..addAll(variantId != null ? {'variant_id': variantId} : {}),
+      ),
     );
 
     if (response.statusCode == 200) {
