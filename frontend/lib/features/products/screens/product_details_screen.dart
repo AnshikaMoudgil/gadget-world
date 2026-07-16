@@ -69,7 +69,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           IconButton(
             icon: const Icon(Icons.share_outlined),
             onPressed: () {
-              final formatCurrency = NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0);
+              final formatCurrency = NumberFormat.simpleCurrency(
+                name: 'INR',
+                decimalDigits: 0,
+              );
               Share.share(
                 'Check out ${_product.name} for ${formatCurrency.format(_product.price)} at Gadget World!',
               );
@@ -139,7 +142,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   Row(
                     children: [
                       Text(
-                        NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0).format(_product.price),
+                        NumberFormat.simpleCurrency(
+                          name: 'INR',
+                          decimalDigits: 0,
+                        ).format(_product.price),
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -148,7 +154,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       if (_product.mrp != null) ...[
                         const SizedBox(width: 10),
                         Text(
-                          NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0).format(_product.mrp),
+                          NumberFormat.simpleCurrency(
+                            name: 'INR',
+                            decimalDigits: 0,
+                          ).format(_product.mrp),
                           style: const TextStyle(
                             color: AppTheme.greyText,
                             decoration: TextDecoration.lineThrough,

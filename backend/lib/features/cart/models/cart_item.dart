@@ -4,7 +4,7 @@ class CartItem {
   final String productId;
   final String? variantId;
   final int quantity;
-  
+
   // We can include product/variant details if fetched with joins
   final Map<String, dynamic>? product;
   final Map<String, dynamic>? variant;

@@ -7,6 +7,7 @@ import 'package:gadget_store/features/orders/screens/orders_screen.dart';
 import 'package:gadget_store/features/products/screens/categories_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -55,7 +56,8 @@ class _MainScreenState extends State<MainScreen> {
                   const Icon(Icons.shopping_cart_outlined),
                   Consumer<CartProvider>(
                     builder: (context, cartProvider, child) {
-                      if (cartProvider.itemCount == 0) return const SizedBox.shrink();
+                      if (cartProvider.itemCount == 0)
+                        return const SizedBox.shrink();
                       return Positioned(
                         right: 0,
                         top: 0,

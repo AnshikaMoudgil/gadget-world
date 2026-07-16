@@ -4,7 +4,7 @@ import '../services/cart_api_service.dart';
 
 class CartProvider extends ChangeNotifier {
   final CartApiService _apiService = CartApiService();
-  
+
   Cart? _cart;
   bool _isLoading = false;
   String? _error;
@@ -40,11 +40,19 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addToCart(String productId, int quantity, {String? variantId}) async {
+  Future<void> addToCart(
+    String productId,
+    int quantity, {
+    String? variantId,
+  }) async {
     _setLoading(true);
     _setError(null);
     try {
-      _cart = await _apiService.addToCart(productId, quantity, variantId: variantId);
+      _cart = await _apiService.addToCart(
+        productId,
+        quantity,
+        variantId: variantId,
+      );
     } catch (e) {
       _setError(e.toString());
     } finally {

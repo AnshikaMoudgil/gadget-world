@@ -31,10 +31,7 @@ class Cart {
   final String id;
   final List<CartItem> items;
 
-  Cart({
-    required this.id,
-    required this.items,
-  });
+  Cart({required this.id, required this.items});
 
   factory Cart.fromJson(Map<String, dynamic> json) {
     return Cart(

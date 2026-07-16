@@ -16,7 +16,9 @@ class Cart {
     return Cart(
       id: json['id'] as String,
       userId: json['user_id'] as String,
-      items: itemsList.map((i) => CartItem.fromJson(i as Map<String, dynamic>)).toList(),
+      items: itemsList
+          .map((i) => CartItem.fromJson(i as Map<String, dynamic>))
+          .toList(),
     );
   }
 

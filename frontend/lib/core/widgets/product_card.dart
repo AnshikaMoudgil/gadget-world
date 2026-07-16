@@ -30,7 +30,10 @@ class ProductCard extends StatelessWidget {
       key: key,
       imageUrl: product.imageUrl ?? 'assets/images/laptop.png',
       title: product.name,
-      price: NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0).format(product.price),
+      price: NumberFormat.simpleCurrency(
+        name: 'INR',
+        decimalDigits: 0,
+      ).format(product.price),
       onTap: onTap,
       onAdd: onAdd,
     );

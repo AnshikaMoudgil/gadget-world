@@ -29,7 +29,11 @@ class CartApiService {
     }
   }
 
-  Future<Cart> addToCart(String productId, int quantity, {String? variantId}) async {
+  Future<Cart> addToCart(
+    String productId,
+    int quantity, {
+    String? variantId,
+  }) async {
     final response = await http.post(
       Uri.parse(baseUrl),
       headers: await _getHeaders(),
