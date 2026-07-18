@@ -68,17 +68,23 @@ class CatalogProvider with ChangeNotifier {
     }
   }
 
+  bool _isLoadingFeatured = false;
+  String? _featuredError;
+
+  bool get isLoadingFeatured => _isLoadingFeatured;
+  String? get featuredError => _featuredError;
+
   Future<void> fetchFeaturedProducts({bool forceRefresh = false}) async {
     if (_featuredProducts.isNotEmpty && !forceRefresh) return;
-    _isLoadingProducts = true;
-    _productsError = null;
+    _isLoadingFeatured = true;
+    _featuredError = null;
     notifyListeners();
     try {
       _featuredProducts = await _service.getProducts(featured: true);
     } catch (error) {
-      _productsError = error.toString();
+      _featuredError = error.toString();
     } finally {
-      _isLoadingProducts = false;
+      _isLoadingFeatured = false;
       notifyListeners();
     }
   }

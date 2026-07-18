@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../theme.dart';
 import '../../features/products/models/product_model.dart';
@@ -29,7 +30,10 @@ class ProductCard extends StatelessWidget {
       key: key,
       imageUrl: product.imageUrl ?? 'assets/images/laptop.png',
       title: product.name,
-      price: '₹${product.price.toStringAsFixed(2)}',
+      price: NumberFormat.simpleCurrency(
+        name: 'INR',
+        decimalDigits: 0,
+      ).format(product.price),
       onTap: onTap,
       onAdd: onAdd,
     );

@@ -328,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, provider, child) {
         if (provider.isLoadingProducts) {
           return const SizedBox(
-            height: 240,
+            height: 260,
             child: Center(child: CircularProgressIndicator()),
           );
         }
@@ -342,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         return SizedBox(
-          height: 240,
+          height: 260,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 12),

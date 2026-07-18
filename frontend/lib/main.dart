@@ -11,6 +11,8 @@ import 'package:gadget_store/features/auth/services/google_auth_service.dart';
 import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -29,6 +31,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => CatalogProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: const MyApp(),
     ),
@@ -94,13 +97,16 @@ class _AuthGuardState extends State<AuthGuard> {
       context,
       listen: false,
     );
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
     if (authProvider.isAuthenticated) {
       // User is logged in, fetch their profile data
       profileProvider.fetchProfile();
+      cartProvider.loadCart();
     } else {
       // User is logged out, clear profile data and redirect to Login Screen
       profileProvider.clearProfile();
+      cartProvider.clearCartLocal();
       // We check if current route is not login/signup/splash to avoid looping
       bool isPublicRoute = false;
       Navigator.popUntil(context, (route) {

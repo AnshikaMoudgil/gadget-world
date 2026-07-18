@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:gadget_store/features/auth/providers/auth_provider.dart';
 import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 import 'package:gadget_store/main.dart';
@@ -25,6 +26,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => AuthProvider()),
           ChangeNotifierProvider(create: (_) => ProfileProvider()),
           ChangeNotifierProvider(create: (_) => CatalogProvider()),
+          ChangeNotifierProvider(create: (_) => CartProvider()),
         ],
         child: const MyApp(),
       ),

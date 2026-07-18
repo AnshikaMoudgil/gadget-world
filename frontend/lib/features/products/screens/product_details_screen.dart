@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
 import '../models/product_model.dart';
 import '../providers/catalog_provider.dart';
+import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final ProductModel product;
@@ -64,7 +66,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.share_outlined), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () async {
+              final formatCurrency = NumberFormat.simpleCurrency(
+                name: 'INR',
+                decimalDigits: 0,
+              );
+              // ignore: deprecated_member_use
+              await Share.share(
+                'Check out ${_product.name} for ${formatCurrency.format(_product.price)} at Gadget World!',
+              );
+            },
+          ),
           IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
         ],
       ),
@@ -129,7 +143,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   Row(
                     children: [
                       Text(
-                        'Rs ${_product.price.toStringAsFixed(2)}',
+                        NumberFormat.simpleCurrency(
+                          name: 'INR',
+                          decimalDigits: 0,
+                        ).format(_product.price),
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -138,7 +155,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       if (_product.mrp != null) ...[
                         const SizedBox(width: 10),
                         Text(
-                          'Rs ${_product.mrp!.toStringAsFixed(2)}',
+                          NumberFormat.simpleCurrency(
+                            name: 'INR',
+                            decimalDigits: 0,
+                          ).format(_product.mrp),
                           style: const TextStyle(
                             color: AppTheme.greyText,
                             decoration: TextDecoration.lineThrough,
