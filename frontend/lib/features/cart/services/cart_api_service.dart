@@ -26,7 +26,7 @@ class CartApiService {
 
   Future<Cart> getCart() async {
     final response = await http.get(
-      Uri.parse(baseUrl),
+      Uri.parse('$baseUrl/'),
       headers: await _getHeaders(),
     );
 
@@ -43,7 +43,7 @@ class CartApiService {
     String? variantId,
   }) async {
     final response = await http.post(
-      Uri.parse(baseUrl),
+      Uri.parse('$baseUrl/'),
       headers: await _getHeaders(),
       body: jsonEncode(
         {'product_id': productId, 'quantity': quantity}

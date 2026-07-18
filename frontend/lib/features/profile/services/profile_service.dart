@@ -23,7 +23,7 @@ class ProfileService {
     try {
       final data = await _supabase
           .from('profiles')
-          .update(profile.toJson())
+          .update(profile.toUpdateJson())
           .eq('id', profile.id)
           .select()
           .single();
