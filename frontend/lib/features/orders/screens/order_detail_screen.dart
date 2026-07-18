@@ -764,12 +764,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ),
           const SizedBox(height: 12),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
-              Text(
-                'Subtotal (3 items)',
-                style: TextStyle(fontSize: 10, color: AppTheme.greyText),
+              Expanded(
+                child: Text(
+                  'Subtotal (3 items)',
+                  style: TextStyle(fontSize: 10, color: AppTheme.greyText),
+                ),
               ),
+              SizedBox(width: 4),
               Text(
                 'â‚¹9,196',
                 style: TextStyle(fontSize: 10, color: AppTheme.black),
@@ -778,12 +781,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ),
           const SizedBox(height: 8),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
-              Text(
-                'Coupon Discount (SAVE20)',
-                style: TextStyle(fontSize: 10, color: Colors.green),
+              Expanded(
+                child: Text(
+                  'Coupon Discount (SAVE20)',
+                  style: TextStyle(fontSize: 10, color: Colors.green),
+                ),
               ),
+              SizedBox(width: 4),
               Text(
                 '-â‚¹1,840',
                 style: TextStyle(fontSize: 10, color: Colors.green),
@@ -792,12 +798,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ),
           const SizedBox(height: 8),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
-              Text(
-                'Shipping Fee',
-                style: TextStyle(fontSize: 10, color: AppTheme.greyText),
+              Expanded(
+                child: Text(
+                  'Shipping Fee',
+                  style: TextStyle(fontSize: 10, color: AppTheme.greyText),
+                ),
               ),
+              SizedBox(width: 4),
               Text(
                 'â‚¹49',
                 style: TextStyle(fontSize: 10, color: AppTheme.black),
@@ -809,16 +818,19 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             child: Divider(color: AppTheme.greyBorder, height: 1),
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
-              Text(
-                'Total Amount',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.black,
+              Expanded(
+                child: Text(
+                  'Total Amount',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
                 ),
               ),
+              SizedBox(width: 4),
               Text(
                 'â‚¹7,405',
                 style: TextStyle(

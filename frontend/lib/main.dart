@@ -60,6 +60,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const AuthGuard(child: SplashScreen()),
+      routes: {
+        '/login': (context) => const LoginScreen(),
+      },
     );
   }
 }
@@ -110,7 +113,8 @@ class _AuthGuardState extends State<AuthGuard> {
       // We check if current route is not login/signup/splash to avoid looping
       bool isPublicRoute = false;
       Navigator.popUntil(context, (route) {
-        if (route.settings.name == '/login') {
+        final name = route.settings.name;
+        if (name == '/login' || name == '/' || name == null) {
           isPublicRoute = true;
         }
         return true;

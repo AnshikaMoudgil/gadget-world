@@ -13,7 +13,7 @@ class CatalogService {
   CatalogService({http.Client? client}) : _client = client ?? http.Client();
 
   String get _baseUrl {
-    final configured = dotenv.env['API_BASE_URL'];
+    final configured = dotenv.env['BACKEND_URL'];
     if (configured != null && configured.isNotEmpty) {
       return configured.replaceFirst(RegExp(r'/$'), '');
     }
