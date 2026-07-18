@@ -1,12 +1,20 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/cart.dart';
 
 class CartApiService {
-  // In production, you would use an environment variable for the base URL.
-  // For local development on Android emulator, use 10.0.2.2. For web/iOS, use localhost.
-  static const String baseUrl = 'http://localhost:8080/api/cart';
+  // Dynamically get base URL from environment
+  static String get baseUrl {
+    final configured = dotenv.env['BACKEND_URL'];
+    if (configured != null && configured.isNotEmpty) {
+      final base = configured.replaceFirst(RegExp(r'/$'), '');
+      return '$base/api/cart';
+    }
+    return kIsWeb ? 'http://localhost:8080/api/cart' : 'http://10.0.2.2:8080/api/cart';
+  }
 
   Future<Map<String, String>> _getHeaders() async {
     final token = Supabase.instance.client.auth.currentSession?.accessToken;

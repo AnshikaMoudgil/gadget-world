@@ -24,7 +24,14 @@ To get this project up and running on your local machine, follow these steps:
    ```bash
    cd Tensorik-GadgetWorld
    ```
-4. **Install Dependencies**:
+4. **Environment Variables**:
+   Create a `.env` file in the root of the `frontend` directory and add the following keys (including your production `BACKEND_URL` when deployed to Render):
+   ```env
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_ANON_KEY=your_supabase_anon_key
+   BACKEND_URL=https://your-backend-url.onrender.com
+   ```
+5. **Install Dependencies**:
    ```bash
    flutter pub get
    ```

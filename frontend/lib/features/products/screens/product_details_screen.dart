@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
 import '../models/product_model.dart';
 import '../providers/catalog_provider.dart';
+import '../../cart/providers/cart_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -262,7 +263,18 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton.icon(
-                      onPressed: _product.stockQuantity > 0 ? () {} : null,
+                      onPressed: _product.stockQuantity > 0 ? () {
+                        context.read<CartProvider>().addToCart(
+                          _product.id,
+                          1,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${_product.name} added to cart'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      } : null,
                       icon: const Icon(Icons.shopping_cart_outlined),
                       label: const Text('Add to cart'),
                       style: ElevatedButton.styleFrom(
