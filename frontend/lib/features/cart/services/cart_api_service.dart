@@ -13,7 +13,9 @@ class CartApiService {
       final base = configured.replaceFirst(RegExp(r'/$'), '');
       return '$base/api/cart';
     }
-    return kIsWeb ? 'http://localhost:8080/api/cart' : 'http://10.0.2.2:8080/api/cart';
+    return kIsWeb
+        ? 'http://localhost:8080/api/cart'
+        : 'http://10.0.2.2:8080/api/cart';
   }
 
   Future<Map<String, String>> _getHeaders() async {
@@ -26,7 +28,7 @@ class CartApiService {
 
   Future<Cart> getCart() async {
     final response = await http.get(
-      Uri.parse(baseUrl),
+      Uri.parse('$baseUrl/'),
       headers: await _getHeaders(),
     );
 
@@ -43,7 +45,7 @@ class CartApiService {
     String? variantId,
   }) async {
     final response = await http.post(
-      Uri.parse(baseUrl),
+      Uri.parse('$baseUrl/'),
       headers: await _getHeaders(),
       body: jsonEncode(
         {'product_id': productId, 'quantity': quantity}

@@ -27,11 +27,11 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Clear all preferences to start the app from the beginning (onboarding)
     await prefs.clear();
     await Supabase.instance.client.auth.signOut();
-    
+
     final bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
     final bool isLoggedIn = SessionService().hasSession;
     if (!mounted) return;
