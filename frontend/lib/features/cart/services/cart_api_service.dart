@@ -13,7 +13,9 @@ class CartApiService {
       final base = configured.replaceFirst(RegExp(r'/$'), '');
       return '$base/api/cart';
     }
-    return kIsWeb ? 'http://localhost:8080/api/cart' : 'http://10.0.2.2:8080/api/cart';
+    return kIsWeb
+        ? 'http://localhost:8080/api/cart'
+        : 'http://10.0.2.2:8080/api/cart';
   }
 
   Future<Map<String, String>> _getHeaders() async {

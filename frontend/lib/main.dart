@@ -60,9 +60,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const AuthGuard(child: SplashScreen()),
-      routes: {
-        '/login': (context) => const LoginScreen(),
-      },
+      routes: {'/login': (context) => const LoginScreen()},
     );
   }
 }

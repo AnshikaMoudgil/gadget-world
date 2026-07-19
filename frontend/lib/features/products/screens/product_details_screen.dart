@@ -263,18 +263,22 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton.icon(
-                      onPressed: _product.stockQuantity > 0 ? () {
-                        context.read<CartProvider>().addToCart(
-                          _product.id,
-                          1,
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${_product.name} added to cart'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      } : null,
+                      onPressed: _product.stockQuantity > 0
+                          ? () {
+                              context.read<CartProvider>().addToCart(
+                                _product.id,
+                                1,
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${_product.name} added to cart',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          : null,
                       icon: const Icon(Icons.shopping_cart_outlined),
                       label: const Text('Add to cart'),
                       style: ElevatedButton.styleFrom(
