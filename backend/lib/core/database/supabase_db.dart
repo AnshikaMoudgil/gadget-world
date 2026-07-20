@@ -228,7 +228,7 @@ class SupabaseDb {
         print('[SupabaseDb] PostgrestException: '
             'code=$code, message=${e.message}, details=$detail');
         return DbResult.error(
-          'A database error occurred. Please try again later.',
+          'A database error occurred: ${e.message} (Code: $code)',
           statusCode: 500,
         );
     }

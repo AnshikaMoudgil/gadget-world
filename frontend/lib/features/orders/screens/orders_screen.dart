@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
+import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:provider/provider.dart';
 
 enum OrdersState { loaded, loading, empty }
 
@@ -16,15 +18,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   OrdersState _currentState = OrdersState.loaded;
 
   void _cycleState() {
-    setState(() {
-      if (_currentState == OrdersState.loaded) {
-        _currentState = OrdersState.loading;
-      } else if (_currentState == OrdersState.loading) {
-        _currentState = OrdersState.empty;
-      } else {
-        _currentState = OrdersState.loaded;
-      }
-    });
+    // Intentionally left blank or can be removed if not needed anymore
   }
 
   @override
@@ -98,39 +92,57 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Widget _buildBody() {
-    if (_currentState == OrdersState.empty) {
-      return _buildEmptyState();
-    }
+    return Consumer<OrderProvider>(
+      builder: (context, orderProvider, child) {
+        final isLoading = orderProvider.isLoading;
+        final orders = orderProvider.orders;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildFilters(),
-        const SizedBox(height: 16),
-        if (_currentState == OrdersState.loaded)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text(
-              'Orders (6)',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.black,
+        if (isLoading) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildFilters(true),
+              const SizedBox(height: 16),
+              Expanded(child: _buildLoadingList()),
+            ],
+          );
+        }
+
+        if (orderProvider.error != null) {
+          return Center(child: Text('Error: ${orderProvider.error}', style: TextStyle(color: Colors.red)));
+        }
+
+        if (orders.isEmpty) {
+          return _buildEmptyState();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildFilters(false),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Text(
+                'Orders (${orders.length})',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
               ),
             ),
-          ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: _currentState == OrdersState.loaded
-              ? _buildLoadedList()
-              : _buildLoadingList(),
-        ),
-      ],
+            const SizedBox(height: 16),
+            Expanded(
+              child: _buildLoadedList(orders),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildFilters() {
-    final isLoading = _currentState == OrdersState.loading;
+  Widget _buildFilters(bool isLoading) {
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -186,62 +198,30 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildLoadedList() {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      children: [
-        _buildOrderItemCard(
-          id: '#GS1234567890',
-          date: '09 Jul 2025, 10:41 AM',
-          status: 'Delivered',
-          items: '3 Items',
-          price: 'â‚¹7,405',
-          icon: Icons.headphones,
-        ),
-        _buildOrderItemCard(
-          id: '#GS1234567889',
-          date: '07 Jul 2025, 06:22 PM',
-          status: 'Shipped',
-          items: '2 Items',
-          price: 'â‚¹5,998',
-          icon: Icons.watch,
-        ),
-        _buildOrderItemCard(
-          id: '#GS1234567888',
-          date: '05 Jul 2025, 02:10 PM',
-          status: 'Confirmed',
-          items: '1 Item',
-          price: 'â‚¹1,199',
-          icon: Icons.battery_charging_full,
-        ),
-        _buildOrderItemCard(
-          id: '#GS1234567887',
-          date: '02 Jul 2025, 11:30 AM',
-          status: 'Cancelled',
-          items: '2 Items',
-          price: 'â‚¹2,598',
-          icon: Icons.earbuds,
-        ),
-        _buildOrderItemCard(
-          id: '#GS1234567886',
-          date: '30 Jun 2025, 09:15 PM',
-          status: 'Delivered',
-          items: '1 Item',
-          price: 'â‚¹1,999',
-          icon: Icons.earbuds_battery,
-        ),
-        _buildOrderItemCard(
-          id: '#GS1234567885',
-          date: '28 Jun 2025, 04:45 PM',
-          status: 'Delivered',
-          items: '1 Item',
-          price: 'â‚¹2,499',
-          icon: Icons.speaker,
-        ),
-        const SizedBox(height: 16),
-        _buildHelpCard(),
-      ],
+
+  Widget _buildLoadedList(List<dynamic> orders) {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+      itemCount: orders.length,
+      itemBuilder: (context, index) {
+        final order = orders[index];
+        final itemCount = order.items.fold<int>(0, (sum, item) => sum + (item.quantity as int));
+        
+        return _buildOrderItemCard(
+          id: '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
+          status: order.status.toUpperCase(),
+          date: '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
+          price: '₹${order.amount.toStringAsFixed(0)}',
+          items: '$itemCount Items',
+          icon: Icons.shopping_bag_outlined,
+        );
+      },
     );
+  }
+
+  String _getMonth(int month) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1];
   }
 
   Widget _buildOrderItemCard({

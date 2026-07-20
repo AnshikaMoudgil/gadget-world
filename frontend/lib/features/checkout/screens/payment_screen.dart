@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/checkout/screens/order_success_screen.dart';
+import 'package:gadget_store/features/checkout/screens/order_failed_screen.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:gadget_store/features/payments/services/payment_api_service.dart';
+import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+import 'package:intl/intl.dart';
 
 enum PaymentState { initial, processing }
 
@@ -15,6 +23,9 @@ class _PaymentScreenState extends State<PaymentScreen>
     with SingleTickerProviderStateMixin {
   PaymentState _currentState = PaymentState.initial;
   late AnimationController _animationController;
+  late Razorpay _razorpay;
+  final PaymentApiService _paymentApiService = PaymentApiService();
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -23,12 +34,132 @@ class _PaymentScreenState extends State<PaymentScreen>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat();
+    
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _razorpay.clear();
     super.dispose();
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    try {
+      final token = Supabase.instance.client.auth.currentSession?.accessToken;
+      if (token == null) throw Exception('No session token');
+
+      // Capture cart data BEFORE verifyPayment clears it!
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      final email = Supabase.instance.client.auth.currentUser?.email ?? '';
+      final itemsCount = cartProvider.itemCount;
+      
+      double total = 0;
+      if (cartProvider.cart != null) {
+        for (var item in cartProvider.cart!.items) {
+          final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
+          total += price * item.quantity;
+        }
+      }
+      final totalAmountStr = '₹${total.toStringAsFixed(0)}';
+      
+      final orderId = response.orderId ?? '';
+      
+      final itemsList = cartProvider.cart?.items.map((item) {
+        return {
+          'title': item.product?['title']?.toString() ?? 'Product',
+          'subtitle': 'Standard',
+          'qty': item.quantity,
+          'priceStr': '₹${item.product?['price']?.toString() ?? ''}',
+        };
+      }).toList() ?? [];
+
+      await _paymentApiService.verifyPayment(
+        token: token,
+        razorpayOrderId: response.orderId ?? '',
+        razorpayPaymentId: response.paymentId ?? '',
+        razorpaySignature: response.signature ?? '',
+      );
+
+      if (mounted) {
+        Provider.of<OrderProvider>(context, listen: false).fetchOrders();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => OrderSuccessScreen(
+            orderId: orderId,
+            email: email,
+            totalAmountStr: totalAmountStr,
+            itemsCount: itemsCount,
+            items: itemsList,
+          )),
+        );
+      }
+    } catch (e) {
+      _showErrorSnackbar('Payment verification failed: $e');
+      setState(() => _isProcessing = false);
+    }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    setState(() => _isProcessing = false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OrderFailedScreen(errorMessage: response.message ?? 'Unknown error'),
+      ),
+    );
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    _showErrorSnackbar('External Wallet selected: ${response.walletName}');
+    setState(() => _isProcessing = false);
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  Future<void> _processPayment() async {
+    setState(() => _isProcessing = true);
+    
+    try {
+      final token = Supabase.instance.client.auth.currentSession?.accessToken;
+      if (token == null) throw Exception('User not authenticated');
+
+      final orderData = await _paymentApiService.createOrder(token);
+
+      var options = {
+        'key': orderData['keyId'],
+        'amount': orderData['amount'],
+        'name': 'Gadget Store',
+        'order_id': orderData['orderId'],
+        'description': 'Purchase from Gadget Store',
+        'retry': {'enabled': true, 'max_count': 1},
+        'send_sms_hash': true,
+        'prefill': {
+          'email': Supabase.instance.client.auth.currentUser?.email ?? ''
+        }
+      };
+
+      // Also set a 15 second timeout to reset the button if Razorpay fails to open
+      Future.delayed(const Duration(seconds: 15), () {
+        if (mounted && _isProcessing) {
+          setState(() => _isProcessing = false);
+          _showErrorSnackbar('Razorpay UI did not load. Check your internet connection or adblocker.');
+        }
+      });
+
+      _razorpay.open(options);
+    } catch (e) {
+      _showErrorSnackbar(e.toString());
+      setState(() => _isProcessing = false);
+    }
   }
 
   void _cycleState() {
@@ -48,6 +179,22 @@ class _PaymentScreenState extends State<PaymentScreen>
       backgroundColor: Colors.transparent,
       builder: (context) => _buildRazorpayModal(),
     );
+  }
+
+  String _getTotalAmountStr() {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final items = cartProvider.cart?.items ?? [];
+    double subtotal = 0;
+    for (var item in items) {
+      final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
+      subtotal += price * item.quantity;
+    }
+    double discount = 0;
+    double shipping = subtotal > 50000 ? 0 : 299;
+    if (items.isEmpty) shipping = 0;
+    double total = subtotal - discount + shipping;
+    final formatCurrency = NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0);
+    return formatCurrency.format(total);
   }
 
   @override
@@ -165,9 +312,9 @@ class _PaymentScreenState extends State<PaymentScreen>
                     style: TextStyle(color: AppTheme.greyText, fontSize: 14),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'â‚¹7,405',
-                    style: TextStyle(
+                  Text(
+                    _getTotalAmountStr(),
+                    style: const TextStyle(
                       color: AppTheme.black,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -382,12 +529,7 @@ class _PaymentScreenState extends State<PaymentScreen>
             width: double.infinity,
             height: 54,
             child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const OrderSuccessScreen()),
-                );
-              },
+              onPressed: _isProcessing ? null : _processPayment,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.black,
                 foregroundColor: AppTheme.white,
@@ -399,14 +541,23 @@ class _PaymentScreenState extends State<PaymentScreen>
                 children: [
                   const Icon(Icons.lock_outline, size: 20),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Pay Now',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  _isProcessing
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: AppTheme.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Pay Now',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                   const Spacer(),
-                  const Text(
-                    'â‚¹7,405',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  Text(
+                    _getTotalAmountStr(),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -495,10 +646,10 @@ class _PaymentScreenState extends State<PaymentScreen>
                     ],
                   ),
                   Row(
-                    children: const [
+                    children: [
                       Text(
-                        'â‚¹7,405',
-                        style: TextStyle(
+                        _getTotalAmountStr(),
+                        style: const TextStyle(
                           color: AppTheme.black,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

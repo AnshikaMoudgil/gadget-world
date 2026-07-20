@@ -1,0 +1,55 @@
+import 'dart:convert';
+import 'package:shelf/shelf.dart';
+import '../services/payment_service.dart';
+
+class PaymentController {
+  final PaymentService _paymentService = PaymentService();
+
+  Future<Response> createOrder(Request request) async {
+    try {
+      final userId = request.context['userId'] as String;
+      final result = await _paymentService.createOrder(userId);
+      return Response.ok(jsonEncode(result),
+          headers: {'Content-Type': 'application/json'});
+    } catch (e) {
+      return Response(400,
+          body: jsonEncode({'error': e.toString()}),
+          headers: {'Content-Type': 'application/json'});
+    }
+  }
+
+  Future<Response> verifyPayment(Request request) async {
+    try {
+      final userId = request.context['userId'] as String;
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+
+      await _paymentService.verifyPayment(
+        userId: userId,
+        razorpayOrderId: data['razorpayOrderId'],
+        razorpayPaymentId: data['razorpayPaymentId'],
+        razorpaySignature: data['razorpaySignature'],
+      );
+
+      return Response.ok(jsonEncode({'status': 'success'}),
+          headers: {'Content-Type': 'application/json'});
+    } catch (e) {
+      return Response(400,
+          body: jsonEncode({'error': e.toString()}),
+          headers: {'Content-Type': 'application/json'});
+    }
+  }
+
+  Future<Response> getOrders(Request request) async {
+    try {
+      final userId = request.context['userId'] as String;
+      final result = await _paymentService.getOrders(userId);
+      return Response.ok(jsonEncode(result),
+          headers: {'Content-Type': 'application/json'});
+    } catch (e) {
+      return Response.internalServerError(
+          body: jsonEncode({'error': e.toString()}),
+          headers: {'Content-Type': 'application/json'});
+    }
+  }
+}

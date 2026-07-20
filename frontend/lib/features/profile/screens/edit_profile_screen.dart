@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/profile/providers/profile_provider.dart';
+import 'package:gadget_store/features/profile/models/profile_model.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -71,10 +73,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final currentProfile = provider.profile;
     if (currentProfile == null) return;
 
-    final updatedProfile = currentProfile.copyWith(
+    final updatedProfile = Profile(
+      id: currentProfile.id,
       fullName: _nameController.text,
+      email: currentProfile.email,
       phoneNumber: _phoneController.text,
       dateOfBirth: _selectedDate,
+      createdAt: currentProfile.createdAt,
     );
 
     final success = await provider.updateProfile(updatedProfile);

@@ -12,6 +12,7 @@ import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+import 'package:gadget_store/features/orders/providers/order_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +33,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => CatalogProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
       ],
       child: const MyApp(),
     ),
@@ -83,6 +85,13 @@ class _AuthGuardState extends State<AuthGuard> {
     // Listen to auth changes safely
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     _authProvider.addListener(_handleAuthStateChange);
+    
+    // Explicitly handle the initial state in case the auth event fired before this listener was added
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_authProvider.isAuthenticated) {
+        _handleAuthStateChange();
+      }
+    });
   }
 
   @override
@@ -99,15 +108,18 @@ class _AuthGuardState extends State<AuthGuard> {
       listen: false,
     );
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
 
     if (authProvider.isAuthenticated) {
       // User is logged in, fetch their profile data
       profileProvider.fetchProfile();
       cartProvider.loadCart();
+      orderProvider.fetchOrders();
     } else {
       // User is logged out, clear profile data and redirect to Login Screen
       profileProvider.clearProfile();
       cartProvider.clearCartLocal();
+      orderProvider.clearOrders();
       // We check if current route is not login/signup/splash to avoid looping
       bool isPublicRoute = false;
       Navigator.popUntil(context, (route) {

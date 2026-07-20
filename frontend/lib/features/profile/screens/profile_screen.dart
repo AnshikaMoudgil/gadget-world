@@ -7,6 +7,8 @@ import 'package:gadget_store/features/more/screens/wishlist_screen.dart';
 import 'package:gadget_store/features/more/screens/contact_us_screen.dart';
 import 'package:gadget_store/features/more/screens/more_menu_screen.dart';
 import 'package:gadget_store/features/profile/providers/profile_provider.dart';
+import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:gadget_store/features/orders/screens/orders_screen.dart';
 import 'package:provider/provider.dart';
 
 enum DashboardState { existing, newBuyer }
@@ -50,29 +52,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 32),
 
               if (isExisting) ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Recent Orders',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.black,
-                      ),
-                    ),
-                    Text(
-                      'View All',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade700,
-                      ),
-                    ),
-                  ],
+                Consumer<OrderProvider>(
+                  builder: (context, orderProvider, _) {
+                    if (orderProvider.isLoading) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 32),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    if (orderProvider.orders.isEmpty) {
+                      return _buildEmptyOrdersState();
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Recent Orders',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.black,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const OrdersScreen()),
+                                );
+                              },
+                              child: Text(
+                                'View All',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        _buildRecentOrders(context),
+                      ],
+                    );
+                  },
                 ),
-                const SizedBox(height: 16),
-                _buildRecentOrders(),
               ] else ...[
                 _buildEmptyOrdersState(),
               ],
@@ -411,40 +439,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildRecentOrders() {
+  Widget _buildRecentOrders(BuildContext context) {
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final recentOrders = orderProvider.orders.take(3).toList();
+
     return Column(
-      children: [
-        _buildCompactOrderCard(
-          '#GS1234567890',
-          'Delivered',
-          '09 Jul 2025',
-          'â‚¹7,405',
-          '3 Items',
-          Icons.headphones,
-          Colors.green,
-        ),
-        const SizedBox(height: 12),
-        _buildCompactOrderCard(
-          '#GS1234567889',
-          'Shipped',
-          '07 Jul 2025',
-          'â‚¹5,998',
-          '2 Items',
-          Icons.watch,
-          Colors.blue,
-        ),
-        const SizedBox(height: 12),
-        _buildCompactOrderCard(
-          '#GS1234567887',
-          'Confirmed',
-          '05 Jul 2025',
-          'â‚¹2,598',
-          '2 Items',
-          Icons.earbuds,
-          Colors.orange,
-        ),
-      ],
+      children: recentOrders.map((order) {
+        int itemCount = order.items.fold(0, (sum, item) => sum + item.quantity);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: _buildCompactOrderCard(
+            '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
+            order.status.toUpperCase(),
+            '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
+            '₹${order.amount.toStringAsFixed(0)}',
+            '$itemCount Items',
+            Icons.shopping_bag_outlined,
+            _getStatusColor(order.status),
+          ),
+        );
+      }).toList(),
     );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+      case 'delivered':
+        return Colors.green;
+      case 'shipped':
+        return Colors.blue;
+      case 'failed':
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.orange;
+    }
+  }
+
+  String _getMonth(int month) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1];
   }
 
   Widget _buildCompactOrderCard(
