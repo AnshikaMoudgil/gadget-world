@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 import 'package:gadget_store/features/profile/models/profile_model.dart';

@@ -6,7 +6,6 @@ import 'package:gadget_store/features/onboarding/screens/onboarding_screen.dart'
 import 'package:gadget_store/features/auth/screens/login_screen.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/auth/services/session_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

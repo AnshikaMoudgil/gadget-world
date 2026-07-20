@@ -15,12 +15,6 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  OrdersState _currentState = OrdersState.loaded;
-
-  void _cycleState() {
-    // Intentionally left blank or can be removed if not needed anymore
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,14 +69,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   color: AppTheme.black,
                 ),
                 onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.change_circle_outlined,
-                  color: AppTheme.greyText,
-                ),
-                onPressed: _cycleState,
-                tooltip: 'Cycle UI State',
               ),
             ],
           ),
@@ -384,58 +370,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildHelpCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.greyBackground.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.orange.shade100,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.inventory_2,
-              color: Colors.orange,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Can\'t find your order?',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.black,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Make sure you\'re using the email ID you placed the order with.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.greyText,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 

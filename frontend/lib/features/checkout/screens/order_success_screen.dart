@@ -350,7 +350,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               const Divider(color: AppTheme.greyBorder, height: 1),
             ],
           );
-        }).toList(),
+        }),
         const SizedBox(height: 16),
         _buildDeliveryEstimateCard(),
       ],

@@ -34,10 +34,8 @@ class OrderProvider with ChangeNotifier {
       final List<dynamic> data = await apiService.getOrders(token);
 
       _orders = data.map((json) => Order.fromJson(json)).toList();
-      print('OrderProvider: Fetched ${_orders.length} orders');
     } catch (e) {
       _error = e.toString();
-      print('OrderProvider Error: $_error');
     } finally {
       _isLoading = false;
       notifyListeners();
