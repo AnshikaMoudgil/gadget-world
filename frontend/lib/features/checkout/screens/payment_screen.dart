@@ -34,7 +34,7 @@ class _PaymentScreenState extends State<PaymentScreen>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat();
-    
+
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -57,7 +57,7 @@ class _PaymentScreenState extends State<PaymentScreen>
       final cartProvider = Provider.of<CartProvider>(context, listen: false);
       final email = Supabase.instance.client.auth.currentUser?.email ?? '';
       final itemsCount = cartProvider.itemCount;
-      
+
       double total = 0;
       if (cartProvider.cart != null) {
         for (var item in cartProvider.cart!.items) {
@@ -66,17 +66,19 @@ class _PaymentScreenState extends State<PaymentScreen>
         }
       }
       final totalAmountStr = '₹${total.toStringAsFixed(0)}';
-      
+
       final orderId = response.orderId ?? '';
-      
-      final itemsList = cartProvider.cart?.items.map((item) {
-        return {
-          'title': item.product?['title']?.toString() ?? 'Product',
-          'subtitle': 'Standard',
-          'qty': item.quantity,
-          'priceStr': '₹${item.product?['price']?.toString() ?? ''}',
-        };
-      }).toList() ?? [];
+
+      final itemsList =
+          cartProvider.cart?.items.map((item) {
+            return {
+              'title': item.product?['title']?.toString() ?? 'Product',
+              'subtitle': 'Standard',
+              'qty': item.quantity,
+              'priceStr': '₹${item.product?['price']?.toString() ?? ''}',
+            };
+          }).toList() ??
+          [];
 
       await _paymentApiService.verifyPayment(
         token: token,
@@ -89,13 +91,15 @@ class _PaymentScreenState extends State<PaymentScreen>
         Provider.of<OrderProvider>(context, listen: false).fetchOrders();
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => OrderSuccessScreen(
-            orderId: orderId,
-            email: email,
-            totalAmountStr: totalAmountStr,
-            itemsCount: itemsCount,
-            items: itemsList,
-          )),
+          MaterialPageRoute(
+            builder: (_) => OrderSuccessScreen(
+              orderId: orderId,
+              email: email,
+              totalAmountStr: totalAmountStr,
+              itemsCount: itemsCount,
+              items: itemsList,
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -109,7 +113,9 @@ class _PaymentScreenState extends State<PaymentScreen>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => OrderFailedScreen(errorMessage: response.message ?? 'Unknown error'),
+        builder: (_) => OrderFailedScreen(
+          errorMessage: response.message ?? 'Unknown error',
+        ),
       ),
     );
   }
@@ -127,7 +133,7 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   Future<void> _processPayment() async {
     setState(() => _isProcessing = true);
-    
+
     try {
       final token = Supabase.instance.client.auth.currentSession?.accessToken;
       if (token == null) throw Exception('User not authenticated');
@@ -143,15 +149,17 @@ class _PaymentScreenState extends State<PaymentScreen>
         'retry': {'enabled': true, 'max_count': 1},
         'send_sms_hash': true,
         'prefill': {
-          'email': Supabase.instance.client.auth.currentUser?.email ?? ''
-        }
+          'email': Supabase.instance.client.auth.currentUser?.email ?? '',
+        },
       };
 
       // Also set a 15 second timeout to reset the button if Razorpay fails to open
       Future.delayed(const Duration(seconds: 15), () {
         if (mounted && _isProcessing) {
           setState(() => _isProcessing = false);
-          _showErrorSnackbar('Razorpay UI did not load. Check your internet connection or adblocker.');
+          _showErrorSnackbar(
+            'Razorpay UI did not load. Check your internet connection or adblocker.',
+          );
         }
       });
 
@@ -193,7 +201,10 @@ class _PaymentScreenState extends State<PaymentScreen>
     double shipping = subtotal > 50000 ? 0 : 299;
     if (items.isEmpty) shipping = 0;
     double total = subtotal - discount + shipping;
-    final formatCurrency = NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0);
+    final formatCurrency = NumberFormat.simpleCurrency(
+      name: 'INR',
+      decimalDigits: 0,
+    );
     return formatCurrency.format(total);
   }
 
@@ -552,12 +563,18 @@ class _PaymentScreenState extends State<PaymentScreen>
                         )
                       : const Text(
                           'Pay Now',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                   const Spacer(),
                   Text(
                     _getTotalAmountStr(),
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),

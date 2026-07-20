@@ -26,7 +26,7 @@ class PaymentService {
     for (var item in cart.items) {
       final product = item.product;
       if (product == null) continue;
-      
+
       final price = (product['price'] as num).toDouble();
       totalAmount += price * item.quantity;
     }
@@ -42,7 +42,7 @@ class PaymentService {
     // receipt length must be <= 40
     final cartIdPart = cart.id.length > 8 ? cart.id.substring(0, 8) : cart.id;
     final receipt = 'c_${cartIdPart}_${DateTime.now().millisecondsSinceEpoch}';
-    
+
     final razorpayOrder = await _razorpayService.createOrder(
       amountSubunits: amountSubunits,
       currency: currency,
@@ -52,17 +52,18 @@ class PaymentService {
     final razorpayOrderId = razorpayOrder['id'] as String;
 
     // 4. Insert into database
-    final paymentInsertResult = await SupabaseDb.querySingle(() => SupabaseDb.adminClient
-        .from('payments')
-        .insert({
-          'user_id': userId,
-          'razorpay_order_id': razorpayOrderId,
-          'status': 'pending',
-          'amount_subunits': amountSubunits,
-          'currency': currency,
-        })
-        .select()
-        .single());
+    final paymentInsertResult =
+        await SupabaseDb.querySingle(() => SupabaseDb.adminClient
+            .from('payments')
+            .insert({
+              'user_id': userId,
+              'razorpay_order_id': razorpayOrderId,
+              'status': 'pending',
+              'amount_subunits': amountSubunits,
+              'currency': currency,
+            })
+            .select()
+            .single());
 
     if (paymentInsertResult.isError) {
       throw Exception('Failed to save payment: ${paymentInsertResult.message}');
@@ -74,7 +75,7 @@ class PaymentService {
     for (var item in cart.items) {
       if (item.product == null) continue;
       final price = (item.product!['price'] as num).toDouble();
-      
+
       await SupabaseDb.querySingle(() => SupabaseDb.adminClient
           .from('payment_items')
           .insert({
@@ -116,34 +117,30 @@ class PaymentService {
     }
 
     // 3. Update payment status
-    final updateResult = await SupabaseDb.querySingle(() => SupabaseDb.adminClient
-        .from('payments')
-        .update({'status': 'completed'})
-        .eq('razorpay_order_id', razorpayOrderId)
-        .eq('user_id', userId) // ensure user owns the payment
-        .select()
-        .single());
+    final updateResult =
+        await SupabaseDb.querySingle(() => SupabaseDb.adminClient
+            .from('payments')
+            .update({'status': 'completed'})
+            .eq('razorpay_order_id', razorpayOrderId)
+            .eq('user_id', userId) // ensure user owns the payment
+            .select()
+            .single());
 
     if (updateResult.isError || updateResult.data == null) {
       throw Exception('Failed to update payment status or payment not found.');
     }
 
     // 4. Fulfillment: Clear the user's cart
-    await SupabaseDb.execute(() => SupabaseDb.adminClient
-        .from('carts')
-        .delete()
-        .eq('user_id', userId));
+    await SupabaseDb.execute(() =>
+        SupabaseDb.adminClient.from('carts').delete().eq('user_id', userId));
   }
 
   Future<List<Map<String, dynamic>>> getOrders(String userId) async {
-    final result = await SupabaseDb.query(() => SupabaseDb.adminClient
-        .from('payments')
-        .select('''
+    final result = await SupabaseDb.query(
+        () => SupabaseDb.adminClient.from('payments').select('''
           *,
           payment_items (*, products(*))
-        ''')
-        .eq('user_id', userId)
-        .order('created_at', ascending: false));
+        ''').eq('user_id', userId).order('created_at', ascending: false));
 
     if (result.isError) {
       throw Exception('Failed to fetch orders: ${result.message}');

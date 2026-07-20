@@ -10,9 +10,7 @@ class OrderFailedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.white,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppBar(automaticallyImplyLeading: false),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -104,7 +102,9 @@ class OrderFailedScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  errorMessage.isNotEmpty ? errorMessage : 'Unknown error occurred.',
+                  errorMessage.isNotEmpty
+                      ? errorMessage
+                      : 'Unknown error occurred.',
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppTheme.greyText,

@@ -85,7 +85,7 @@ class _AuthGuardState extends State<AuthGuard> {
     // Listen to auth changes safely
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     _authProvider.addListener(_handleAuthStateChange);
-    
+
     // Explicitly handle the initial state in case the auth event fired before this listener was added
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_authProvider.isAuthenticated) {

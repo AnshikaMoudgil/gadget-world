@@ -46,8 +46,12 @@ class Profile {
   Map<String, dynamic> toUpdateJson() {
     return {
       'full_name': fullName,
-      'phone_number': (phoneNumber == null || phoneNumber!.isEmpty) ? null : phoneNumber,
-      'date_of_birth': dateOfBirth != null ? dateOfBirth!.toIso8601String().split('T').first : null,
+      'phone_number': (phoneNumber == null || phoneNumber!.isEmpty)
+          ? null
+          : phoneNumber,
+      'date_of_birth': dateOfBirth != null
+          ? dateOfBirth!.toIso8601String().split('T').first
+          : null,
     };
   }
 

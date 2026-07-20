@@ -312,7 +312,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cart = Provider.of<CartProvider>(context).cart;
     if (cart == null || cart.items.isEmpty) return const SizedBox();
 
-    final formatCurrency = NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0);
+    final formatCurrency = NumberFormat.simpleCurrency(
+      name: 'INR',
+      decimalDigits: 0,
+    );
 
     return Column(
       children: [
@@ -460,18 +463,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cartProvider = Provider.of<CartProvider>(context);
     final items = cartProvider.cart?.items ?? [];
     final itemCount = cartProvider.itemCount;
-    
+
     double subtotal = 0;
     for (var item in items) {
       final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
       subtotal += price * item.quantity;
     }
-    
+
     double discount = 0;
     double shipping = subtotal > 50000 ? 0 : 299;
     if (items.isEmpty) shipping = 0;
 
-    final formatCurrency = NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0);
+    final formatCurrency = NumberFormat.simpleCurrency(
+      name: 'INR',
+      decimalDigits: 0,
+    );
     final isChange = _currentState == CheckoutState.priceChange;
 
     return Padding(
@@ -564,19 +570,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _buildTotalAmount() {
     final cartProvider = Provider.of<CartProvider>(context);
     final items = cartProvider.cart?.items ?? [];
-    
+
     double subtotal = 0;
     for (var item in items) {
       final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
       subtotal += price * item.quantity;
     }
-    
+
     double discount = 0;
     double shipping = subtotal > 50000 ? 0 : 299;
     if (items.isEmpty) shipping = 0;
     double total = subtotal - discount + shipping;
 
-    final formatCurrency = NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0);
+    final formatCurrency = NumberFormat.simpleCurrency(
+      name: 'INR',
+      decimalDigits: 0,
+    );
     final isChange = _currentState == CheckoutState.priceChange;
 
     return Padding(
@@ -643,7 +652,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(Icons.check_circle_outline, color: Colors.green, size: 14),
+                const Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 14,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   'You saved ${formatCurrency.format(discount)} on this order',

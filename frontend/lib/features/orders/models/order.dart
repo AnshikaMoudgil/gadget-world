@@ -48,8 +48,8 @@ class Order {
       razorpayOrderId: json['razorpay_order_id'] ?? '',
       status: json['status'] ?? 'pending',
       amount: (json['amount_subunits'] as num? ?? 0) / 100,
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
           : DateTime.now(),
       items: itemsList.map((item) => OrderItem.fromJson(item)).toList(),
     );

@@ -109,7 +109,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
         }
 
         if (orderProvider.error != null) {
-          return Center(child: Text('Error: ${orderProvider.error}', style: TextStyle(color: Colors.red)));
+          return Center(
+            child: Text(
+              'Error: ${orderProvider.error}',
+              style: TextStyle(color: Colors.red),
+            ),
+          );
         }
 
         if (orders.isEmpty) {
@@ -133,9 +138,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Expanded(
-              child: _buildLoadedList(orders),
-            ),
+            Expanded(child: _buildLoadedList(orders)),
           ],
         );
       },
@@ -143,7 +146,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Widget _buildFilters(bool isLoading) {
-
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -198,19 +200,22 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-
   Widget _buildLoadedList(List<dynamic> orders) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final order = orders[index];
-        final itemCount = order.items.fold<int>(0, (sum, item) => sum + (item.quantity as int));
-        
+        final itemCount = order.items.fold<int>(
+          0,
+          (sum, item) => sum + (item.quantity as int),
+        );
+
         return _buildOrderItemCard(
           id: '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
           status: order.status.toUpperCase(),
-          date: '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
+          date:
+              '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
           price: '₹${order.amount.toStringAsFixed(0)}',
           items: '$itemCount Items',
           icon: Icons.shopping_bag_outlined,
@@ -220,7 +225,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   String _getMonth(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 

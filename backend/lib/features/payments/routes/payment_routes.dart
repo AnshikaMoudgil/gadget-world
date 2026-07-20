@@ -16,9 +16,8 @@ class PaymentRoutes {
     authRouter.post('/verify', _controller.verifyPayment);
 
     // Apply auth middleware
-    final authHandler = Pipeline()
-        .addMiddleware(authMiddleware())
-        .addHandler(authRouter.call);
+    final authHandler =
+        Pipeline().addMiddleware(authMiddleware()).addHandler(authRouter.call);
     router.mount('/', authHandler);
 
     return router;

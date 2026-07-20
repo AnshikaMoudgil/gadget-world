@@ -46,7 +46,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     return Scaffold(
       backgroundColor: AppTheme.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Usually no back button on success screen
+        automaticallyImplyLeading:
+            false, // Usually no back button on success screen
         actions: [
           IconButton(
             icon: const Icon(
@@ -101,12 +102,20 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               Positioned(
                 top: 10,
                 left: 20,
-                child: Icon(Icons.circle, size: 6, color: Colors.green.shade200),
+                child: Icon(
+                  Icons.circle,
+                  size: 6,
+                  color: Colors.green.shade200,
+                ),
               ),
               Positioned(
                 top: 20,
                 right: 30,
-                child: Icon(Icons.circle, size: 8, color: Colors.green.shade400),
+                child: Icon(
+                  Icons.circle,
+                  size: 8,
+                  color: Colors.green.shade400,
+                ),
               ),
               Positioned(
                 bottom: 20,
@@ -116,12 +125,20 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               Positioned(
                 bottom: 30,
                 right: 10,
-                child: Icon(Icons.circle, size: 6, color: Colors.green.shade300),
+                child: Icon(
+                  Icons.circle,
+                  size: 6,
+                  color: Colors.green.shade300,
+                ),
               ),
               Positioned(
                 top: 40,
                 left: 0,
-                child: Icon(Icons.circle, size: 5, color: Colors.green.shade100),
+                child: Icon(
+                  Icons.circle,
+                  size: 5,
+                  color: Colors.green.shade100,
+                ),
               ),
               Container(
                 width: 64,
@@ -245,7 +262,11 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           ),
           child: Column(
             children: [
-              _buildSummaryRow(Icons.shopping_bag_outlined, 'Items', '${widget.itemsCount} Items'),
+              _buildSummaryRow(
+                Icons.shopping_bag_outlined,
+                'Items',
+                '${widget.itemsCount} Items',
+              ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0),
                 child: Divider(color: AppTheme.greyBorder, height: 1),
@@ -320,7 +341,12 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
         ...widget.items.map((item) {
           return Column(
             children: [
-              _buildOrderItem(item['title'] ?? '', item['subtitle'] ?? '', item['qty'] ?? 1, item['priceStr'] ?? ''),
+              _buildOrderItem(
+                item['title'] ?? '',
+                item['subtitle'] ?? '',
+                item['qty'] ?? 1,
+                item['priceStr'] ?? '',
+              ),
               const Divider(color: AppTheme.greyBorder, height: 1),
             ],
           );
@@ -344,10 +370,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               color: AppTheme.greyBackground,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
-              Icons.headphones,
-              color: AppTheme.black,
-            ),
+            child: const Icon(Icons.headphones, color: AppTheme.black),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -430,7 +453,10 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 RichText(
                   text: TextSpan(
                     text: 'Estimated delivery: ',
-                    style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.greyText,
+                    ),
                     children: [
                       TextSpan(
                         text: estimateDateStr,
@@ -631,4 +657,3 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     );
   }
 }
-

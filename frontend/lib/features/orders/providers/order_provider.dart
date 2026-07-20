@@ -5,7 +5,7 @@ import 'package:gadget_store/features/payments/services/payment_api_service.dart
 
 class OrderProvider with ChangeNotifier {
   final SupabaseClient _supabase = Supabase.instance.client;
-  
+
   List<Order> _orders = [];
   bool _isLoading = false;
   String? _error;

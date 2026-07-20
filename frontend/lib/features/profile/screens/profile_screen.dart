@@ -81,7 +81,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const OrdersScreen()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const OrdersScreen(),
+                                  ),
                                 );
                               },
                               child: Text(
@@ -478,7 +480,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   String _getMonth(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 
