@@ -52,4 +52,23 @@ class PaymentController {
           headers: {'Content-Type': 'application/json'});
     }
   }
+
+  Future<Response> handleWebhook(Request request) async {
+    try {
+      final signature = request.headers['x-razorpay-signature'];
+      if (signature == null) {
+        return Response.badRequest(body: 'Missing signature');
+      }
+      final body = await request.readAsString();
+      
+      await _paymentService.processWebhook(signature, body);
+      
+      return Response.ok(jsonEncode({'status': 'ok'}),
+          headers: {'Content-Type': 'application/json'});
+    } catch (e) {
+      return Response(400,
+          body: jsonEncode({'error': e.toString()}),
+          headers: {'Content-Type': 'application/json'});
+    }
+  }
 }

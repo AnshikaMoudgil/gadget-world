@@ -18,6 +18,29 @@ class CartProvider extends ChangeNotifier {
     return _cart!.items.fold(0, (sum, item) => sum + item.quantity);
   }
 
+  double get subtotal {
+    if (_cart == null) return 0.0;
+    double total = 0;
+    for (var item in _cart!.items) {
+      final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
+      total += price * item.quantity;
+    }
+    return total;
+  }
+
+  double get discount {
+    return 0.0; // Extendable for future discount logic
+  }
+
+  double get shippingFee {
+    if (_cart == null || _cart!.items.isEmpty) return 0.0;
+    return subtotal > 50000 ? 0.0 : 299.0;
+  }
+
+  double get total {
+    return subtotal - discount + shippingFee;
+  }
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();

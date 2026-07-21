@@ -23,6 +23,22 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   DashboardState _currentState = DashboardState.existing;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+      final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+
+      if (profileProvider.profile == null && !profileProvider.isLoading) {
+        profileProvider.fetchProfile();
+      }
+      if (orderProvider.orders.isEmpty && !orderProvider.isLoading) {
+        orderProvider.fetchOrders();
+      }
+    });
+  }
+
   void _toggleState() {
     setState(() {
       _currentState = _currentState == DashboardState.existing

@@ -461,18 +461,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildCostSummary() {
     final cartProvider = Provider.of<CartProvider>(context);
-    final items = cartProvider.cart?.items ?? [];
     final itemCount = cartProvider.itemCount;
 
-    double subtotal = 0;
-    for (var item in items) {
-      final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
-      subtotal += price * item.quantity;
-    }
-
-    double discount = 0;
-    double shipping = subtotal > 50000 ? 0 : 299;
-    if (items.isEmpty) shipping = 0;
+    final subtotal = cartProvider.subtotal;
+    final discount = cartProvider.discount;
+    final shipping = cartProvider.shippingFee;
 
     final formatCurrency = NumberFormat.simpleCurrency(
       name: 'INR',
@@ -569,18 +562,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildTotalAmount() {
     final cartProvider = Provider.of<CartProvider>(context);
-    final items = cartProvider.cart?.items ?? [];
 
-    double subtotal = 0;
-    for (var item in items) {
-      final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
-      subtotal += price * item.quantity;
-    }
-
-    double discount = 0;
-    double shipping = subtotal > 50000 ? 0 : 299;
-    if (items.isEmpty) shipping = 0;
-    double total = subtotal - discount + shipping;
+    final discount = cartProvider.discount;
+    final total = cartProvider.total;
 
     final formatCurrency = NumberFormat.simpleCurrency(
       name: 'INR',

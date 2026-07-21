@@ -9,16 +9,16 @@ class PaymentRoutes {
   Router get router {
     final router = Router();
 
-    // Authenticated routes
-    final authRouter = Router();
-    authRouter.get('/', _controller.getOrders);
-    authRouter.post('/create-order', _controller.createOrder);
-    authRouter.post('/verify', _controller.verifyPayment);
+    // Webhook - Unauthenticated
+    router.post('/webhook', _controller.handleWebhook);
 
-    // Apply auth middleware
-    final authHandler =
-        Pipeline().addMiddleware(authMiddleware()).addHandler(authRouter.call);
-    router.mount('/', authHandler);
+    // Authenticated handler wrapper
+    Handler withAuth(Handler inner) => const Pipeline().addMiddleware(authMiddleware()).addHandler(inner);
+
+    // Authenticated routes
+    router.get('/', withAuth(_controller.getOrders));
+    router.post('/create-order', withAuth(_controller.createOrder));
+    router.post('/verify', withAuth(_controller.verifyPayment));
 
     return router;
   }

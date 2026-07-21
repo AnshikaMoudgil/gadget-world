@@ -602,9 +602,10 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             height: 54,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (_) => const OrderDetailScreen()),
+                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 3)),
+                  (route) => false,
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -635,7 +636,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (_) => const MainScreen()),
+                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 0)),
                   (route) => false,
                 );
               },

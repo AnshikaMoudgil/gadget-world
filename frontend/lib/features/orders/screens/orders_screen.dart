@@ -3,6 +3,7 @@ import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
 import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:gadget_store/features/orders/models/order.dart';
 import 'package:provider/provider.dart';
 
 enum OrdersState { loaded, loading, empty }
@@ -15,6 +16,19 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
+  String _selectedFilter = 'All';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+      if (orderProvider.orders.isEmpty && !orderProvider.isLoading) {
+        orderProvider.fetchOrders();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,6 +121,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
           return _buildEmptyState();
         }
 
+        final filteredOrders = _selectedFilter == 'All' 
+            ? orders 
+            : orders.where((o) => o.status.toLowerCase() == _selectedFilter.toLowerCase()).toList();
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -115,7 +133,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Text(
-                'Orders (${orders.length})',
+                'Orders (${filteredOrders.length})',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -124,7 +142,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Expanded(child: _buildLoadedList(orders)),
+            Expanded(
+              child: filteredOrders.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No $_selectedFilter orders found.',
+                        style: const TextStyle(color: AppTheme.greyText),
+                      ),
+                    )
+                  : _buildLoadedList(filteredOrders),
+            ),
           ],
         );
       },
@@ -137,9 +164,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          _buildFilterChip('All', isSelected: !isLoading, isLoading: isLoading),
+          _buildFilterChip('All', isLoading: isLoading),
           _buildFilterChip('Pending', isLoading: isLoading),
           _buildFilterChip('Confirmed', isLoading: isLoading),
+          _buildFilterChip('Completed', isLoading: isLoading),
           _buildFilterChip('Shipped', isLoading: isLoading),
           _buildFilterChip('Delivered', isLoading: isLoading),
           _buildFilterChip('Cancelled', isLoading: isLoading),
@@ -150,9 +178,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Widget _buildFilterChip(
     String label, {
-    bool isSelected = false,
     bool isLoading = false,
   }) {
+    final isSelected = _selectedFilter == label;
+    
     if (isLoading) {
       return Container(
         margin: const EdgeInsets.only(right: 8),
@@ -165,28 +194,37 @@ class _OrdersScreenState extends State<OrdersScreen> {
       );
     }
 
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? AppTheme.black : AppTheme.white,
-        border: Border.all(
-          color: isSelected ? AppTheme.black : AppTheme.greyBorder,
+    return GestureDetector(
+      onTap: () {
+        if (_selectedFilter != label) {
+          setState(() {
+            _selectedFilter = label;
+          });
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.black : AppTheme.white,
+          border: Border.all(
+            color: isSelected ? AppTheme.black : AppTheme.greyBorder,
+          ),
+          borderRadius: BorderRadius.circular(18),
         ),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? AppTheme.white : AppTheme.black,
-          fontSize: 14,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? AppTheme.white : AppTheme.black,
+            fontSize: 14,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildLoadedList(List<dynamic> orders) {
+  Widget _buildLoadedList(List<Order> orders) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       itemCount: orders.length,
@@ -194,10 +232,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
         final order = orders[index];
         final itemCount = order.items.fold<int>(
           0,
-          (sum, item) => sum + (item.quantity as int),
+          (int sum, item) => sum + item.quantity,
         );
 
         return _buildOrderItemCard(
+          order: order,
           id: '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
           status: order.status.toUpperCase(),
           date:
@@ -229,6 +268,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Widget _buildOrderItemCard({
+    required Order order,
     required String id,
     required String date,
     required String status,
@@ -256,6 +296,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
         statusColor = AppTheme.greyText;
         statusBgColor = AppTheme.greyBackground;
         break;
+      case 'completed':
+        statusColor = Colors.green;
+        statusBgColor = Colors.green.shade50;
+        break;
       default:
         statusColor = AppTheme.black;
         statusBgColor = AppTheme.greyBackground;
@@ -268,7 +312,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const OrderDetailScreen()),
+              MaterialPageRoute(builder: (_) => OrderDetailScreen(order: order)),
             );
           },
           child: Container(

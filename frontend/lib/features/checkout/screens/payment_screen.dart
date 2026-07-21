@@ -58,13 +58,7 @@ class _PaymentScreenState extends State<PaymentScreen>
       final email = Supabase.instance.client.auth.currentUser?.email ?? '';
       final itemsCount = cartProvider.itemCount;
 
-      double total = 0;
-      if (cartProvider.cart != null) {
-        for (var item in cartProvider.cart!.items) {
-          final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
-          total += price * item.quantity;
-        }
-      }
+      final total = cartProvider.total;
       final totalAmountStr = '₹${total.toStringAsFixed(0)}';
 
       final orderId = response.orderId ?? '';
@@ -103,8 +97,17 @@ class _PaymentScreenState extends State<PaymentScreen>
         );
       }
     } catch (e) {
-      _showErrorSnackbar('Payment verification failed: $e');
       setState(() => _isProcessing = false);
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OrderFailedScreen(
+              errorMessage: 'Payment was deducted by Razorpay, but verification is pending. Please check your Orders page in a few minutes.\n\nError: $e',
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -191,16 +194,8 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   String _getTotalAmountStr() {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final items = cartProvider.cart?.items ?? [];
-    double subtotal = 0;
-    for (var item in items) {
-      final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
-      subtotal += price * item.quantity;
-    }
-    double discount = 0;
-    double shipping = subtotal > 50000 ? 0 : 299;
-    if (items.isEmpty) shipping = 0;
-    double total = subtotal - discount + shipping;
+    final total = cartProvider.total;
+    
     final formatCurrency = NumberFormat.simpleCurrency(
       name: 'INR',
       decimalDigits: 0,

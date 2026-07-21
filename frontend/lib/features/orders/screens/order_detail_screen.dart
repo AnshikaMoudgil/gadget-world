@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 
+import 'package:gadget_store/features/orders/models/order.dart';
+
 class OrderDetailScreen extends StatefulWidget {
-  const OrderDetailScreen({super.key});
+  final Order order;
+  
+  const OrderDetailScreen({super.key, required this.order});
 
   @override
   State<OrderDetailScreen> createState() => _OrderDetailScreenState();
@@ -29,9 +33,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     const SizedBox(height: 16),
                     _buildStatusCard(),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Items (3)',
-                      style: TextStyle(
+                    Text(
+                      'Items (${widget.order.items.length})',
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.black,
@@ -131,7 +135,55 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
+  String _getMonth(int month) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1];
+  }
+
+  String _formatDate(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = _getMonth(date.month);
+    final year = date.year;
+    int hour = date.hour;
+    final ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    if (hour == 0) hour = 12;
+    final minute = date.minute.toString().padLeft(2, '0');
+    return '$day $month $year, $hour:$minute $ampm';
+  }
+
   Widget _buildHeaderCard() {
+    final orderId = widget.order.razorpayOrderId.replaceFirst('order_', '').toUpperCase();
+    final date = _formatDate(widget.order.createdAt);
+    
+    Color statusColor;
+    Color statusBgColor;
+    switch (widget.order.status.toLowerCase()) {
+      case 'delivered':
+        statusColor = Colors.green;
+        statusBgColor = Colors.green.shade50;
+        break;
+      case 'shipped':
+        statusColor = Colors.blue;
+        statusBgColor = Colors.blue.shade50;
+        break;
+      case 'confirmed':
+        statusColor = Colors.orange;
+        statusBgColor = Colors.orange.shade50;
+        break;
+      case 'cancelled':
+        statusColor = AppTheme.greyText;
+        statusBgColor = AppTheme.greyBackground;
+        break;
+      case 'completed':
+        statusColor = Colors.green;
+        statusBgColor = Colors.green.shade50;
+        break;
+      default:
+        statusColor = AppTheme.black;
+        statusBgColor = AppTheme.greyBackground;
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -145,34 +197,34 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
-                'Order #GS1234567890',
-                style: TextStyle(
+                'Order #$orderId',
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.black,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
-                'Placed on 09 Jul 2025, 10:41 AM',
-                style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                'Placed on $date',
+                style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
               ),
             ],
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
+              color: statusBgColor,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: const Text(
-              'Delivered',
+            child: Text(
+              widget.order.status.toUpperCase(),
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
-                color: Colors.green,
+                color: statusColor,
               ),
             ),
           ),
@@ -182,11 +234,44 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildStatusCard() {
+    final status = widget.order.status.toLowerCase();
+    Color statusColor;
+    IconData statusIcon;
+    String statusTitle;
+    String statusDesc;
+    
+    switch (status) {
+      case 'delivered':
+      case 'completed':
+        statusColor = Colors.green;
+        statusIcon = Icons.inventory_2;
+        statusTitle = '${status == 'completed' ? 'Completed' : 'Delivered'} on ${_formatDate(widget.order.createdAt.add(const Duration(days: 2)))}';
+        statusDesc = 'Your order has been ${status == 'completed' ? 'completed' : 'delivered'} successfully.';
+        break;
+      case 'shipped':
+        statusColor = Colors.blue;
+        statusIcon = Icons.local_shipping;
+        statusTitle = 'Shipped on ${_formatDate(widget.order.createdAt.add(const Duration(days: 1)))}';
+        statusDesc = 'Your order is on the way.';
+        break;
+      case 'cancelled':
+        statusColor = AppTheme.greyText;
+        statusIcon = Icons.cancel;
+        statusTitle = 'Cancelled';
+        statusDesc = 'Your order has been cancelled.';
+        break;
+      default:
+        statusColor = Colors.orange;
+        statusIcon = Icons.access_time;
+        statusTitle = 'Confirmed on ${_formatDate(widget.order.createdAt)}';
+        statusDesc = 'Your order is confirmed and being processed.';
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: Colors.green.shade200),
+        border: Border.all(color: statusColor.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -194,8 +279,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(4),
-            decoration: const BoxDecoration(
-              color: Colors.green,
+            decoration: BoxDecoration(
+              color: statusColor,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.check, color: AppTheme.white, size: 16),
@@ -205,50 +290,51 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Delivered on 11 Jul 2025, 04:45 PM',
-                  style: TextStyle(
+                Text(
+                  statusTitle,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.black,
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Your order has been delivered successfully.',
-                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                Text(
+                  statusDesc,
+                  style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: const [
-                    Text(
-                      'View proof of delivery',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
+                if (status == 'delivered') ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        'View proof of delivery',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: statusColor,
+                        ),
                       ),
-                    ),
-                    Icon(Icons.chevron_right, size: 16, color: Colors.green),
-                  ],
-                ),
+                      Icon(Icons.chevron_right, size: 16, color: statusColor),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
-          // Mock Box Graphic
           SizedBox(
             width: 40,
             height: 40,
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(Icons.inventory_2, color: Colors.green.shade200, size: 40),
+                Icon(statusIcon, color: statusColor.withValues(alpha: 0.5), size: 40),
                 Positioned(
                   bottom: 0,
                   right: 0,
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.green,
+                    decoration: BoxDecoration(
+                      color: statusColor,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -275,34 +361,29 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
-        children: [
-          _buildOrderItem(
-            'boAt Rockerz 450',
-            'Black',
-            1,
-            'â‚¹1,999',
-            null,
-            Icons.headphones,
-          ),
-          const Divider(color: AppTheme.greyBorder, height: 24),
-          _buildOrderItem(
-            'Noise ColorFit Pulse 3',
-            'Jet Black',
-            2,
-            'â‚¹5,998',
-            'â‚¹2,999 each',
-            Icons.watch,
-          ),
-          const Divider(color: AppTheme.greyBorder, height: 24),
-          _buildOrderItem(
-            'Ambrane 10000mAh Power Bank',
-            'Black',
-            1,
-            'â‚¹1,199',
-            null,
-            Icons.battery_charging_full,
-          ),
-        ],
+        children: widget.order.items.asMap().entries.map((entry) {
+          final idx = entry.key;
+          final item = entry.value;
+          final details = item.productDetails;
+          
+          final title = details?['name'] ?? 'Product';
+          final subtitle = details?['category'] ?? 'Category';
+          
+          return Column(
+            children: [
+              _buildOrderItem(
+                title,
+                subtitle,
+                item.quantity,
+                '₹${item.amount.toStringAsFixed(0)}',
+                item.quantity > 1 ? '₹${(item.amount / item.quantity).toStringAsFixed(0)} each' : null,
+                Icons.shopping_bag_outlined,
+              ),
+              if (idx < widget.order.items.length - 1)
+                const Divider(color: AppTheme.greyBorder, height: 24),
+            ],
+          );
+        }).toList(),
       ),
     );
   }
@@ -669,6 +750,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildPaymentInfoCard() {
+    final date = _formatDate(widget.order.createdAt);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -720,9 +802,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Paid on 09 Jul 2025, 11:32 AM',
-            style: TextStyle(fontSize: 10, color: AppTheme.greyText),
+          Text(
+            'Paid on $date',
+            style: const TextStyle(fontSize: 10, color: AppTheme.greyText),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -730,9 +812,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             style: TextStyle(fontSize: 12, color: AppTheme.greyText),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'â‚¹7,405',
-            style: TextStyle(
+          Text(
+            '₹${widget.order.amount.toStringAsFixed(0)}',
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: AppTheme.black,
@@ -744,6 +826,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildOrderSummaryCard() {
+    final itemCount = widget.order.items.fold<int>(0, (sum, item) => sum + item.quantity);
+    final subtotal = widget.order.items.fold<double>(0, (sum, item) => sum + item.amount);
+    
+    // Reverse calculate shipping and discount to match total. 
+    // This assumes if amount > 50000 there is 0 shipping, otherwise 49.
+    final shipping = subtotal > 50000 ? 0.0 : 49.0;
+    
+    // We can infer the discount if the subtotal + shipping > total
+    // But since the API returns amount as total, let's just make it simple
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -765,51 +856,34 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Expanded(
                 child: Text(
-                  'Subtotal (3 items)',
-                  style: TextStyle(fontSize: 10, color: AppTheme.greyText),
+                  'Subtotal ($itemCount items)',
+                  style: const TextStyle(fontSize: 10, color: AppTheme.greyText),
                 ),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
-                'â‚¹9,196',
-                style: TextStyle(fontSize: 10, color: AppTheme.black),
+                '₹${subtotal.toStringAsFixed(0)}',
+                style: const TextStyle(fontSize: 10, color: AppTheme.black),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Expanded(
-                child: Text(
-                  'Coupon Discount (SAVE20)',
-                  style: TextStyle(fontSize: 10, color: Colors.green),
-                ),
-              ),
-              SizedBox(width: 4),
-              Text(
-                '-â‚¹1,840',
-                style: TextStyle(fontSize: 10, color: Colors.green),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Expanded(
+            children: [
+              const Expanded(
                 child: Text(
                   'Shipping Fee',
                   style: TextStyle(fontSize: 10, color: AppTheme.greyText),
                 ),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
-                'â‚¹49',
-                style: TextStyle(fontSize: 10, color: AppTheme.black),
+                '₹${shipping.toStringAsFixed(0)}',
+                style: const TextStyle(fontSize: 10, color: AppTheme.black),
               ),
             ],
           ),
@@ -819,8 +893,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Expanded(
+            children: [
+              const Expanded(
                 child: Text(
                   'Total Amount',
                   style: TextStyle(
@@ -830,10 +904,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   ),
                 ),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
-                'â‚¹7,405',
-                style: TextStyle(
+                '₹${widget.order.amount.toStringAsFixed(0)}',
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.black,

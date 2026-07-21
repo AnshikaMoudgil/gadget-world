@@ -148,4 +148,61 @@ class PaymentService {
 
     return List<Map<String, dynamic>>.from(result.data as List);
   }
+
+  Future<void> processWebhook(String signature, String body) async {
+    final webhookSecret = Env.getOr('RAZORPAY_WEBHOOK_SECRET', 'mock_secret');
+    
+    // 1. Verify signature
+    final hmac = Hmac(sha256, utf8.encode(webhookSecret));
+    final digest = hmac.convert(utf8.encode(body));
+    if (digest.toString() != signature) {
+      throw Exception('Invalid webhook signature');
+    }
+
+    // 2. Parse payload
+    final payload = jsonDecode(body) as Map<String, dynamic>;
+    final event = payload['event'] as String?;
+    
+    // 3. Log webhook
+    try {
+      await SupabaseDb.execute(() => SupabaseDb.adminClient
+          .from('webhook_logs')
+          .insert({'payload': payload, 'event': event}));
+    } catch (e) {
+      print('Failed to log webhook: $e');
+    }
+
+    // 4. Process payment.captured event
+    if (event == 'payment.captured') {
+      final paymentEntity = payload['payload']?['payment']?['entity'];
+      if (paymentEntity != null) {
+        final razorpayOrderId = paymentEntity['order_id'] as String?;
+        if (razorpayOrderId != null) {
+          // Look up payment and update if pending
+          final paymentResult = await SupabaseDb.querySingle(() =>
+              SupabaseDb.adminClient
+                  .from('payments')
+                  .select()
+                  .eq('razorpay_order_id', razorpayOrderId)
+                  .single());
+                  
+          if (!paymentResult.isError && paymentResult.data != null) {
+            if (paymentResult.data!['status'] == 'pending') {
+               await SupabaseDb.execute(() => SupabaseDb.adminClient
+                  .from('payments')
+                  .update({'status': 'completed'})
+                  .eq('razorpay_order_id', razorpayOrderId));
+               
+               // Clear cart for the user
+               final userId = paymentResult.data!['user_id'];
+               await SupabaseDb.execute(() => SupabaseDb.adminClient
+                  .from('carts')
+                  .delete()
+                  .eq('user_id', userId));
+            }
+          }
+        }
+      }
+    }
+  }
 }
