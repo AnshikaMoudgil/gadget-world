@@ -13,7 +13,8 @@ class PaymentRoutes {
     router.post('/webhook', _controller.handleWebhook);
 
     // Authenticated handler wrapper
-    Handler withAuth(Handler inner) => const Pipeline().addMiddleware(authMiddleware()).addHandler(inner);
+    Handler withAuth(Handler inner) =>
+        const Pipeline().addMiddleware(authMiddleware()).addHandler(inner);
 
     // Authenticated routes
     router.get('/', withAuth(_controller.getOrders));

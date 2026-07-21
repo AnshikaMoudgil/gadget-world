@@ -5,7 +5,7 @@ import 'package:gadget_store/features/orders/models/order.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final Order order;
-  
+
   const OrderDetailScreen({super.key, required this.order});
 
   @override
@@ -136,7 +136,20 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   String _getMonth(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 
@@ -153,9 +166,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildHeaderCard() {
-    final orderId = widget.order.razorpayOrderId.replaceFirst('order_', '').toUpperCase();
+    final orderId = widget.order.razorpayOrderId
+        .replaceFirst('order_', '')
+        .toUpperCase();
     final date = _formatDate(widget.order.createdAt);
-    
+
     Color statusColor;
     Color statusBgColor;
     switch (widget.order.status.toLowerCase()) {
@@ -239,19 +254,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     IconData statusIcon;
     String statusTitle;
     String statusDesc;
-    
+
     switch (status) {
       case 'delivered':
       case 'completed':
         statusColor = Colors.green;
         statusIcon = Icons.inventory_2;
-        statusTitle = '${status == 'completed' ? 'Completed' : 'Delivered'} on ${_formatDate(widget.order.createdAt.add(const Duration(days: 2)))}';
-        statusDesc = 'Your order has been ${status == 'completed' ? 'completed' : 'delivered'} successfully.';
+        statusTitle =
+            '${status == 'completed' ? 'Completed' : 'Delivered'} on ${_formatDate(widget.order.createdAt.add(const Duration(days: 2)))}';
+        statusDesc =
+            'Your order has been ${status == 'completed' ? 'completed' : 'delivered'} successfully.';
         break;
       case 'shipped':
         statusColor = Colors.blue;
         statusIcon = Icons.local_shipping;
-        statusTitle = 'Shipped on ${_formatDate(widget.order.createdAt.add(const Duration(days: 1)))}';
+        statusTitle =
+            'Shipped on ${_formatDate(widget.order.createdAt.add(const Duration(days: 1)))}';
         statusDesc = 'Your order is on the way.';
         break;
       case 'cancelled':
@@ -301,7 +319,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 const SizedBox(height: 4),
                 Text(
                   statusDesc,
-                  style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                  ),
                 ),
                 if (status == 'delivered') ...[
                   const SizedBox(height: 8),
@@ -328,7 +349,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(statusIcon, color: statusColor.withValues(alpha: 0.5), size: 40),
+                Icon(
+                  statusIcon,
+                  color: statusColor.withValues(alpha: 0.5),
+                  size: 40,
+                ),
                 Positioned(
                   bottom: 0,
                   right: 0,
@@ -365,10 +390,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           final idx = entry.key;
           final item = entry.value;
           final details = item.productDetails;
-          
+
           final title = details?['name'] ?? 'Product';
           final subtitle = details?['category'] ?? 'Category';
-          
+
           return Column(
             children: [
               _buildOrderItem(
@@ -376,7 +401,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 subtitle,
                 item.quantity,
                 '₹${item.amount.toStringAsFixed(0)}',
-                item.quantity > 1 ? '₹${(item.amount / item.quantity).toStringAsFixed(0)} each' : null,
+                item.quantity > 1
+                    ? '₹${(item.amount / item.quantity).toStringAsFixed(0)} each'
+                    : null,
                 Icons.shopping_bag_outlined,
               ),
               if (idx < widget.order.items.length - 1)
@@ -826,13 +853,19 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildOrderSummaryCard() {
-    final itemCount = widget.order.items.fold<int>(0, (sum, item) => sum + item.quantity);
-    final subtotal = widget.order.items.fold<double>(0, (sum, item) => sum + item.amount);
-    
-    // Reverse calculate shipping and discount to match total. 
+    final itemCount = widget.order.items.fold<int>(
+      0,
+      (sum, item) => sum + item.quantity,
+    );
+    final subtotal = widget.order.items.fold<double>(
+      0,
+      (sum, item) => sum + item.amount,
+    );
+
+    // Reverse calculate shipping and discount to match total.
     // This assumes if amount > 50000 there is 0 shipping, otherwise 49.
     final shipping = subtotal > 50000 ? 0.0 : 49.0;
-    
+
     // We can infer the discount if the subtotal + shipping > total
     // But since the API returns amount as total, let's just make it simple
     return Container(
@@ -860,7 +893,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               Expanded(
                 child: Text(
                   'Subtotal ($itemCount items)',
-                  style: const TextStyle(fontSize: 10, color: AppTheme.greyText),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.greyText,
+                  ),
                 ),
               ),
               const SizedBox(width: 4),

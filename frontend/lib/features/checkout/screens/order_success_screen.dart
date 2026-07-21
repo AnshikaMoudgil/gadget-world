@@ -604,7 +604,9 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 3)),
+                  MaterialPageRoute(
+                    builder: (_) => const MainScreen(initialIndex: 3),
+                  ),
                   (route) => false,
                 );
               },
@@ -636,7 +638,9 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 0)),
+                  MaterialPageRoute(
+                    builder: (_) => const MainScreen(initialIndex: 0),
+                  ),
                   (route) => false,
                 );
               },

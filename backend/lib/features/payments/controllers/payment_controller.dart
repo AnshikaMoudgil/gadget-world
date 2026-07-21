@@ -60,9 +60,9 @@ class PaymentController {
         return Response.badRequest(body: 'Missing signature');
       }
       final body = await request.readAsString();
-      
+
       await _paymentService.processWebhook(signature, body);
-      
+
       return Response.ok(jsonEncode({'status': 'ok'}),
           headers: {'Content-Type': 'application/json'});
     } catch (e) {

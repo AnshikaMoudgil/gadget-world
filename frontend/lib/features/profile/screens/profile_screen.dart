@@ -27,7 +27,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+      final profileProvider = Provider.of<ProfileProvider>(
+        context,
+        listen: false,
+      );
       final orderProvider = Provider.of<OrderProvider>(context, listen: false);
 
       if (profileProvider.profile == null && !profileProvider.isLoading) {

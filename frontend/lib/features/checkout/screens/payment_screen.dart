@@ -103,7 +103,8 @@ class _PaymentScreenState extends State<PaymentScreen>
           context,
           MaterialPageRoute(
             builder: (_) => OrderFailedScreen(
-              errorMessage: 'Payment was deducted by Razorpay, but verification is pending. Please check your Orders page in a few minutes.\n\nError: $e',
+              errorMessage:
+                  'Payment was deducted by Razorpay, but verification is pending. Please check your Orders page in a few minutes.\n\nError: $e',
             ),
           ),
         );
@@ -195,7 +196,7 @@ class _PaymentScreenState extends State<PaymentScreen>
   String _getTotalAmountStr() {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final total = cartProvider.total;
-    
+
     final formatCurrency = NumberFormat.simpleCurrency(
       name: 'INR',
       decimalDigits: 0,

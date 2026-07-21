@@ -10,7 +10,7 @@ import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;
-  
+
   const MainScreen({super.key, this.initialIndex = 0});
 
   @override

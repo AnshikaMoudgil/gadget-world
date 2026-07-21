@@ -121,9 +121,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
           return _buildEmptyState();
         }
 
-        final filteredOrders = _selectedFilter == 'All' 
-            ? orders 
-            : orders.where((o) => o.status.toLowerCase() == _selectedFilter.toLowerCase()).toList();
+        final filteredOrders = _selectedFilter == 'All'
+            ? orders
+            : orders
+                  .where(
+                    (o) =>
+                        o.status.toLowerCase() == _selectedFilter.toLowerCase(),
+                  )
+                  .toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,12 +181,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildFilterChip(
-    String label, {
-    bool isLoading = false,
-  }) {
+  Widget _buildFilterChip(String label, {bool isLoading = false}) {
     final isSelected = _selectedFilter == label;
-    
+
     if (isLoading) {
       return Container(
         margin: const EdgeInsets.only(right: 8),
@@ -312,7 +314,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => OrderDetailScreen(order: order)),
+              MaterialPageRoute(
+                builder: (_) => OrderDetailScreen(order: order),
+              ),
             );
           },
           child: Container(
