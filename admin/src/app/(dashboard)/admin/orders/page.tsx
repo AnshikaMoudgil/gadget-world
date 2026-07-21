@@ -1,52 +1,239 @@
 "use client";
 
+import { useEffect, useState, useCallback } from "react";
+import { createBrowserSupabaseClient } from "@/lib/supabase";
+import type { Order } from "@/lib/types";
+
 export default function OrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [toast, setToast] = useState<{ type: string; message: string } | null>(null);
+  const supabase = createBrowserSupabaseClient();
+
+  const loadOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from("orders")
+        .select("*, profile:profiles(*), items:order_items(*)")
+        .order("created_at", { ascending: false });
+
+      if (search) query = query.or(`order_number.ilike.%${search}%`);
+      if (statusFilter) query = query.eq("status", statusFilter);
+
+      const { data, error } = await query;
+      if (!error && data) {
+        setOrders(data as Order[]);
+      }
+    } catch (err) {
+      console.error("Failed to load orders:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [search, statusFilter]);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  const updateOrderStatus = async (orderId: string, newStatus: Order["status"]) => {
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: newStatus })
+      .eq("id", orderId);
+
+    if (!error) {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+      );
+      showToast("success", `Order status updated to ${newStatus}`);
+    } else {
+      showToast("error", error.message);
+    }
+  };
+
+  const updatePaymentStatus = async (orderId: string, newPaymentStatus: Order["payment_status"]) => {
+    const { error } = await supabase
+      .from("orders")
+      .update({ payment_status: newPaymentStatus })
+      .eq("id", orderId);
+
+    if (!error) {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, payment_status: newPaymentStatus } : o))
+      );
+      showToast("success", `Payment status updated to ${newPaymentStatus}`);
+    } else {
+      showToast("error", error.message);
+    }
+  };
+
+  const showToast = (type: string, message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case "delivered":
+      case "confirmed":
+        return "badge-success";
+      case "shipped":
+      case "processing":
+        return "badge-info";
+      case "pending_payment":
+      case "pending":
+        return "badge-warning";
+      case "cancelled":
+        return "badge-danger";
+      default:
+        return "badge-neutral";
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-        <h1 className="text-2xl font-bold tracking-tight">Orders</h1>
-      </div>
-
-      <div className="glass-card p-12 flex flex-col items-center text-center">
-        <div className="text-accent-light opacity-60 mb-6 animate-pulse-slow">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <path d="M16 10a4 4 0 0 1-8 0" />
-          </svg>
-        </div>
-
-        <h2 className="text-xl font-bold mb-2">Orders Management</h2>
-        <p className="text-text-secondary text-[0.9375rem] max-w-[480px] mb-8">
-          This page will display and manage customer orders once the orders table migration is applied.
-        </p>
-
-        <div className="grid grid-cols-2 gap-4 max-w-[600px] w-full mb-8 max-sm:grid-cols-1">
-          {[
-            { icon: "📋", title: "View Orders", desc: "Browse all orders with filters by status, date, and customer." },
-            { icon: "🔄", title: "Update Status", desc: "Change order status — pending, confirmed, shipped, delivered, cancelled." },
-            { icon: "📊", title: "Order Analytics", desc: "Track revenue, order volume, and average order value." },
-            { icon: "📦", title: "Order Details", desc: "View line items, shipping address, and payment info for each order." },
-          ].map((f) => (
-            <div key={f.title} className="flex gap-2 text-left p-4 bg-bg-tertiary rounded-lg border border-glass-border">
-              <span className="text-xl shrink-0 mt-0.5">{f.icon}</span>
-              <div>
-                <strong className="text-[0.8125rem] block mb-0.5">{f.title}</strong>
-                <p className="text-xs text-text-tertiary leading-snug">{f.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-info-bg text-info rounded-lg text-[0.8125rem] font-medium">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <span>Run the orders migration to enable this feature.</span>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Orders</h1>
+          <p className="text-text-secondary text-sm mt-1">
+            Manage customer orders, track payments, and update fulfillment statuses.
+          </p>
         </div>
       </div>
+
+      <div className="flex gap-2 items-center flex-wrap mb-6">
+        <div className="relative">
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary text-sm pointer-events-none">🔍</span>
+          <input
+            type="text"
+            className="form-input pl-10 min-w-[280px]"
+            placeholder="Search by order number..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <select className="form-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="">All Statuses</option>
+          <option value="pending_payment">Pending Payment</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <div className="glass-card overflow-hidden">
+        {loading ? (
+          <div className="p-12 flex items-center justify-center">
+            <div className="spinner spinner-lg" />
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-12 text-center text-text-tertiary">
+            <div className="text-5xl mb-4 opacity-50">🛒</div>
+            <h3 className="text-lg text-text-secondary mb-1">No orders found</h3>
+            <p className="text-sm max-w-[360px]">
+              {statusFilter || search
+                ? "Try adjusting your filters or search terms."
+                : "No customer orders have been placed yet."}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Total Amount</th>
+                  <th>Method</th>
+                  <th>Payment Status</th>
+                  <th>Order Status</th>
+                  <th>Placed At</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order.id}>
+                    <td>
+                      <strong className="font-mono text-sm">{order.order_number}</strong>
+                    </td>
+                    <td>
+                      <div>
+                        <div className="font-medium text-sm">
+                          {order.profile?.full_name || "Customer"}
+                        </div>
+                        <div className="text-xs text-text-tertiary">
+                          {order.profile?.email || order.profile?.phone_number || "—"}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <strong className="text-sm">₹{order.total_amount.toLocaleString()}</strong>
+                      {order.items && order.items.length > 0 && (
+                        <div className="text-xs text-text-tertiary">
+                          {order.items.length} item{order.items.length > 1 ? "s" : ""}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <span className="uppercase text-xs font-semibold text-text-secondary">
+                        {order.payment_method}
+                      </span>
+                    </td>
+                    <td>
+                      <select
+                        className="form-select min-w-[130px] py-1.5 pl-2.5 pr-7 text-[0.8125rem]"
+                        value={order.payment_status}
+                        onChange={(e) => updatePaymentStatus(order.id, e.target.value as Order["payment_status"])}
+                      >
+                        <option value="unpaid">Unpaid</option>
+                        <option value="processing">Processing</option>
+                        <option value="paid">Paid</option>
+                        <option value="failed">Failed</option>
+                        <option value="refunded">Refunded</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <span className={`badge ${getStatusBadgeClass(order.status)}`}>
+                          {order.status}
+                        </span>
+                        <select
+                          className="form-select min-w-[140px] py-1.5 pl-2.5 pr-7 text-[0.8125rem]"
+                          value={order.status}
+                          onChange={(e) => updateOrderStatus(order.id, e.target.value as Order["status"])}
+                        >
+                          <option value="pending_payment">Pending Payment</option>
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="processing">Processing</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                    </td>
+                    <td className="text-[0.8125rem] text-text-tertiary">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {toast && (
+        <div className={`toast ${toast.type === "success" ? "toast-success" : "toast-error"}`}>
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }
