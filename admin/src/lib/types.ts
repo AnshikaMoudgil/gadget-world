@@ -104,12 +104,49 @@ export interface ProductVariant {
 export interface Order {
   id: string;
   user_id: string;
-  status: string;
-  total: number;
-  items_count: number;
+  shipping_address_id: string | null;
+  order_number: string;
+  status: "pending_payment" | "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+  payment_status: "unpaid" | "processing" | "paid" | "failed" | "refunded";
+  payment_method: "cod" | "razorpay" | "bank_transfer" | "upi";
+  total_amount: number;
+  subtotal: number;
+  shipping_fee: number;
+  tax_amount: number;
+  notes: string | null;
   created_at: string;
   updated_at: string;
   profile?: Profile;
+  items?: OrderItem[];
+  payment?: Payment;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string;
+  variant_id: string | null;
+  product_name: string;
+  variant_name: string | null;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  created_at: string;
+}
+
+export interface Payment {
+  id: string;
+  order_id: string;
+  provider: string;
+  razorpay_payment_id: string | null;
+  razorpay_order_id: string | null;
+  razorpay_signature: string | null;
+  amount: number;
+  currency: string;
+  status: "created" | "authorized" | "captured" | "failed" | "refunded";
+  raw_response: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AdminAuditLog {
