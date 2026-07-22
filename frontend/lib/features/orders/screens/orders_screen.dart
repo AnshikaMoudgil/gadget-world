@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
+import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:gadget_store/features/orders/models/order.dart';
+import 'package:provider/provider.dart';
 
 enum OrdersState { loaded, loading, empty }
 
@@ -13,16 +16,15 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  OrdersState _currentState = OrdersState.loaded;
+  String _selectedFilter = 'All';
 
-  void _cycleState() {
-    setState(() {
-      if (_currentState == OrdersState.loaded) {
-        _currentState = OrdersState.loading;
-      } else if (_currentState == OrdersState.loading) {
-        _currentState = OrdersState.empty;
-      } else {
-        _currentState = OrdersState.loaded;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+      if (orderProvider.orders.isEmpty && !orderProvider.isLoading) {
+        orderProvider.fetchOrders();
       }
     });
   }
@@ -82,14 +84,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ),
                 onPressed: () {},
               ),
-              IconButton(
-                icon: const Icon(
-                  Icons.change_circle_outlined,
-                  color: AppTheme.greyText,
-                ),
-                onPressed: _cycleState,
-                tooltip: 'Cycle UI State',
-              ),
             ],
           ),
         ],
@@ -98,48 +92,87 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Widget _buildBody() {
-    if (_currentState == OrdersState.empty) {
-      return _buildEmptyState();
-    }
+    return Consumer<OrderProvider>(
+      builder: (context, orderProvider, child) {
+        final isLoading = orderProvider.isLoading;
+        final orders = orderProvider.orders;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildFilters(),
-        const SizedBox(height: 16),
-        if (_currentState == OrdersState.loaded)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
+        if (isLoading) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildFilters(true),
+              const SizedBox(height: 16),
+              Expanded(child: _buildLoadingList()),
+            ],
+          );
+        }
+
+        if (orderProvider.error != null) {
+          return Center(
             child: Text(
-              'Orders (6)',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.black,
+              'Error: ${orderProvider.error}',
+              style: TextStyle(color: Colors.red),
+            ),
+          );
+        }
+
+        if (orders.isEmpty) {
+          return _buildEmptyState();
+        }
+
+        final filteredOrders = _selectedFilter == 'All'
+            ? orders
+            : orders
+                  .where(
+                    (o) =>
+                        o.status.toLowerCase() == _selectedFilter.toLowerCase(),
+                  )
+                  .toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildFilters(false),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Text(
+                'Orders (${filteredOrders.length})',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
               ),
             ),
-          ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: _currentState == OrdersState.loaded
-              ? _buildLoadedList()
-              : _buildLoadingList(),
-        ),
-      ],
+            const SizedBox(height: 16),
+            Expanded(
+              child: filteredOrders.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No $_selectedFilter orders found.',
+                        style: const TextStyle(color: AppTheme.greyText),
+                      ),
+                    )
+                  : _buildLoadedList(filteredOrders),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildFilters() {
-    final isLoading = _currentState == OrdersState.loading;
-
+  Widget _buildFilters(bool isLoading) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          _buildFilterChip('All', isSelected: !isLoading, isLoading: isLoading),
+          _buildFilterChip('All', isLoading: isLoading),
           _buildFilterChip('Pending', isLoading: isLoading),
           _buildFilterChip('Confirmed', isLoading: isLoading),
+          _buildFilterChip('Completed', isLoading: isLoading),
           _buildFilterChip('Shipped', isLoading: isLoading),
           _buildFilterChip('Delivered', isLoading: isLoading),
           _buildFilterChip('Cancelled', isLoading: isLoading),
@@ -148,11 +181,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildFilterChip(
-    String label, {
-    bool isSelected = false,
-    bool isLoading = false,
-  }) {
+  Widget _buildFilterChip(String label, {bool isLoading = false}) {
+    final isSelected = _selectedFilter == label;
+
     if (isLoading) {
       return Container(
         margin: const EdgeInsets.only(right: 8),
@@ -165,86 +196,81 @@ class _OrdersScreenState extends State<OrdersScreen> {
       );
     }
 
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? AppTheme.black : AppTheme.white,
-        border: Border.all(
-          color: isSelected ? AppTheme.black : AppTheme.greyBorder,
+    return GestureDetector(
+      onTap: () {
+        if (_selectedFilter != label) {
+          setState(() {
+            _selectedFilter = label;
+          });
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.black : AppTheme.white,
+          border: Border.all(
+            color: isSelected ? AppTheme.black : AppTheme.greyBorder,
+          ),
+          borderRadius: BorderRadius.circular(18),
         ),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? AppTheme.white : AppTheme.black,
-          fontSize: 14,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? AppTheme.white : AppTheme.black,
+            fontSize: 14,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildLoadedList() {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      children: [
-        _buildOrderItemCard(
-          id: '#GS1234567890',
-          date: '09 Jul 2025, 10:41 AM',
-          status: 'Delivered',
-          items: '3 Items',
-          price: 'â‚¹7,405',
-          icon: Icons.headphones,
-        ),
-        _buildOrderItemCard(
-          id: '#GS1234567889',
-          date: '07 Jul 2025, 06:22 PM',
-          status: 'Shipped',
-          items: '2 Items',
-          price: 'â‚¹5,998',
-          icon: Icons.watch,
-        ),
-        _buildOrderItemCard(
-          id: '#GS1234567888',
-          date: '05 Jul 2025, 02:10 PM',
-          status: 'Confirmed',
-          items: '1 Item',
-          price: 'â‚¹1,199',
-          icon: Icons.battery_charging_full,
-        ),
-        _buildOrderItemCard(
-          id: '#GS1234567887',
-          date: '02 Jul 2025, 11:30 AM',
-          status: 'Cancelled',
-          items: '2 Items',
-          price: 'â‚¹2,598',
-          icon: Icons.earbuds,
-        ),
-        _buildOrderItemCard(
-          id: '#GS1234567886',
-          date: '30 Jun 2025, 09:15 PM',
-          status: 'Delivered',
-          items: '1 Item',
-          price: 'â‚¹1,999',
-          icon: Icons.earbuds_battery,
-        ),
-        _buildOrderItemCard(
-          id: '#GS1234567885',
-          date: '28 Jun 2025, 04:45 PM',
-          status: 'Delivered',
-          items: '1 Item',
-          price: 'â‚¹2,499',
-          icon: Icons.speaker,
-        ),
-        const SizedBox(height: 16),
-        _buildHelpCard(),
-      ],
+  Widget _buildLoadedList(List<Order> orders) {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+      itemCount: orders.length,
+      itemBuilder: (context, index) {
+        final order = orders[index];
+        final itemCount = order.items.fold<int>(
+          0,
+          (int sum, item) => sum + item.quantity,
+        );
+
+        return _buildOrderItemCard(
+          order: order,
+          id: '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
+          status: order.status.toUpperCase(),
+          date:
+              '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
+          price: '₹${order.amount.toStringAsFixed(0)}',
+          items: '$itemCount Items',
+          icon: Icons.shopping_bag_outlined,
+        );
+      },
     );
+  }
+
+  String _getMonth(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return months[month - 1];
   }
 
   Widget _buildOrderItemCard({
+    required Order order,
     required String id,
     required String date,
     required String status,
@@ -272,6 +298,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
         statusColor = AppTheme.greyText;
         statusBgColor = AppTheme.greyBackground;
         break;
+      case 'completed':
+        statusColor = Colors.green;
+        statusBgColor = Colors.green.shade50;
+        break;
       default:
         statusColor = AppTheme.black;
         statusBgColor = AppTheme.greyBackground;
@@ -284,7 +314,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const OrderDetailScreen()),
+              MaterialPageRoute(
+                builder: (_) => OrderDetailScreen(order: order),
+              ),
             );
           },
           child: Container(
@@ -386,58 +418,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildHelpCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.greyBackground.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.orange.shade100,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.inventory_2,
-              color: Colors.orange,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Can\'t find your order?',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.black,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Make sure you\'re using the email ID you placed the order with.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.greyText,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 

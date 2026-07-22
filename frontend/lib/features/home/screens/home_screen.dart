@@ -23,8 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<CatalogProvider>(context, listen: false);
-      provider.fetchCategories();
-      provider.fetchProducts();
+      provider.fetchCategories(forceRefresh: true);
+      provider.fetchProducts(forceRefresh: true);
+      provider.fetchFeaturedProducts(forceRefresh: true);
     });
   }
 
@@ -142,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildHorizontalProductList(),
             const SizedBox(height: 24),
             _buildSectionHeader('Featured Products'),
-            _buildHorizontalProductList(),
+            _buildHorizontalProductList(isFeatured: true),
             const SizedBox(height: 32),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -323,17 +324,50 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHorizontalProductList() {
+  Widget _buildHorizontalProductList({bool isFeatured = false}) {
     return Consumer<CatalogProvider>(
       builder: (context, provider, child) {
-        if (provider.isLoadingProducts) {
+        final isLoading = isFeatured
+            ? provider.isLoadingFeatured
+            : provider.isLoadingProducts;
+        final error = isFeatured
+            ? provider.featuredError
+            : provider.productsError;
+        final products = isFeatured
+            ? provider.featuredProducts.take(6).toList()
+            : provider.products.take(6).toList();
+
+        if (isLoading) {
           return const SizedBox(
             height: 260,
             child: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final products = provider.products.take(6).toList();
+        if (error != null) {
+          return SizedBox(
+            height: 140,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Failed to load products',
+                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () => isFeatured
+                        ? provider.fetchFeaturedProducts(forceRefresh: true)
+                        : provider.fetchProducts(forceRefresh: true),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
         if (products.isEmpty) {
           return const SizedBox(
             height: 120,

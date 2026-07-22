@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
-import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
+import 'package:intl/intl.dart';
 
 enum OrderSuccessState { collapsed, expanded, graphic }
 
 class OrderSuccessScreen extends StatefulWidget {
-  const OrderSuccessScreen({super.key});
+  final String orderId;
+  final String email;
+  final String totalAmountStr;
+  final int itemsCount;
+  final List<Map<String, dynamic>> items; // title, subtitle, qty, priceStr
+
+  const OrderSuccessScreen({
+    super.key,
+    required this.orderId,
+    required this.email,
+    required this.totalAmountStr,
+    required this.itemsCount,
+    required this.items,
+  });
 
   @override
   State<OrderSuccessScreen> createState() => _OrderSuccessScreenState();
@@ -85,7 +98,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Confetti dots
               Positioned(
                 top: 10,
                 left: 20,
@@ -127,7 +139,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                   color: Colors.green.shade100,
                 ),
               ),
-              // Main Check
               Container(
                 width: 64,
                 height: 64,
@@ -175,16 +186,16 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
+                children: [
+                  const Text(
                     'Order Number',
                     style: TextStyle(fontSize: 12, color: AppTheme.greyText),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'GS1234567890',
-                    style: TextStyle(
-                      fontSize: 20,
+                    widget.orderId.isEmpty ? 'Processing...' : widget.orderId,
+                    style: const TextStyle(
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.green,
                     ),
@@ -206,17 +217,17 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             child: Divider(color: AppTheme.greyBorder, height: 1),
           ),
           RichText(
-            text: const TextSpan(
+            text: TextSpan(
               text: 'A confirmation email has been sent to\n',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: AppTheme.greyText,
                 height: 1.5,
               ),
               children: [
                 TextSpan(
-                  text: 'rohit.sharma@example.com',
-                  style: TextStyle(
+                  text: widget.email,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.black,
                   ),
@@ -250,7 +261,11 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           ),
           child: Column(
             children: [
-              _buildSummaryRow(Icons.shopping_bag_outlined, 'Items', '3 Items'),
+              _buildSummaryRow(
+                Icons.shopping_bag_outlined,
+                'Items',
+                '${widget.itemsCount} Items',
+              ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0),
                 child: Divider(color: AppTheme.greyBorder, height: 1),
@@ -258,7 +273,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               _buildSummaryRow(
                 Icons.currency_rupee,
                 'Total Amount',
-                'â‚¹7,405',
+                widget.totalAmountStr,
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0),
@@ -267,7 +282,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               _buildSummaryRow(
                 Icons.calendar_today_outlined,
                 'Placed On',
-                '09 Jul 2025, 10:41 AM',
+                DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.now()),
               ),
             ],
           ),
@@ -302,8 +317,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text(
+          children: [
+            const Text(
               'Order Summary',
               style: TextStyle(
                 fontSize: 16,
@@ -312,8 +327,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               ),
             ),
             Text(
-              '3 Items â€¢ â‚¹7,405',
-              style: TextStyle(
+              '${widget.itemsCount} Items • ${widget.totalAmountStr}',
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.black,
@@ -322,11 +337,19 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        _buildOrderItem('boAt Rockerz 450', 'Black', 1, 'â‚¹1,999'),
-        const Divider(color: AppTheme.greyBorder, height: 1),
-        _buildOrderItem('Noise ColorFit Pulse 3', 'Jet Black', 1, 'â‚¹5,998'),
-        const Divider(color: AppTheme.greyBorder, height: 1),
-        _buildOrderItem('Ambrane 10000mAh Power Bank', 'Black', 1, 'â‚¹1,199'),
+        ...widget.items.map((item) {
+          return Column(
+            children: [
+              _buildOrderItem(
+                item['title'] ?? '',
+                item['subtitle'] ?? '',
+                item['qty'] ?? 1,
+                item['priceStr'] ?? '',
+              ),
+              const Divider(color: AppTheme.greyBorder, height: 1),
+            ],
+          );
+        }),
         const SizedBox(height: 16),
         _buildDeliveryEstimateCard(),
       ],
@@ -346,10 +369,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               color: AppTheme.greyBackground,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
-              Icons.headphones,
-              color: AppTheme.black,
-            ), // Placeholder
+            child: const Icon(Icons.headphones, color: AppTheme.black),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -397,6 +417,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   }
 
   Widget _buildDeliveryEstimateCard() {
+    final estimateDate = DateTime.now().add(const Duration(days: 4));
+    final estimateDateStr = DateFormat('dd MMM yyyy').format(estimateDate);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -428,13 +450,16 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 ),
                 const SizedBox(height: 2),
                 RichText(
-                  text: const TextSpan(
+                  text: TextSpan(
                     text: 'Estimated delivery: ',
-                    style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.greyText,
+                    ),
                     children: [
                       TextSpan(
-                        text: '12 - 16 Jul 2025',
-                        style: TextStyle(
+                        text: estimateDateStr,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.green,
                         ),
@@ -459,7 +484,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Confetti/dots for graphic
               Positioned(
                 top: 20,
                 left: 40,
@@ -470,7 +494,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 right: 20,
                 child: Icon(Icons.circle, size: 4, color: AppTheme.greyBorder),
               ),
-              // Shopping Bag Placeholder
               Container(
                 width: 80,
                 height: 100,
@@ -487,7 +510,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                   ),
                 ),
               ),
-              // Credit Card Placeholder
               Positioned(
                 bottom: 20,
                 right: 50,
@@ -507,7 +529,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                   ),
                 ),
               ),
-              // Checkmark badge
               Positioned(
                 bottom: 10,
                 right: 35,
@@ -580,9 +601,12 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             height: 54,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (_) => const OrderDetailScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => const MainScreen(initialIndex: 3),
+                  ),
+                  (route) => false,
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -613,7 +637,9 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (_) => const MainScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => const MainScreen(initialIndex: 0),
+                  ),
                   (route) => false,
                 );
               },

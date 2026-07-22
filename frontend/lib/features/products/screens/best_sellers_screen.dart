@@ -41,11 +41,11 @@ class _BestSellersScreenState extends State<BestSellersScreen> {
       ),
       body: Consumer<CatalogProvider>(
         builder: (context, provider, child) {
-          if (provider.isLoadingProducts) {
+          if (provider.isLoadingFeatured) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (provider.productsError != null) {
-            return _StateMessage(message: provider.productsError!);
+          if (provider.featuredError != null) {
+            return _StateMessage(message: provider.featuredError!);
           }
           if (provider.featuredProducts.isEmpty) {
             return const _StateMessage(

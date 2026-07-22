@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/cart.dart';
@@ -8,14 +7,12 @@ import '../models/cart.dart';
 class CartApiService {
   // Dynamically get base URL from environment
   static String get baseUrl {
-    final configured = dotenv.env['BACKEND_URL'];
-    if (configured != null && configured.isNotEmpty) {
-      final base = configured.replaceFirst(RegExp(r'/$'), '');
-      return '$base/api/cart';
+    final configured = dotenv.env['BACKEND_URL'] ?? dotenv.env['API_BASE_URL'];
+    if (configured == null || configured.trim().isEmpty) {
+      throw StateError('BACKEND_URL is not configured in .env file');
     }
-    return kIsWeb
-        ? 'http://localhost:8080/api/cart'
-        : 'http://10.0.2.2:8080/api/cart';
+    final base = configured.replaceFirst(RegExp(r'/$'), '');
+    return '$base/api/cart';
   }
 
   Future<Map<String, String>> _getHeaders() async {

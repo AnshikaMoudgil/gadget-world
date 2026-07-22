@@ -8,6 +8,7 @@ import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 import 'package:gadget_store/features/profile/providers/profile_provider.dart';
+import 'package:gadget_store/features/orders/providers/order_provider.dart';
 import 'package:gadget_store/main.dart';
 
 void main() {
@@ -27,6 +28,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => ProfileProvider()),
           ChangeNotifierProvider(create: (_) => CatalogProvider()),
           ChangeNotifierProvider(create: (_) => CartProvider()),
+          ChangeNotifierProvider(create: (_) => OrderProvider()),
         ],
         child: const MyApp(),
       ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/checkout/screens/payment_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+import 'package:intl/intl.dart';
 
 enum CheckoutState { normal, priceChange, processing }
 
@@ -306,42 +309,42 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildOrderSummary() {
+    final cart = Provider.of<CartProvider>(context).cart;
+    if (cart == null || cart.items.isEmpty) return const SizedBox();
+
+    final formatCurrency = NumberFormat.simpleCurrency(
+      name: 'INR',
+      decimalDigits: 0,
+    );
+
     return Column(
       children: [
-        _buildOrderItem(
-          title: 'boAt Rockerz 450',
-          color: 'Black',
-          qty: 1,
-          price: 'â‚¹1,999',
-          newPrice: 'â‚¹2,049',
-          priceDiff: 'â†‘ â‚¹50',
-          hasPriceChange: _currentState == CheckoutState.priceChange,
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.0),
-          child: Divider(color: AppTheme.greyBorder, height: 1),
-        ),
-        _buildOrderItem(
-          title: 'Noise ColorFit Pulse 3',
-          color: 'Jet Black',
-          qty: 2,
-          price: 'â‚¹5,998',
-          newPrice: 'â‚¹6,198',
-          priceDiff: 'â†‘ â‚¹200',
-          subtitle: 'â‚¹2,999 each',
-          hasPriceChange: _currentState == CheckoutState.priceChange,
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.0),
-          child: Divider(color: AppTheme.greyBorder, height: 1),
-        ),
-        _buildOrderItem(
-          title: 'Ambrane 10000mAh Power Bank',
-          color: 'Black',
-          qty: 1,
-          price: 'â‚¹1,199',
-          hasPriceChange: false, // no change for this item
-        ),
+        for (int i = 0; i < cart.items.length; i++) ...[
+          Builder(
+            builder: (context) {
+              final item = cart.items[i];
+              final product = item.product;
+              final variantName = item.variant?['name'] as String? ?? 'Default';
+              final price = (product?['price'] as num?)?.toDouble() ?? 0.0;
+              final oldPrice = price + (price * 0.1);
+
+              return _buildOrderItem(
+                title: product?['name'] as String? ?? 'Unknown Product',
+                color: variantName,
+                qty: item.quantity,
+                price: formatCurrency.format(price),
+                hasPriceChange: _currentState == CheckoutState.priceChange,
+                newPrice: formatCurrency.format(oldPrice),
+                priceDiff: '↑ ${formatCurrency.format(oldPrice - price)}',
+              );
+            },
+          ),
+          if (i < cart.items.length - 1)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.0),
+              child: Divider(color: AppTheme.greyBorder, height: 1),
+            ),
+        ],
       ],
     );
   }
@@ -457,27 +460,39 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildCostSummary() {
+    final cartProvider = Provider.of<CartProvider>(context);
+    final itemCount = cartProvider.itemCount;
+
+    final subtotal = cartProvider.subtotal;
+    final discount = cartProvider.discount;
+    final shipping = cartProvider.shippingFee;
+
+    final formatCurrency = NumberFormat.simpleCurrency(
+      name: 'INR',
+      decimalDigits: 0,
+    );
     final isChange = _currentState == CheckoutState.priceChange;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
         children: [
           _buildCostRow(
-            'Subtotal (4 items)',
-            isChange ? 'â‚¹9,446' : 'â‚¹9,196',
-            isChange ? 'Was â‚¹9,196' : null,
+            'Subtotal ($itemCount items)',
+            formatCurrency.format(subtotal),
+            isChange ? 'Was ${formatCurrency.format(subtotal * 0.9)}' : null,
           ),
           const SizedBox(height: 8),
           _buildCostRow(
-            'Coupon Discount (SAVE20)',
-            isChange ? '-â‚¹1,889' : '-â‚¹1,840',
-            isChange ? 'Was -â‚¹1,840' : null,
+            'Coupon Discount',
+            '-${formatCurrency.format(discount)}',
+            null,
             color: Colors.green,
           ),
           const SizedBox(height: 8),
           _buildCostRow(
             'Shipping Fee',
-            'â‚¹49',
+            shipping == 0 ? 'FREE' : formatCurrency.format(shipping),
             isChange ? 'No change' : null,
             showInfoIcon: true,
           ),
@@ -546,7 +561,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildTotalAmount() {
+    final cartProvider = Provider.of<CartProvider>(context);
+
+    final discount = cartProvider.discount;
+    final total = cartProvider.total;
+
+    final formatCurrency = NumberFormat.simpleCurrency(
+      name: 'INR',
+      decimalDigits: 0,
+    );
     final isChange = _currentState == CheckoutState.priceChange;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
@@ -584,7 +609,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      isChange ? 'â‚¹7,605' : 'â‚¹7,405',
+                      formatCurrency.format(total),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
@@ -595,7 +620,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          'Was â‚¹7,405',
+                          'Was ${formatCurrency.format(total * 0.9)}',
                           style: const TextStyle(
                             color: AppTheme.greyText,
                             fontSize: 10,
@@ -607,15 +632,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ],
             ),
           ),
-          if (!isChange) ...[
+          if (!isChange && discount > 0) ...[
             const SizedBox(height: 16),
             Row(
-              children: const [
-                Icon(Icons.check_circle_outline, color: Colors.green, size: 14),
-                SizedBox(width: 6),
+              children: [
+                const Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 14,
+                ),
+                const SizedBox(width: 6),
                 Text(
-                  'You saved â‚¹1,840 on this order',
-                  style: TextStyle(
+                  'You saved ${formatCurrency.format(discount)} on this order',
+                  style: const TextStyle(
                     color: Colors.green,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
