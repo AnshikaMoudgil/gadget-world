@@ -100,14 +100,14 @@ export default function DashboardLayout({
     <div className="flex min-h-screen bg-bg-primary">
       {/* Sidebar */}
       <aside
-        className={`sticky top-0 min-h-screen flex flex-col bg-[rgba(5,5,5,0.95)] backdrop-blur-xl border-r border-white/8 transition-all duration-250 z-50 ${
+        className={`sticky top-0 min-h-screen flex flex-col bg-white border-r border-slate-200 shadow-xs transition-all duration-250 z-50 ${
           sidebarCollapsed ? "w-[72px]" : "w-[260px]"
         }`}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between px-4 py-6 border-b border-glass-border min-h-[68px]">
+        <div className="flex items-center justify-between px-4 py-6 border-b border-slate-200 min-h-[68px]">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-9 h-9 flex items-center justify-center bg-white rounded-lg text-black shrink-0 shadow-[0_0_16px_rgba(255,255,255,0.1)]">
+            <div className="w-9 h-9 flex items-center justify-center bg-slate-900 rounded-lg text-white shrink-0 shadow-sm">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2L2 7l10 5 10-5-10-5z" />
                 <path d="M2 17l10 5 10-5" />
@@ -115,13 +115,13 @@ export default function DashboardLayout({
               </svg>
             </div>
             {!sidebarCollapsed && (
-              <span className="text-base font-bold tracking-tight text-text-primary whitespace-nowrap">
+              <span className="text-base font-bold tracking-tight text-slate-900 whitespace-nowrap">
                 GadgetWorld
               </span>
             )}
           </Link>
           <button
-            className={`w-7 h-7 flex items-center justify-center rounded-md text-text-tertiary hover:text-text-primary hover:bg-glass-hover transition-all duration-150 shrink-0 ${
+            className={`w-7 h-7 flex items-center justify-center rounded-md text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all duration-150 shrink-0 ${
               sidebarCollapsed ? "mx-auto" : ""
             }`}
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -145,8 +145,8 @@ export default function DashboardLayout({
               href={item.href}
               className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium relative transition-all duration-150 ${
                 isActive(item.href)
-                  ? "text-text-primary bg-glass-active"
-                  : "text-text-secondary hover:text-text-primary hover:bg-glass-hover"
+                  ? "text-slate-900 bg-slate-100 font-semibold"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               } ${sidebarCollapsed ? "justify-center px-2.5" : ""}`}
               title={sidebarCollapsed ? item.label : undefined}
             >
@@ -155,7 +155,7 @@ export default function DashboardLayout({
               </span>
               {!sidebarCollapsed && <span className="whitespace-nowrap overflow-hidden">{item.label}</span>}
               {isActive(item.href) && !sidebarCollapsed && (
-                <span className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-white rounded-full" />
+                <span className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-slate-900 rounded-full" />
               )}
             </Link>
           ))}
