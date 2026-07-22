@@ -155,6 +155,26 @@ List<Map<String, dynamic>> _mapList(Object? value) {
 }
 
 List<String> _stringList(Object? value) {
-  if (value is! List) return const [];
-  return value.whereType<String>().toList();
+  if (value == null) return const [];
+  if (value is List) {
+    return value
+        .map((e) => e?.toString() ?? '')
+        .where((e) => e.isNotEmpty)
+        .toList();
+  }
+  if (value is String) {
+    final str = value.trim();
+    if (str.isEmpty) return const [];
+    if (str.startsWith('{') && str.endsWith('}')) {
+      final inner = str.substring(1, str.length - 1);
+      if (inner.isEmpty) return const [];
+      return inner
+          .split(',')
+          .map((e) => e.trim().replaceAll('"', ''))
+          .where((e) => e.isNotEmpty)
+          .toList();
+    }
+    return [str];
+  }
+  return const [];
 }

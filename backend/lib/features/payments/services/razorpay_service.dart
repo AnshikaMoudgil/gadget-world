@@ -4,8 +4,10 @@ import '../../../core/config/env.dart';
 
 class RazorpayService {
   final String _baseUrl = 'https://api.razorpay.com/v1';
-  final String _keyId = Env.getOr('RAZORPAY_KEY_ID', 'rzp_test_mock');
-  final String _keySecret = Env.getOr('RAZORPAY_KEY_SECRET', 'mock_secret');
+  final String _keyId =
+      Env.getOrNull('RAZORPAY_KEY_ID') ?? Env.get('RAZORPAY_KEY_ID_A');
+  final String _keySecret =
+      Env.getOrNull('RAZORPAY_KEY_SECRET') ?? Env.get('RAZORPAY_KEY_SECRET_A');
 
   String get _basicAuth {
     final credentials = '$_keyId:$_keySecret';

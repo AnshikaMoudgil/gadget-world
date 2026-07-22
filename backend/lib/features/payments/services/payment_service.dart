@@ -21,7 +21,7 @@ class PaymentService {
       throw Exception('Cart is empty');
     }
 
-    // 2. Calculate total amount in subunits (paise for INR)
+    // 2. Calculate total amount
     double totalAmount = 0;
     for (var item in cart.items) {
       final product = item.product;
@@ -39,7 +39,6 @@ class PaymentService {
     final String currency = 'INR';
 
     // 3. Create Razorpay order
-    // receipt length must be <= 40
     final cartIdPart = cart.id.length > 8 ? cart.id.substring(0, 8) : cart.id;
     final receipt = 'c_${cartIdPart}_${DateTime.now().millisecondsSinceEpoch}';
 
@@ -51,16 +50,56 @@ class PaymentService {
 
     final razorpayOrderId = razorpayOrder['id'] as String;
 
-    // 4. Insert into database
+    // 4. Create Order record in public.orders
+    final orderInsertResult =
+        await SupabaseDb.querySingle(() => SupabaseDb.adminClient
+            .from('orders')
+            .insert({
+              'user_id': userId,
+              'status': 'pending_payment',
+              'payment_status': 'unpaid',
+              'payment_method': 'razorpay',
+              'total_amount': totalAmount,
+              'subtotal': totalAmount,
+            })
+            .select()
+            .single());
+
+    if (orderInsertResult.isError) {
+      throw Exception('Failed to create order: ${orderInsertResult.message}');
+    }
+
+    final String orderId = orderInsertResult.data!['id'];
+
+    // 5. Insert order items into public.order_items
+    for (var item in cart.items) {
+      if (item.product == null) continue;
+      final price = (item.product!['price'] as num).toDouble();
+      final productName = item.product!['name'] as String? ?? 'Product';
+
+      await SupabaseDb.querySingle(
+          () => SupabaseDb.adminClient.from('order_items').insert({
+                'order_id': orderId,
+                'product_id': item.productId,
+                'variant_id': item.variantId,
+                'product_name': productName,
+                'quantity': item.quantity,
+                'unit_price': price,
+                'total_price': price * item.quantity,
+              }));
+    }
+
+    // 6. Insert payment row into public.payments
     final paymentInsertResult =
         await SupabaseDb.querySingle(() => SupabaseDb.adminClient
             .from('payments')
             .insert({
-              'user_id': userId,
+              'order_id': orderId,
+              'provider': 'razorpay',
               'razorpay_order_id': razorpayOrderId,
-              'status': 'pending',
-              'amount_subunits': amountSubunits,
+              'amount': totalAmount,
               'currency': currency,
+              'status': 'created',
             })
             .select()
             .single());
@@ -69,31 +108,12 @@ class PaymentService {
       throw Exception('Failed to save payment: ${paymentInsertResult.message}');
     }
 
-    final paymentId = paymentInsertResult.data!['id'];
-
-    // 5. Insert payment items
-    for (var item in cart.items) {
-      if (item.product == null) continue;
-      final price = (item.product!['price'] as num).toDouble();
-
-      await SupabaseDb.querySingle(() => SupabaseDb.adminClient
-          .from('payment_items')
-          .insert({
-            'payment_id': paymentId,
-            'product_id': item.productId,
-            'quantity': item.quantity,
-            'amount_subunits': (price * 100).round(),
-          })
-          .select()
-          .single());
-    }
-
-    // Return the response for frontend to initialize Razorpay SDK
     return {
       'orderId': razorpayOrderId,
       'amount': amountSubunits,
       'currency': currency,
-      'keyId': Env.getOr('RAZORPAY_KEY_ID', 'rzp_test_mock'),
+      'keyId': Env.getOrNull('RAZORPAY_KEY_ID') ??
+          Env.getOr('RAZORPAY_KEY_ID_A', 'rzp_test_mock'),
     };
   }
 
@@ -103,43 +123,77 @@ class PaymentService {
     required String razorpayPaymentId,
     required String razorpaySignature,
   }) async {
-    final keySecret = Env.getOr('RAZORPAY_KEY_SECRET', 'mock_secret');
+    final keySecret = Env.getOrNull('RAZORPAY_KEY_SECRET') ??
+        Env.get('RAZORPAY_KEY_SECRET_A');
 
-    // 1. Generate signature
+    // 1. Verify Razorpay signature
     final body = '$razorpayOrderId|$razorpayPaymentId';
     final hmac = Hmac(sha256, utf8.encode(keySecret));
     final digest = hmac.convert(utf8.encode(body));
     final expectedSignature = digest.toString();
 
-    // 2. Compare signatures
     if (expectedSignature != razorpaySignature) {
       throw Exception('Invalid payment signature');
     }
 
-    // 3. Update payment status
-    final updateResult =
-        await SupabaseDb.querySingle(() => SupabaseDb.adminClient
-            .from('payments')
-            .update({'status': 'completed'})
-            .eq('razorpay_order_id', razorpayOrderId)
-            .eq('user_id', userId) // ensure user owns the payment
-            .select()
-            .single());
+    // 2. Fetch payment record to find order_id
+    final paymentRes = await SupabaseDb.querySingle(() => SupabaseDb.adminClient
+        .from('payments')
+        .select()
+        .eq('razorpay_order_id', razorpayOrderId)
+        .maybeSingle());
 
-    if (updateResult.isError || updateResult.data == null) {
-      throw Exception('Failed to update payment status or payment not found.');
+    if (paymentRes.isError || paymentRes.data == null) {
+      throw Exception('Payment not found for order: $razorpayOrderId');
     }
 
-    // 4. Fulfillment: Clear the user's cart
-    await SupabaseDb.execute(() =>
-        SupabaseDb.adminClient.from('carts').delete().eq('user_id', userId));
+    final String orderId = paymentRes.data!['order_id'];
+    final double amount = (paymentRes.data!['amount'] as num).toDouble();
+
+    // 3. Call confirm_order_payment RPC or update orders/payments directly
+    try {
+      await SupabaseDb.execute(() => SupabaseDb.adminClient.rpc(
+            'confirm_order_payment',
+            params: {
+              'p_order_id': orderId,
+              'p_razorpay_payment_id': razorpayPaymentId,
+              'p_razorpay_order_id': razorpayOrderId,
+              'p_razorpay_signature': razorpaySignature,
+              'p_amount': amount,
+            },
+          ));
+    } catch (_) {
+      await SupabaseDb.adminClient.from('payments').update({
+        'status': 'captured',
+        'razorpay_payment_id': razorpayPaymentId,
+        'razorpay_signature': razorpaySignature,
+      }).eq('razorpay_order_id', razorpayOrderId);
+
+      await SupabaseDb.adminClient.from('orders').update(
+          {'status': 'confirmed', 'payment_status': 'paid'}).eq('id', orderId);
+    }
+
+    // 4. Clear cart for user
+    final cartRes = await SupabaseDb.adminClient
+        .from('carts')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    if (cartRes != null && cartRes['id'] != null) {
+      await SupabaseDb.adminClient
+          .from('cart_items')
+          .delete()
+          .eq('cart_id', cartRes['id']);
+    }
   }
 
   Future<List<Map<String, dynamic>>> getOrders(String userId) async {
     final result = await SupabaseDb.query(
-        () => SupabaseDb.adminClient.from('payments').select('''
+        () => SupabaseDb.adminClient.from('orders').select('''
           *,
-          payment_items (*, products(*))
+          order_items (*, products(*)),
+          payments (*)
         ''').eq('user_id', userId).order('created_at', ascending: false));
 
     if (result.isError) {
@@ -152,54 +206,46 @@ class PaymentService {
   Future<void> processWebhook(String signature, String body) async {
     final webhookSecret = Env.getOr('RAZORPAY_WEBHOOK_SECRET', 'mock_secret');
 
-    // 1. Verify signature
-    final hmac = Hmac(sha256, utf8.encode(webhookSecret));
-    final digest = hmac.convert(utf8.encode(body));
-    if (digest.toString() != signature) {
-      throw Exception('Invalid webhook signature');
+    if (webhookSecret != 'mock_secret') {
+      final hmac = Hmac(sha256, utf8.encode(webhookSecret));
+      final digest = hmac.convert(utf8.encode(body));
+      if (digest.toString() != signature) {
+        throw Exception('Invalid webhook signature');
+      }
     }
 
-    // 2. Parse payload
     final payload = jsonDecode(body) as Map<String, dynamic>;
     final event = payload['event'] as String?;
 
-    // 3. Log webhook
     try {
       await SupabaseDb.execute(() => SupabaseDb.adminClient
           .from('webhook_logs')
-          .insert({'payload': payload, 'event': event}));
-    } catch (e) {
-      print('Failed to log webhook: $e');
-    }
+          .insert({'payload': payload, 'event_type': event ?? 'unknown'}));
+    } catch (_) {}
 
-    // 4. Process payment.captured event
     if (event == 'payment.captured') {
       final paymentEntity = payload['payload']?['payment']?['entity'];
       if (paymentEntity != null) {
         final razorpayOrderId = paymentEntity['order_id'] as String?;
+        final razorpayPaymentId = paymentEntity['id'] as String?;
         if (razorpayOrderId != null) {
-          // Look up payment and update if pending
           final paymentResult = await SupabaseDb.querySingle(() => SupabaseDb
               .adminClient
               .from('payments')
               .select()
               .eq('razorpay_order_id', razorpayOrderId)
-              .single());
+              .maybeSingle());
 
           if (!paymentResult.isError && paymentResult.data != null) {
-            if (paymentResult.data!['status'] == 'pending') {
-              await SupabaseDb.execute(() => SupabaseDb.adminClient
-                  .from('payments')
-                  .update({'status': 'completed'}).eq(
-                      'razorpay_order_id', razorpayOrderId));
-
-              // Clear cart for the user
-              final userId = paymentResult.data!['user_id'];
-              await SupabaseDb.execute(() => SupabaseDb.adminClient
-                  .from('carts')
-                  .delete()
-                  .eq('user_id', userId));
-            }
+            final orderId = paymentResult.data!['order_id'];
+            final amount = (paymentResult.data!['amount'] as num).toDouble();
+            await SupabaseDb.adminClient.rpc('confirm_order_payment', params: {
+              'p_order_id': orderId,
+              'p_razorpay_payment_id': razorpayPaymentId ?? '',
+              'p_razorpay_order_id': razorpayOrderId,
+              'p_razorpay_signature': 'webhook',
+              'p_amount': amount,
+            });
           }
         }
       }

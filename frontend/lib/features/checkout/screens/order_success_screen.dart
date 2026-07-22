@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
-import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
 import 'package:intl/intl.dart';
 
 enum OrderSuccessState { collapsed, expanded, graphic }

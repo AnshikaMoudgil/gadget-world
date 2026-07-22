@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,11 +12,11 @@ class CatalogService {
   CatalogService({http.Client? client}) : _client = client ?? http.Client();
 
   String get _baseUrl {
-    final configured = dotenv.env['BACKEND_URL'];
-    if (configured != null && configured.isNotEmpty) {
-      return configured.replaceFirst(RegExp(r'/$'), '');
+    final configured = dotenv.env['BACKEND_URL'] ?? dotenv.env['API_BASE_URL'];
+    if (configured == null || configured.trim().isEmpty) {
+      throw StateError('BACKEND_URL is not configured in .env file');
     }
-    return kIsWeb ? 'http://localhost:8080' : 'http://10.0.2.2:8080';
+    return configured.replaceFirst(RegExp(r'/$'), '');
   }
 
   Future<List<CategoryModel>> getCategories() async {

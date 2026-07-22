@@ -144,11 +144,14 @@ class _PaymentScreenState extends State<PaymentScreen>
 
       final orderData = await _paymentApiService.createOrder(token);
 
+      final keyId = orderData['keyId'] as String? ?? '';
+      final orderId = orderData['orderId'] as String? ?? '';
+
       var options = {
-        'key': orderData['keyId'],
+        'key': keyId,
         'amount': orderData['amount'],
         'name': 'Gadget Store',
-        'order_id': orderData['orderId'],
+        'order_id': orderId,
         'description': 'Purchase from Gadget Store',
         'retry': {'enabled': true, 'max_count': 1},
         'send_sms_hash': true,
@@ -156,6 +159,8 @@ class _PaymentScreenState extends State<PaymentScreen>
           'email': Supabase.instance.client.auth.currentUser?.email ?? '',
         },
       };
+
+      _razorpay.open(options);
 
       // Also set a 15 second timeout to reset the button if Razorpay fails to open
       Future.delayed(const Duration(seconds: 15), () {

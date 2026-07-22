@@ -4,7 +4,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PaymentApiService {
   static String get _baseUrl {
-    return dotenv.env['API_URL'] ?? 'http://localhost:8080/api';
+    final configured =
+        dotenv.env['API_URL'] ??
+        dotenv.env['BACKEND_URL'] ??
+        dotenv.env['API_BASE_URL'];
+    if (configured == null || configured.trim().isEmpty) {
+      throw StateError('API_URL or BACKEND_URL is not configured in .env file');
+    }
+    final base = configured.replaceFirst(RegExp(r'/$'), '');
+    return base.endsWith('/api') ? base : '$base/api';
   }
 
   Future<Map<String, dynamic>> createOrder(String token) async {
