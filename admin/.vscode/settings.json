@@ -1,5 +1,6 @@
 {
   "css.customData": [],
+  "css.lint.unknownAtRules": "ignore",
   "files.associations": {
     "*.css": "tailwindcss"
   },
