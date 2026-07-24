@@ -110,12 +110,14 @@ class _AddressScreenState extends State<AddressScreen> {
                             context,
                             listen: false,
                           ).deleteAddress(address.id!);
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Address deleted successfully'),
                             ),
                           );
                         } catch (e) {
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Failed to delete address: \$e'),
@@ -239,6 +241,7 @@ class _AddressScreenState extends State<AddressScreen> {
                             context,
                             listen: false,
                           ).setDefaultAddress(address.id!);
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
@@ -247,6 +250,7 @@ class _AddressScreenState extends State<AddressScreen> {
                             ),
                           );
                         } catch (e) {
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -456,7 +460,7 @@ class _AddressScreenState extends State<AddressScreen> {
               width: 160,
               height: 160,
               decoration: BoxDecoration(
-                color: AppTheme.greyBackground.withOpacity(0.5),
+                color: AppTheme.greyBackground.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
               child: Stack(
@@ -525,7 +529,7 @@ class _AddressScreenState extends State<AddressScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -654,7 +658,7 @@ class _AddressScreenState extends State<AddressScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: AppTheme.greyBackground.withOpacity(0.3),
+                color: AppTheme.greyBackground.withValues(alpha: 0.3),
                 borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(16),
                 ),

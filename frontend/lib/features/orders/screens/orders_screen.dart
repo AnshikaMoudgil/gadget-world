@@ -5,6 +5,7 @@ import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
 import 'package:gadget_store/features/orders/providers/order_provider.dart';
 import 'package:gadget_store/features/orders/models/order.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum OrdersState { loaded, loading, empty }
 
@@ -109,10 +110,58 @@ class _OrdersScreenState extends State<OrdersScreen> {
         }
 
         if (orderProvider.error != null) {
+          final errorText = orderProvider.error!.toLowerCase();
+          final isAuthError = errorText.contains('expired') || errorText.contains('authentication failed') || errorText.contains('403');
+          
           return Center(
-            child: Text(
-              'Error: ${orderProvider.error}',
-              style: TextStyle(color: Colors.red),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isAuthError ? Icons.lock_clock : Icons.error_outline,
+                    size: 48,
+                    color: AppTheme.greyText,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    isAuthError 
+                        ? 'Your session has expired.' 
+                        : 'Something went wrong.',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    isAuthError 
+                        ? 'Please log in again to view your orders.' 
+                        : orderProvider.error!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppTheme.greyText),
+                  ),
+                  if (isAuthError) ...[
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await Supabase.instance.client.auth.signOut();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.black,
+                        foregroundColor: AppTheme.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Log In Again'),
+                    ),
+                  ],
+                ],
+              ),
             ),
           );
         }

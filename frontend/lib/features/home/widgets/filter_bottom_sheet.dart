@@ -245,10 +245,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         availability,
                         _selectedAvailability == availability,
                         (selected) {
-                          if (selected)
+                          if (selected) {
                             setState(
                               () => _selectedAvailability = availability,
                             );
+                          }
                         },
                       );
                     }).toList(),
@@ -262,7 +263,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     runSpacing: 8,
                     children: [
                       _buildChip('Popular', _selectedSort == 'popular', (s) {
-                        if (s) setState(() => _selectedSort = 'popular');
+                        if (s) {
+                          setState(() => _selectedSort = 'popular');
+                        }
                       }),
                       _buildChip(
                         'Price: Low to High',

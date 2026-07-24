@@ -124,17 +124,13 @@ class _AuthGuardState extends State<AuthGuard> {
       profileProvider.clearProfile();
       cartProvider.clearCartLocal();
       orderProvider.clearOrders();
-      // We check if current route is not login/signup/splash to avoid looping
-      bool isPublicRoute = false;
+      String? currentRoute;
       Navigator.popUntil(context, (route) {
-        final name = route.settings.name;
-        if (name == '/login' || name == '/' || name == null) {
-          isPublicRoute = true;
-        }
+        currentRoute = route.settings.name;
         return true;
       });
 
-      if (!isPublicRoute) {
+      if (currentRoute != '/login') {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(

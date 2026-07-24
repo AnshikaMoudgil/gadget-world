@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/profile/providers/address_provider.dart';
-import 'package:gadget_store/features/profile/models/address.dart';
 
 class AddAddressScreen extends StatefulWidget {
   const AddAddressScreen({super.key});
@@ -387,7 +386,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           vertical: 14,
         ),
         filled: true,
-        fillColor: AppTheme.greyBackground.withOpacity(0.5),
+        fillColor: AppTheme.greyBackground.withValues(alpha: 0.5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,

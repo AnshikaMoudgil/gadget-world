@@ -21,8 +21,8 @@ void main() async {
 
   try {
     final addr = await service.createAddress('user_1', req);
-    print('Created: \${addr.id}');
+    print('Created: ${addr.id}');
   } catch (e) {
-    print('Error: \$e');
+    print('Error: $e');
   }
 }

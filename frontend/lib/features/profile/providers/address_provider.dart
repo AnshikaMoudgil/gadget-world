@@ -73,7 +73,7 @@ class AddressProvider with ChangeNotifier {
       _addresses.insert(0, newAddress);
     } catch (e) {
       _error = e.toString();
-      throw e;
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -100,7 +100,7 @@ class AddressProvider with ChangeNotifier {
       }
     } catch (e) {
       _error = e.toString();
-      throw e;
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -118,7 +118,7 @@ class AddressProvider with ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       notifyListeners();
-      throw e;
+      rethrow;
     }
   }
 
@@ -149,7 +149,7 @@ class AddressProvider with ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       notifyListeners();
-      throw e;
+      rethrow;
     }
   }
 
