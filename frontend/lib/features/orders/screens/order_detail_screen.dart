@@ -166,9 +166,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildHeaderCard() {
-    final orderId = widget.order.razorpayOrderId
-        .replaceFirst('order_', '')
-        .toUpperCase();
+    String orderId = widget.order.razorpayOrderId;
+    if (orderId.isEmpty) {
+      orderId = widget.order.id.length > 8 ? widget.order.id.substring(0, 8).toUpperCase() : widget.order.id.toUpperCase();
+    } else {
+      orderId = orderId.replaceFirst('order_', '').toUpperCase();
+    }
     final date = _formatDate(widget.order.createdAt);
 
     Color statusColor;
@@ -486,6 +489,25 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildDeliveryTimeline() {
+    final status = widget.order.status.toLowerCase();
+    final isDelivered = status == 'delivered' || status == 'completed';
+    final isShipped = isDelivered || status == 'shipped';
+    final isConfirmed = isShipped || status == 'confirmed';
+    
+    // Calculate mock dates based on order creation
+    final confirmedDate = widget.order.createdAt.add(const Duration(minutes: 45));
+    final shippedDate = widget.order.createdAt.add(const Duration(days: 1));
+    final deliveredDate = widget.order.createdAt.add(const Duration(days: 2));
+
+    String displayDate = '';
+    if (isDelivered) {
+      displayDate = 'Delivered on ${_formatDate(deliveredDate)}';
+    } else if (isShipped) {
+      displayDate = 'Expected Delivery on ${_formatDate(deliveredDate)}';
+    } else {
+      displayDate = 'Estimated Delivery on ${_formatDate(deliveredDate)}';
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
@@ -520,8 +542,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
+                      children: [
+                        const Text(
                           'Delivery Timeline',
                           style: TextStyle(
                             fontSize: 14,
@@ -529,10 +551,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                             color: AppTheme.black,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          'Delivered on 11 Jul 2025, 04:45 PM',
-                          style: TextStyle(
+                          displayDate,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: AppTheme.greyText,
                           ),
@@ -556,46 +578,34 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 children: [
                   _buildTimelineItem(
                     'Order Placed',
-                    '09 Jul 2025, 10:41 AM',
+                    _formatDate(widget.order.createdAt),
                     true,
-                    false,
+                    status == 'pending_payment' || status == 'pending',
                   ),
                   _buildTimelineItem(
                     'Order Confirmed',
-                    '09 Jul 2025, 11:30 AM',
-                    true,
-                    false,
+                    isConfirmed ? _formatDate(confirmedDate) : 'Processing...',
+                    isConfirmed,
+                    status == 'confirmed',
                   ),
                   _buildTimelineItem(
                     'Packed',
-                    '10 Jul 2025, 09:15 AM',
-                    true,
+                    isConfirmed ? _formatDate(confirmedDate.add(const Duration(hours: 4))) : 'Waiting for confirmation',
+                    isShipped,
                     false,
                   ),
                   _buildTimelineItem(
                     'Shipped',
-                    'AWB: 1234567890\nCourier: Delhivery',
-                    true,
-                    false,
-                    trailingDate: '10 Jul 2025, 07:40 PM',
-                  ),
-                  _buildTimelineItem(
-                    'Reached Delhi Hub',
-                    '11 Jul 2025, 06:40 AM',
-                    true,
-                    false,
-                  ),
-                  _buildTimelineItem(
-                    'Out for Delivery',
-                    '11 Jul 2025, 09:15 AM',
-                    true,
-                    false,
+                    isShipped ? 'AWB: 1234567890\nCourier: Express' : 'Waiting to ship',
+                    isShipped,
+                    status == 'shipped',
+                    trailingDate: isShipped ? _formatDate(shippedDate) : null,
                   ),
                   _buildTimelineItem(
                     'Delivered',
-                    '11 Jul 2025, 04:45 PM',
-                    true,
-                    true,
+                    isDelivered ? _formatDate(deliveredDate) : 'Expected on ${_formatDate(deliveredDate)}',
+                    isDelivered,
+                    isDelivered,
                     isLast: true,
                   ),
                 ],
@@ -717,56 +727,23 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 Row(
                   children: [
                     const Text(
-                      'Rohit Sharma',
+                      'Shipping Address',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.black,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        'Default',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    const Text(
-                      'Change',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  '456, Lajpat Nagar, Part 2,\nNear Metro Station, New Delhi - 110024',
+                  'Address used during checkout will be displayed here.\nFor now, we are delivering to your saved address.',
                   style: TextStyle(
                     fontSize: 12,
                     color: AppTheme.greyText,
                     height: 1.4,
                   ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '+91 98765 43210',
-                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
                 ),
               ],
             ),
@@ -778,6 +755,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   Widget _buildPaymentInfoCard() {
     final date = _formatDate(widget.order.createdAt);
+    final isPaid = widget.order.status != 'pending_payment';
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -803,7 +782,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               const SizedBox(width: 4),
               const Expanded(
                 child: Text(
-                  'Razorpay (UPI)',
+                  'Razorpay (UPI/Card)',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -814,14 +793,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: isPaid ? Colors.green.shade50 : Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text(
-                  'Paid',
+                child: Text(
+                  isPaid ? 'Paid' : 'Pending',
                   style: TextStyle(
                     fontSize: 10,
-                    color: Colors.green,
+                    color: isPaid ? Colors.green : Colors.orange,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -830,7 +809,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Paid on $date',
+            isPaid ? 'Paid on $date' : 'Created on $date',
             style: const TextStyle(fontSize: 10, color: AppTheme.greyText),
           ),
           const SizedBox(height: 16),
