@@ -106,14 +106,20 @@ class _AddressScreenState extends State<AddressScreen> {
                       onPressed: () async {
                         Navigator.pop(context);
                         try {
-                          await Provider.of<AddressProvider>(context, listen: false)
-                              .deleteAddress(address.id!);
+                          await Provider.of<AddressProvider>(
+                            context,
+                            listen: false,
+                          ).deleteAddress(address.id!);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Address deleted successfully')),
+                            const SnackBar(
+                              content: Text('Address deleted successfully'),
+                            ),
                           );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to delete address: \$e')),
+                            SnackBar(
+                              content: Text('Failed to delete address: \$e'),
+                            ),
                           );
                         }
                       },
@@ -229,14 +235,24 @@ class _AddressScreenState extends State<AddressScreen> {
                       onPressed: () async {
                         Navigator.pop(context);
                         try {
-                          await Provider.of<AddressProvider>(context, listen: false)
-                              .setDefaultAddress(address.id!);
+                          await Provider.of<AddressProvider>(
+                            context,
+                            listen: false,
+                          ).setDefaultAddress(address.id!);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Address set as default successfully')),
+                            const SnackBar(
+                              content: Text(
+                                'Address set as default successfully',
+                              ),
+                            ),
                           );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to set default address: \$e')),
+                            SnackBar(
+                              content: Text(
+                                'Failed to set default address: \$e',
+                              ),
+                            ),
                           );
                         }
                       },
@@ -279,7 +295,9 @@ class _AddressScreenState extends State<AddressScreen> {
               child: Consumer<AddressProvider>(
                 builder: (context, provider, _) {
                   if (provider.isLoading && provider.addresses.isEmpty) {
-                    return const Center(child: CircularProgressIndicator(color: AppTheme.black));
+                    return const Center(
+                      child: CircularProgressIndicator(color: AppTheme.black),
+                    );
                   }
 
                   return SingleChildScrollView(
@@ -382,7 +400,10 @@ class _AddressScreenState extends State<AddressScreen> {
             padding: const EdgeInsets.only(top: 4.0),
             child: InkWell(
               onTap: () {
-                Provider.of<AddressProvider>(context, listen: false).fetchAddresses();
+                Provider.of<AddressProvider>(
+                  context,
+                  listen: false,
+                ).fetchAddresses();
               },
               child: Container(
                 width: 36,
@@ -391,7 +412,11 @@ class _AddressScreenState extends State<AddressScreen> {
                   border: Border.all(color: AppTheme.greyBorder),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.refresh, color: AppTheme.black, size: 20),
+                child: const Icon(
+                  Icons.refresh,
+                  color: AppTheme.black,
+                  size: 20,
+                ),
               ),
             ),
           ),
@@ -491,7 +516,8 @@ class _AddressScreenState extends State<AddressScreen> {
     }
   }
 
-  String _capitalize(String s) => s.isNotEmpty ? '\${s[0].toUpperCase()}\${s.substring(1)}' : s;
+  String _capitalize(String s) =>
+      s.isNotEmpty ? '\${s[0].toUpperCase()}\${s.substring(1)}' : s;
 
   Widget _buildAddressCard(Address data) {
     final isDefault = data.isDefault;
@@ -517,7 +543,11 @@ class _AddressScreenState extends State<AddressScreen> {
                     color: AppTheme.black,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(_getIconForType(data.addressType), color: AppTheme.white, size: 20),
+                  child: Icon(
+                    _getIconForType(data.addressType),
+                    color: AppTheme.white,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -527,8 +557,8 @@ class _AddressScreenState extends State<AddressScreen> {
                       Row(
                         children: [
                           Text(
-                            data.addressType == AddressType.home 
-                                ? data.recipientName 
+                            data.addressType == AddressType.home
+                                ? data.recipientName
                                 : _capitalize(data.addressType.name),
                             style: const TextStyle(
                               fontSize: 14,

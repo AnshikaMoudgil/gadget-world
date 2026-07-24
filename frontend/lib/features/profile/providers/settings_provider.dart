@@ -4,7 +4,7 @@ import 'package:gadget_store/features/profile/services/settings_api_service.dart
 
 class SettingsProvider with ChangeNotifier {
   final SettingsApiService _apiService = SettingsApiService();
-  
+
   UserSettings? _settings;
   bool _isLoading = false;
   String? _error;

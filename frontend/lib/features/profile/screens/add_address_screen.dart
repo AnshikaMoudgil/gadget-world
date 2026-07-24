@@ -67,9 +67,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save address: \$e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save address: \$e')));
       }
     }
   }
@@ -107,9 +107,17 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                             children: [
                               _buildTypeChip('home', 'Home', Icons.home),
                               const SizedBox(width: 12),
-                              _buildTypeChip('work', 'Office', Icons.business_center_outlined),
+                              _buildTypeChip(
+                                'work',
+                                'Office',
+                                Icons.business_center_outlined,
+                              ),
                               const SizedBox(width: 12),
-                              _buildTypeChip('other', 'Other', Icons.location_on_outlined),
+                              _buildTypeChip(
+                                'other',
+                                'Other',
+                                Icons.location_on_outlined,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 24),
@@ -117,7 +125,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           _buildTextField(
                             controller: _nameController,
                             hintText: 'Enter full name',
-                            validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                            validator: (val) =>
+                                val == null || val.isEmpty ? 'Required' : null,
                           ),
                           const SizedBox(height: 16),
                           _buildLabel('Phone Number'),
@@ -125,7 +134,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                             controller: _phoneController,
                             hintText: 'Enter phone number',
                             keyboardType: TextInputType.phone,
-                            validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                            validator: (val) =>
+                                val == null || val.isEmpty ? 'Required' : null,
                           ),
                           const SizedBox(height: 16),
                           _buildLabel('Pincode'),
@@ -134,14 +144,16 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                             hintText: 'Enter pincode',
                             keyboardType: TextInputType.number,
                             trailingIcon: Icons.search,
-                            validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                            validator: (val) =>
+                                val == null || val.isEmpty ? 'Required' : null,
                           ),
                           const SizedBox(height: 16),
                           _buildLabel('Address Line 1'),
                           _buildTextField(
                             controller: _addressLine1Controller,
                             hintText: 'House no., Building, Street',
-                            validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                            validator: (val) =>
+                                val == null || val.isEmpty ? 'Required' : null,
                           ),
                           const SizedBox(height: 16),
                           _buildLabel('Address Line 2 (Optional)'),
@@ -160,7 +172,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                     _buildTextField(
                                       controller: _cityController,
                                       hintText: 'Enter city',
-                                      validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                                      validator: (val) =>
+                                          val == null || val.isEmpty
+                                          ? 'Required'
+                                          : null,
                                     ),
                                   ],
                                 ),
@@ -174,7 +189,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                     _buildTextField(
                                       controller: _stateController,
                                       hintText: 'Enter state',
-                                      validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                                      validator: (val) =>
+                                          val == null || val.isEmpty
+                                          ? 'Required'
+                                          : null,
                                     ),
                                   ],
                                 ),
@@ -223,7 +241,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                   const SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: CircularProgressIndicator(color: AppTheme.white, strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      color: AppTheme.white,
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                 else ...[
                                   const Icon(Icons.save_outlined, size: 20),
@@ -235,7 +256,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ]
+                                ],
                               ],
                             ),
                           ),
@@ -361,7 +382,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: AppTheme.greyText, fontSize: 14),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         filled: true,
         fillColor: AppTheme.greyBackground.withOpacity(0.5),
         border: OutlineInputBorder(

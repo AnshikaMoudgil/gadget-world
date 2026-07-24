@@ -61,7 +61,7 @@ class AddressProvider with ChangeNotifier {
       if (token == null) throw Exception('No session token');
 
       final newAddress = await _apiService.createAddress(token, data);
-      
+
       // If it's the first address, or specifically set as default, handle it
       if (data['is_default'] == true || _addresses.isEmpty) {
         // Demote others locally if needed, though backend handles it
@@ -69,7 +69,7 @@ class AddressProvider with ChangeNotifier {
           _addresses[i] = _addresses[i].copyWith(isDefault: false);
         }
       }
-      
+
       _addresses.insert(0, newAddress);
     } catch (e) {
       _error = e.toString();
@@ -80,7 +80,10 @@ class AddressProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateAddress(String addressId, Map<String, dynamic> data) async {
+  Future<void> updateAddress(
+    String addressId,
+    Map<String, dynamic> data,
+  ) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -90,7 +93,7 @@ class AddressProvider with ChangeNotifier {
       if (token == null) throw Exception('No session token');
 
       final updated = await _apiService.updateAddress(token, addressId, data);
-      
+
       final index = _addresses.indexWhere((a) => a.id == addressId);
       if (index != -1) {
         _addresses[index] = updated;
@@ -125,21 +128,23 @@ class AddressProvider with ChangeNotifier {
 
     try {
       await _apiService.setDefaultAddress(token, addressId);
-      
+
       // Update local state to reflect the new default
       for (var i = 0; i < _addresses.length; i++) {
         _addresses[i] = _addresses[i].copyWith(
           isDefault: _addresses[i].id == addressId,
         );
       }
-      
+
       // Sort so default is at the top
       _addresses.sort((a, b) {
         if (a.isDefault) return -1;
         if (b.isDefault) return 1;
-        return (b.createdAt ?? DateTime.now()).compareTo(a.createdAt ?? DateTime.now());
+        return (b.createdAt ?? DateTime.now()).compareTo(
+          a.createdAt ?? DateTime.now(),
+        );
       });
-      
+
       notifyListeners();
     } catch (e) {
       _error = e.toString();

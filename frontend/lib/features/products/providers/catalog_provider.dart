@@ -51,7 +51,12 @@ class CatalogProvider with ChangeNotifier {
   bool? get inStock => _inStock;
   String? get sortBy => _sortBy;
 
-  bool get hasActiveFilters => _minPrice != null || _maxPrice != null || _filterBrandId != null || _inStock != null || _sortBy != null;
+  bool get hasActiveFilters =>
+      _minPrice != null ||
+      _maxPrice != null ||
+      _filterBrandId != null ||
+      _inStock != null ||
+      _sortBy != null;
 
   void setFilters({
     double? minPrice,

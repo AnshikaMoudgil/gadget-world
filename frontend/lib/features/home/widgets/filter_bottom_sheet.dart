@@ -26,7 +26,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     'JBL',
     'boAt',
     'MI',
-    'Realme'
+    'Realme',
   ];
 
   @override
@@ -156,7 +156,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             ),
           ),
           const Divider(height: 1, color: AppTheme.greyBorder),
-          
+
           // Scrollable Content
           ConstrainedBox(
             constraints: BoxConstraints(
@@ -168,12 +168,15 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Price Range
-                  _buildSectionHeader('Price Range', onClear: () {
-                    setState(() {
-                      _minPrice = 0;
-                      _maxPrice = 20000;
-                    });
-                  }),
+                  _buildSectionHeader(
+                    'Price Range',
+                    onClear: () {
+                      setState(() {
+                        _minPrice = 0;
+                        _maxPrice = 20000;
+                      });
+                    },
+                  ),
                   RangeSlider(
                     values: RangeValues(_minPrice, _maxPrice),
                     min: 0,
@@ -195,39 +198,57 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('₹${_minPrice.toInt()}', style: const TextStyle(color: AppTheme.greyText)),
-                      Text(_maxPrice == 20000 ? '₹20,000+' : '₹${_maxPrice.toInt()}', style: const TextStyle(color: AppTheme.greyText)),
+                      Text(
+                        '₹${_minPrice.toInt()}',
+                        style: const TextStyle(color: AppTheme.greyText),
+                      ),
+                      Text(
+                        _maxPrice == 20000
+                            ? '₹20,000+'
+                            : '₹${_maxPrice.toInt()}',
+                        style: const TextStyle(color: AppTheme.greyText),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
 
                   // Brand
-                  _buildSectionHeader('Brand', onClear: () => setState(() => _selectedBrand = 'All')),
+                  _buildSectionHeader(
+                    'Brand',
+                    onClear: () => setState(() => _selectedBrand = 'All'),
+                  ),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: _brands.map((brand) {
-                      return _buildChip(
-                        brand,
-                        _selectedBrand == brand,
-                        (selected) {
-                          if (selected) setState(() => _selectedBrand = brand);
-                        },
-                      );
+                      return _buildChip(brand, _selectedBrand == brand, (
+                        selected,
+                      ) {
+                        if (selected) setState(() => _selectedBrand = brand);
+                      });
                     }).toList(),
                   ),
                   const SizedBox(height: 16),
 
                   // Availability
-                  _buildSectionHeader('Availability', onClear: () => setState(() => _selectedAvailability = 'All')),
+                  _buildSectionHeader(
+                    'Availability',
+                    onClear: () =>
+                        setState(() => _selectedAvailability = 'All'),
+                  ),
                   Wrap(
                     spacing: 8,
-                    children: ['All', 'In Stock', 'Out of Stock'].map((availability) {
+                    children: ['All', 'In Stock', 'Out of Stock'].map((
+                      availability,
+                    ) {
                       return _buildChip(
                         availability,
                         _selectedAvailability == availability,
                         (selected) {
-                          if (selected) setState(() => _selectedAvailability = availability);
+                          if (selected)
+                            setState(
+                              () => _selectedAvailability = availability,
+                            );
                         },
                       );
                     }).toList(),
@@ -240,21 +261,44 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _buildChip('Popular', _selectedSort == 'popular', (s) { if (s) setState(() => _selectedSort = 'popular'); }),
-                      _buildChip('Price: Low to High', _selectedSort == 'price_asc', (s) { if (s) setState(() => _selectedSort = 'price_asc'); }),
-                      _buildChip('Price: High to Low', _selectedSort == 'price_desc', (s) { if (s) setState(() => _selectedSort = 'price_desc'); }),
-                      _buildChip('Newest First', _selectedSort == 'newest', (s) { if (s) setState(() => _selectedSort = 'newest'); }),
+                      _buildChip('Popular', _selectedSort == 'popular', (s) {
+                        if (s) setState(() => _selectedSort = 'popular');
+                      }),
+                      _buildChip(
+                        'Price: Low to High',
+                        _selectedSort == 'price_asc',
+                        (s) {
+                          if (s) setState(() => _selectedSort = 'price_asc');
+                        },
+                      ),
+                      _buildChip(
+                        'Price: High to Low',
+                        _selectedSort == 'price_desc',
+                        (s) {
+                          if (s) setState(() => _selectedSort = 'price_desc');
+                        },
+                      ),
+                      _buildChip('Newest First', _selectedSort == 'newest', (
+                        s,
+                      ) {
+                        if (s) setState(() => _selectedSort = 'newest');
+                      }),
                     ],
                   ),
                 ],
               ),
             ),
           ),
-          
+
           // Bottom Actions
           const Divider(height: 1, color: AppTheme.greyBorder),
           Padding(
-            padding: EdgeInsets.fromLTRB(24, 16, 24, 16 + MediaQuery.of(context).padding.bottom),
+            padding: EdgeInsets.fromLTRB(
+              24,
+              16,
+              24,
+              16 + MediaQuery.of(context).padding.bottom,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -268,7 +312,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Reset', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Reset',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -283,7 +330,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Apply Filters', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Apply Filters',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ],

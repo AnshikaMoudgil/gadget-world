@@ -98,7 +98,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontSize: 14,
                     ),
                     border: InputBorder.none,
-                    prefixIcon: const Icon(Icons.search, color: AppTheme.greyText),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: AppTheme.greyText,
+                    ),
                     prefixIconConstraints: const BoxConstraints(
                       minWidth: 44,
                       minHeight: 44,
@@ -145,7 +148,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
-                            if (provider.minPrice != null || provider.maxPrice != null)
+                            if (provider.minPrice != null ||
+                                provider.maxPrice != null)
                               _buildActiveFilterChip(
                                 '₹${provider.minPrice?.toInt() ?? 0} - ₹${provider.maxPrice?.toInt() ?? '20,000+'}',
                                 () => provider.setFilters(
@@ -186,7 +190,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             TextButton(
                               onPressed: provider.clearFilters,
-                              child: const Text('Clear All', style: TextStyle(color: AppTheme.black, fontSize: 12, fontWeight: FontWeight.bold)),
+                              child: const Text(
+                                'Clear All',
+                                style: TextStyle(
+                                  color: AppTheme.black,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ],
                         ),

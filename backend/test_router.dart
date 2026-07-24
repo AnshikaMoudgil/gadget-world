@@ -4,7 +4,7 @@ import 'package:shelf/shelf_io.dart' as io;
 
 void main() async {
   final appRouter = Router();
-  
+
   final paymentRouter = Router();
   paymentRouter.get('/', (Request request) {
     return Response.ok('Matched slash');

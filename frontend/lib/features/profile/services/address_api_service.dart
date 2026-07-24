@@ -48,7 +48,11 @@ class AddressApiService {
     }
   }
 
-  Future<Address> updateAddress(String token, String addressId, Map<String, dynamic> data) async {
+  Future<Address> updateAddress(
+    String token,
+    String addressId,
+    Map<String, dynamic> data,
+  ) async {
     final response = await http.put(
       Uri.parse('$baseUrl/$addressId'),
       headers: {

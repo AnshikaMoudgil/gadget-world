@@ -33,7 +33,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final token = Supabase.instance.client.auth.currentSession?.accessToken;
     if (token != null) {
       try {
-        await context.read<SettingsProvider>().updateSettings(token, {key: value});
+        await context.read<SettingsProvider>().updateSettings(token, {
+          key: value,
+        });
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -83,9 +85,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildLanguageOption('en', 'English', currentLanguage, setModalState),
-                  _buildLanguageOption('hi', 'हिन्दी (Hindi)', currentLanguage, setModalState),
-                  _buildLanguageOption('bn', 'বাংলা (Bengali)', currentLanguage, setModalState),
+                  _buildLanguageOption(
+                    'en',
+                    'English',
+                    currentLanguage,
+                    setModalState,
+                  ),
+                  _buildLanguageOption(
+                    'hi',
+                    'हिन्दी (Hindi)',
+                    currentLanguage,
+                    setModalState,
+                  ),
+                  _buildLanguageOption(
+                    'bn',
+                    'বাংলা (Bengali)',
+                    currentLanguage,
+                    setModalState,
+                  ),
                   const SizedBox(height: 16),
                 ],
               ),
@@ -96,7 +113,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildLanguageOption(String langCode, String language, String currentLanguage, StateSetter setModalState) {
+  Widget _buildLanguageOption(
+    String langCode,
+    String language,
+    String currentLanguage,
+    StateSetter setModalState,
+  ) {
     final isSelected = currentLanguage == langCode;
     return InkWell(
       onTap: () {
@@ -213,8 +235,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: ElevatedButton(
                       onPressed: () async {
                         // Clear settings
-                        Provider.of<SettingsProvider>(context, listen: false).clear();
-                        
+                        Provider.of<SettingsProvider>(
+                          context,
+                          listen: false,
+                        ).clear();
+
                         // Sign out from Supabase first, then navigate
                         await Provider.of<AuthProvider>(
                           context,
@@ -318,7 +343,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           title: 'Order Updates',
                           subtitle:
                               'Get notified about your order status and delivery updates.',
-                          value: settings.orderUpdatesEmail, // Mapping to order updates
+                          value: settings
+                              .orderUpdatesEmail, // Mapping to order updates
                           onChanged: (val) {
                             _updateSetting('order_updates_email', val);
                             _updateSetting('order_updates_sms', val);
@@ -331,7 +357,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           subtitle:
                               'Receive offers, discounts and promotional updates.',
                           value: settings.promotionsEmail,
-                          onChanged: (val) => _updateSetting('promotions_email', val),
+                          onChanged: (val) =>
+                              _updateSetting('promotions_email', val),
                         ),
                         const SizedBox(height: 16),
                         _buildSwitchItem(
@@ -340,7 +367,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           subtitle:
                               'Important alerts about your account and security.',
                           value: settings.notificationsEnabled,
-                          onChanged: (val) => _updateSetting('notifications_enabled', val),
+                          onChanged: (val) =>
+                              _updateSetting('notifications_enabled', val),
                         ),
                         const SizedBox(height: 32),
                         const Text(
@@ -365,12 +393,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               _buildPreferenceItem(
                                 icon: Icons.language_outlined,
                                 title: 'Language',
-                                trailingText: '${_getLanguageName(settings.preferredLanguage)}  >',
-                                onTap: () => _showLanguageBottomSheet(settings.preferredLanguage),
+                                trailingText:
+                                    '${_getLanguageName(settings.preferredLanguage)}  >',
+                                onTap: () => _showLanguageBottomSheet(
+                                  settings.preferredLanguage,
+                                ),
                               ),
                               Divider(
                                 height: 1,
-                                color: AppTheme.greyBorder.withValues(alpha: 0.5),
+                                color: AppTheme.greyBorder.withValues(
+                                  alpha: 0.5,
+                                ),
                               ),
                               _buildPreferenceItem(
                                 icon: Icons.info_outline,
@@ -389,7 +422,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.red,
                               side: BorderSide(
-                                color: AppTheme.greyBorder.withValues(alpha: 0.5),
+                                color: AppTheme.greyBorder.withValues(
+                                  alpha: 0.5,
+                                ),
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),

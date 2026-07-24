@@ -8,7 +8,7 @@ class SettingsController {
 
   Future<Response> getSettings(Request request) async {
     final userId = request.context['userId'] as String;
-    
+
     try {
       final settings = await _service.getSettings(userId);
       return Response.ok(jsonEncode(settings.toJson()),

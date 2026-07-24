@@ -43,13 +43,14 @@ class CatalogController {
     final search = params['search']?.trim();
     final featured = params['featured'];
     final limit = int.tryParse(params['limit'] ?? '');
-    
+
     // New filter params
     final minPrice = double.tryParse(params['minPrice'] ?? '');
     final maxPrice = double.tryParse(params['maxPrice'] ?? '');
     final brandId = params['brandId'];
     final inStock = params['inStock']; // 'true' or 'false'
-    final sort = params['sort']; // 'price_asc', 'price_desc', 'newest', 'popular'
+    final sort =
+        params['sort']; // 'price_asc', 'price_desc', 'newest', 'popular'
 
     final result = await SupabaseDb.query<List<Map<String, dynamic>>>(() async {
       var query = SupabaseDb.client
@@ -67,7 +68,7 @@ class CatalogController {
         final escaped = search.replaceAll(',', ' ');
         query = query.or('name.ilike.%$escaped%,description.ilike.%$escaped%');
       }
-      
+
       // Apply new filters
       if (minPrice != null) {
         query = query.gte('price', minPrice);
@@ -76,11 +77,16 @@ class CatalogController {
         query = query.lte('price', maxPrice);
       }
       if (brandId != null && brandId.isNotEmpty && brandId != 'All') {
-        final brandRes = await SupabaseDb.client.from('brands').select('id').eq('name', brandId).maybeSingle();
+        final brandRes = await SupabaseDb.client
+            .from('brands')
+            .select('id')
+            .eq('name', brandId)
+            .maybeSingle();
         if (brandRes != null) {
           query = query.eq('brand_id', brandRes['id']);
         } else {
-          query = query.eq('brand_id', '00000000-0000-0000-0000-000000000000'); // Force empty
+          query = query.eq('brand_id',
+              '00000000-0000-0000-0000-000000000000'); // Force empty
         }
       }
       if (inStock == 'true') {
@@ -96,7 +102,9 @@ class CatalogController {
       } else if (sort == 'price_desc') {
         ordered = query.order('price', ascending: false);
       } else if (sort == 'popular') {
-        ordered = query.order('is_featured', ascending: false).order('created_at', ascending: false);
+        ordered = query
+            .order('is_featured', ascending: false)
+            .order('created_at', ascending: false);
       } else {
         // default to newest
         ordered = query.order('created_at', ascending: false);

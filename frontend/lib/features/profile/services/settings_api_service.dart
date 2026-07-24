@@ -29,7 +29,10 @@ class SettingsApiService {
     }
   }
 
-  Future<UserSettings> updateSettings(String token, Map<String, dynamic> data) async {
+  Future<UserSettings> updateSettings(
+    String token,
+    Map<String, dynamic> data,
+  ) async {
     final response = await http.put(
       Uri.parse(baseUrl),
       headers: {

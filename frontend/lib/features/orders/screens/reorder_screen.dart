@@ -9,6 +9,7 @@ import 'package:gadget_store/features/orders/screens/orders_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/products/screens/categories_screen.dart';
+
 class ReorderScreen extends StatefulWidget {
   const ReorderScreen({super.key});
 
@@ -36,13 +37,13 @@ class _ReorderScreenState extends State<ReorderScreen> {
         item.productId,
         1, // Defaulting to 1 as typical for reorders
       );
-      
+
       if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Item added to cart')),
-      );
-      
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Item added to cart')));
+
       // Redirect to Cart Screen
       Navigator.push(
         context,
@@ -50,9 +51,9 @@ class _ReorderScreenState extends State<ReorderScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add to cart: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add to cart: $e')));
     }
   }
 
@@ -69,10 +70,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
         ),
         title: const Text(
           'Reorder',
-          style: TextStyle(
-            color: AppTheme.black,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: AppTheme.black, fontWeight: FontWeight.bold),
         ),
       ),
       body: Consumer<OrderProvider>(
@@ -89,10 +87,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
           final List<Map<String, dynamic>> allPurchasedItems = [];
           for (var order in orderProvider.orders) {
             for (var item in order.items) {
-              allPurchasedItems.add({
-                'order': order,
-                'item': item,
-              });
+              allPurchasedItems.add({'order': order, 'item': item});
             }
           }
 
@@ -119,10 +114,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                   const SizedBox(height: 4),
                   const Text(
                     "Items you've purchased before, ready to order again.",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.greyText,
-                    ),
+                    style: TextStyle(fontSize: 12, color: AppTheme.greyText),
                   ),
                   const SizedBox(height: 16),
                   ...allPurchasedItems.map((entry) {
@@ -176,13 +168,21 @@ class _ReorderScreenState extends State<ReorderScreen> {
                       color: AppTheme.white,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.autorenew, color: Colors.green.shade700, size: 24),
+                    child: Icon(
+                      Icons.autorenew,
+                      color: Colors.green.shade700,
+                      size: 24,
+                    ),
                   ),
                 ),
                 Positioned(
                   top: -20,
                   right: 0,
-                  child: Icon(Icons.send, color: Colors.green.shade300, size: 28),
+                  child: Icon(
+                    Icons.send,
+                    color: Colors.green.shade300,
+                    size: 28,
+                  ),
                 ),
               ],
             ),
@@ -226,10 +226,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                 ),
                 child: const Text(
                   'Start Shopping',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -249,7 +246,11 @@ class _ReorderScreenState extends State<ReorderScreen> {
                       color: Colors.green.shade50,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.category, color: Colors.green.shade700, size: 24),
+                    child: Icon(
+                      Icons.category,
+                      color: Colors.green.shade700,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   const Expanded(
@@ -279,7 +280,9 @@ class _ReorderScreenState extends State<ReorderScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const CategoriesScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => const CategoriesScreen(),
+                        ),
                       );
                     },
                     child: Text(
@@ -315,7 +318,11 @@ class _ReorderScreenState extends State<ReorderScreen> {
               color: Colors.green.shade100,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.autorenew, color: Colors.green.shade700, size: 24),
+            child: Icon(
+              Icons.autorenew,
+              color: Colors.green.shade700,
+              size: 24,
+            ),
           ),
           const SizedBox(width: 16),
           const Expanded(
@@ -357,7 +364,11 @@ class _ReorderScreenState extends State<ReorderScreen> {
                     shape: BoxShape.circle,
                   ),
                 ),
-                Icon(Icons.shopping_bag, color: Colors.green.shade700, size: 36),
+                Icon(
+                  Icons.shopping_bag,
+                  color: Colors.green.shade700,
+                  size: 36,
+                ),
                 Positioned(
                   right: 0,
                   bottom: 0,
@@ -367,7 +378,11 @@ class _ReorderScreenState extends State<ReorderScreen> {
                       color: Colors.brown.shade200,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Icon(Icons.inventory_2, color: Colors.brown, size: 16),
+                    child: const Icon(
+                      Icons.inventory_2,
+                      color: Colors.brown,
+                      size: 16,
+                    ),
                   ),
                 ),
               ],
@@ -382,7 +397,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
     final details = item.productDetails ?? {};
     final String name = details['name'] ?? 'Unknown Product';
     final String category = details['category_name'] ?? 'Product';
-    
+
     // Attempt to get an image
     String? imageUrl;
     if (details['images'] != null) {
@@ -401,7 +416,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
 
     // Format date
     final String dateStr = DateFormat('dd MMM yyyy').format(order.createdAt);
-    
+
     // Status color
     Color statusColor = Colors.orange;
     if (order.status.toLowerCase() == 'delivered') {
@@ -427,7 +442,11 @@ class _ReorderScreenState extends State<ReorderScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today, size: 14, color: AppTheme.greyText),
+                    const Icon(
+                      Icons.calendar_today,
+                      size: 14,
+                      color: AppTheme.greyText,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       'Delivered on $dateStr',
@@ -440,7 +459,8 @@ class _ReorderScreenState extends State<ReorderScreen> {
                   ],
                 ),
                 Text(
-                  order.status.substring(0, 1).toUpperCase() + order.status.substring(1),
+                  order.status.substring(0, 1).toUpperCase() +
+                      order.status.substring(1),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -472,7 +492,10 @@ class _ReorderScreenState extends State<ReorderScreen> {
                             imageUrl,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.image_not_supported, color: AppTheme.greyText),
+                                const Icon(
+                                  Icons.image_not_supported,
+                                  color: AppTheme.greyText,
+                                ),
                           ),
                         )
                       : const Icon(Icons.image, color: AppTheme.greyText),
@@ -517,7 +540,11 @@ class _ReorderScreenState extends State<ReorderScreen> {
                 // Reorder Button
                 OutlinedButton.icon(
                   onPressed: () => _reorderItem(item),
-                  icon: const Icon(Icons.autorenew, size: 16, color: Colors.green),
+                  icon: const Icon(
+                    Icons.autorenew,
+                    size: 16,
+                    color: Colors.green,
+                  ),
                   label: const Text(
                     'Reorder',
                     style: TextStyle(
@@ -530,7 +557,10 @@ class _ReorderScreenState extends State<ReorderScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                   ),
                 ),
               ],
@@ -567,10 +597,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                 SizedBox(height: 4),
                 Text(
                   'View all your previous purchases in your Order History.',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.greyText,
-                  ),
+                  style: TextStyle(fontSize: 10, color: AppTheme.greyText),
                 ),
               ],
             ),

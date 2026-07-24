@@ -23,7 +23,8 @@ class SettingsService {
     return UserSettings.fromJson(result.data!);
   }
 
-  Future<UserSettings> updateSettings(String userId, UpdateSettingsRequest request) async {
+  Future<UserSettings> updateSettings(
+      String userId, UpdateSettingsRequest request) async {
     final data = request.toJson();
     if (data.isEmpty) {
       throw Exception('No fields to update');
