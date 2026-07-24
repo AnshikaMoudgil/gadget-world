@@ -43,10 +43,12 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     final itemsList = (json['order_items'] as List?) ?? [];
-    
+
     // razorpay_order_id might be inside payments array if not in orders table directly
     String rzpOrderId = json['razorpay_order_id'] ?? '';
-    if (rzpOrderId.isEmpty && json['payments'] != null && (json['payments'] as List).isNotEmpty) {
+    if (rzpOrderId.isEmpty &&
+        json['payments'] != null &&
+        (json['payments'] as List).isNotEmpty) {
       rzpOrderId = json['payments'][0]['razorpay_order_id'] ?? '';
     }
 
@@ -62,4 +64,3 @@ class Order {
     );
   }
 }
-

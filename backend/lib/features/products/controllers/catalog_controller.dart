@@ -77,8 +77,11 @@ class CatalogController {
         query = query.lte('price', maxPrice);
       }
       if (brandId != null && brandId.isNotEmpty && brandId != 'All') {
-        final isUuid = RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', caseSensitive: false).hasMatch(brandId);
-        
+        final isUuid = RegExp(
+                r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+                caseSensitive: false)
+            .hasMatch(brandId);
+
         if (isUuid) {
           query = query.eq('brand_id', brandId);
         } else {

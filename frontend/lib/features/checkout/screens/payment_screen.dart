@@ -156,7 +156,8 @@ class _PaymentScreenState extends State<PaymentScreen>
         'retry': {'enabled': true, 'max_count': 1},
         'prefill': {
           'email': Supabase.instance.client.auth.currentUser?.email ?? '',
-          'contact': '9999999999', // Required by Razorpay Web to prevent silent failure
+          'contact':
+              '9999999999', // Required by Razorpay Web to prevent silent failure
         },
       };
 

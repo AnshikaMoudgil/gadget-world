@@ -168,7 +168,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget _buildHeaderCard() {
     String orderId = widget.order.razorpayOrderId;
     if (orderId.isEmpty) {
-      orderId = widget.order.id.length > 8 ? widget.order.id.substring(0, 8).toUpperCase() : widget.order.id.toUpperCase();
+      orderId = widget.order.id.length > 8
+          ? widget.order.id.substring(0, 8).toUpperCase()
+          : widget.order.id.toUpperCase();
     } else {
       orderId = orderId.replaceFirst('order_', '').toUpperCase();
     }
@@ -493,9 +495,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final isDelivered = status == 'delivered' || status == 'completed';
     final isShipped = isDelivered || status == 'shipped';
     final isConfirmed = isShipped || status == 'confirmed';
-    
+
     // Calculate mock dates based on order creation
-    final confirmedDate = widget.order.createdAt.add(const Duration(minutes: 45));
+    final confirmedDate = widget.order.createdAt.add(
+      const Duration(minutes: 45),
+    );
     final shippedDate = widget.order.createdAt.add(const Duration(days: 1));
     final deliveredDate = widget.order.createdAt.add(const Duration(days: 2));
 
@@ -590,20 +594,28 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   ),
                   _buildTimelineItem(
                     'Packed',
-                    isConfirmed ? _formatDate(confirmedDate.add(const Duration(hours: 4))) : 'Waiting for confirmation',
+                    isConfirmed
+                        ? _formatDate(
+                            confirmedDate.add(const Duration(hours: 4)),
+                          )
+                        : 'Waiting for confirmation',
                     isShipped,
                     false,
                   ),
                   _buildTimelineItem(
                     'Shipped',
-                    isShipped ? 'AWB: 1234567890\nCourier: Express' : 'Waiting to ship',
+                    isShipped
+                        ? 'AWB: 1234567890\nCourier: Express'
+                        : 'Waiting to ship',
                     isShipped,
                     status == 'shipped',
                     trailingDate: isShipped ? _formatDate(shippedDate) : null,
                   ),
                   _buildTimelineItem(
                     'Delivered',
-                    isDelivered ? _formatDate(deliveredDate) : 'Expected on ${_formatDate(deliveredDate)}',
+                    isDelivered
+                        ? _formatDate(deliveredDate)
+                        : 'Expected on ${_formatDate(deliveredDate)}',
                     isDelivered,
                     isDelivered,
                     isLast: true,
@@ -756,7 +768,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget _buildPaymentInfoCard() {
     final date = _formatDate(widget.order.createdAt);
     final isPaid = widget.order.status != 'pending_payment';
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
