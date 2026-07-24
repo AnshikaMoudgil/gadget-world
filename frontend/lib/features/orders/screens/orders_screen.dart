@@ -111,8 +111,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
         if (orderProvider.error != null) {
           final errorText = orderProvider.error!.toLowerCase();
-          final isAuthError = errorText.contains('expired') || errorText.contains('authentication failed') || errorText.contains('403');
-          
+          final isAuthError =
+              errorText.contains('expired') ||
+              errorText.contains('authentication failed') ||
+              errorText.contains('403');
+
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -126,8 +129,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    isAuthError 
-                        ? 'Your session has expired.' 
+                    isAuthError
+                        ? 'Your session has expired.'
                         : 'Something went wrong.',
                     style: const TextStyle(
                       fontSize: 18,
@@ -137,8 +140,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    isAuthError 
-                        ? 'Please log in again to view your orders.' 
+                    isAuthError
+                        ? 'Please log in again to view your orders.'
                         : orderProvider.error!,
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: AppTheme.greyText),
@@ -152,7 +155,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.black,
                         foregroundColor: AppTheme.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
