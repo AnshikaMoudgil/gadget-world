@@ -42,7 +42,7 @@ class Order {
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
-    final itemsList = (json['payment_items'] as List?) ?? [];
+    final itemsList = (json['order_items'] as List?) ?? [];
     return Order(
       id: json['id'] ?? '',
       razorpayOrderId: json['razorpay_order_id'] ?? '',

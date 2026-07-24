@@ -38,6 +38,47 @@ class CatalogProvider with ChangeNotifier {
   String? get productsError => _productsError;
   String? get productError => _productError;
 
+  // Active filters
+  double? _minPrice;
+  double? _maxPrice;
+  String? _filterBrandId;
+  bool? _inStock;
+  String? _sortBy;
+
+  double? get minPrice => _minPrice;
+  double? get maxPrice => _maxPrice;
+  String? get filterBrandId => _filterBrandId;
+  bool? get inStock => _inStock;
+  String? get sortBy => _sortBy;
+
+  bool get hasActiveFilters => _minPrice != null || _maxPrice != null || _filterBrandId != null || _inStock != null || _sortBy != null;
+
+  void setFilters({
+    double? minPrice,
+    double? maxPrice,
+    String? brandId,
+    bool? inStock,
+    String? sortBy,
+  }) {
+    _minPrice = minPrice;
+    _maxPrice = maxPrice;
+    _filterBrandId = brandId == 'All' ? null : brandId;
+    _inStock = inStock;
+    _sortBy = sortBy;
+    notifyListeners();
+    fetchProducts(forceRefresh: true);
+  }
+
+  void clearFilters() {
+    _minPrice = null;
+    _maxPrice = null;
+    _filterBrandId = null;
+    _inStock = null;
+    _sortBy = null;
+    notifyListeners();
+    fetchProducts(forceRefresh: true);
+  }
+
   Future<void> fetchCategories({bool forceRefresh = false}) async {
     if (_categories.isNotEmpty && !forceRefresh) return;
     _isLoadingCategories = true;
@@ -59,7 +100,13 @@ class CatalogProvider with ChangeNotifier {
     _productsError = null;
     notifyListeners();
     try {
-      _products = await _service.getProducts();
+      _products = await _service.getProducts(
+        minPrice: _minPrice,
+        maxPrice: _maxPrice,
+        brandId: _filterBrandId,
+        inStock: _inStock,
+        sort: _sortBy,
+      );
     } catch (error) {
       _productsError = error.toString();
     } finally {

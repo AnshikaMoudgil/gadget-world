@@ -171,8 +171,6 @@ class _PaymentScreenState extends State<PaymentScreen>
           );
         }
       });
-
-      _razorpay.open(options);
     } catch (e) {
       _showErrorSnackbar(e.toString());
       setState(() => _isProcessing = false);

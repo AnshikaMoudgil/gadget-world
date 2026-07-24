@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/profile/screens/add_address_screen.dart';
+import 'package:gadget_store/features/profile/providers/address_provider.dart';
+import 'package:gadget_store/features/profile/models/address.dart';
 
 class AddressScreen extends StatefulWidget {
   const AddressScreen({super.key});
@@ -10,42 +13,15 @@ class AddressScreen extends StatefulWidget {
 }
 
 class _AddressScreenState extends State<AddressScreen> {
-  bool _isEmptyState = false;
-
-  final List<Map<String, dynamic>> _addresses = [
-    {
-      'type': 'Home',
-      'icon': Icons.home_outlined,
-      'name': 'Rohit Sharma',
-      'isDefault': true,
-      'address':
-          '456, Lajpat Nagar Part 2,\nNear Metro Station, New Delhi - 110024\nDelhi, India\nPhone: +91 98765 43210',
-    },
-    {
-      'type': 'Office',
-      'icon': Icons.business_center_outlined,
-      'name': 'Office',
-      'isDefault': false,
-      'address':
-          '7th Floor, Tower B,\nSector 62, Noida - 201301\nUttar Pradesh, India\nPhone: +91 91234 56789',
-    },
-    {
-      'type': 'Home',
-      'icon': Icons.home_outlined,
-      'name': 'Home',
-      'isDefault': false,
-      'address':
-          '89, Green Park Extension,\nGreen Park, New Delhi - 110016\nDelhi, India\nPhone: +91 99887 76655',
-    },
-  ];
-
-  void _toggleState() {
-    setState(() {
-      _isEmptyState = !_isEmptyState;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AddressProvider>(context, listen: false).fetchAddresses();
     });
   }
 
-  void _showDeleteConfirmation() {
+  void _showDeleteConfirmation(Address address) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -93,7 +69,7 @@ class _AddressScreenState extends State<AddressScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Are you sure you want to delete this address?\nThis action cannot be undone.',
+                'Are you sure you want to delete this address?\\nThis action cannot be undone.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
@@ -127,7 +103,20 @@ class _AddressScreenState extends State<AddressScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        try {
+                          await Provider.of<AddressProvider>(context, listen: false)
+                              .deleteAddress(address.id!);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Address deleted successfully')),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to delete address: \$e')),
+                          );
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.black,
                         foregroundColor: AppTheme.white,
@@ -155,6 +144,129 @@ class _AddressScreenState extends State<AddressScreen> {
     );
   }
 
+  void _showSetDefaultConfirmation(Address address) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: AppTheme.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.greyBorder,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.star_outline,
+                  color: Colors.green,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Set as Default?',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Are you sure you want to set this address as your default shipping address?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.greyText,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.black,
+                        side: const BorderSide(color: AppTheme.greyBorder),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        try {
+                          await Provider.of<AddressProvider>(context, listen: false)
+                              .setDefaultAddress(address.id!);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Address set as default successfully')),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to set default address: \$e')),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.black,
+                        foregroundColor: AppTheme.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Set Default',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,54 +276,64 @@ class _AddressScreenState extends State<AddressScreen> {
           children: [
             _buildHeader(context),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-                child: Column(
-                  children: [
-                    _isEmptyState ? _buildEmptyState() : _buildAddressList(),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const AddAddressScreen(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.black,
-                        foregroundColor: AppTheme.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 24,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: const [
-                              Icon(Icons.add_circle_outline, size: 20),
-                              SizedBox(width: 8),
-                              Text(
-                                'Add New Address',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+              child: Consumer<AddressProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading && provider.addresses.isEmpty) {
+                    return const Center(child: CircularProgressIndicator(color: AppTheme.black));
+                  }
+
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                    child: Column(
+                      children: [
+                        provider.addresses.isEmpty
+                            ? _buildEmptyState()
+                            : _buildAddressList(provider.addresses),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const AddAddressScreen(),
                               ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.black,
+                            foregroundColor: AppTheme.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 24,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: const [
+                                  Icon(Icons.add_circle_outline, size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Add New Address',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Icon(Icons.arrow_forward, size: 20),
                             ],
                           ),
-                          const Icon(Icons.arrow_forward, size: 20),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ],
@@ -256,13 +378,24 @@ class _AddressScreenState extends State<AddressScreen> {
               ),
             ),
           ),
-          IconButton(
-            icon: const Icon(
-              Icons.change_circle_outlined,
-              color: AppTheme.greyText,
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: InkWell(
+              onTap: () {
+                Provider.of<AddressProvider>(context, listen: false).fetchAddresses();
+              },
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppTheme.greyBorder),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.refresh, color: AppTheme.black, size: 20),
+              ),
             ),
-            onPressed: _toggleState,
           ),
+          const SizedBox(width: 8),
           Padding(
             padding: const EdgeInsets.only(top: 4.0),
             child: InkWell(
@@ -298,7 +431,7 @@ class _AddressScreenState extends State<AddressScreen> {
               width: 160,
               height: 160,
               decoration: BoxDecoration(
-                color: AppTheme.greyBackground.withValues(alpha: 0.5),
+                color: AppTheme.greyBackground.withOpacity(0.5),
                 shape: BoxShape.circle,
               ),
               child: Stack(
@@ -327,7 +460,7 @@ class _AddressScreenState extends State<AddressScreen> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Add an address to make your\ncheckout experience faster.',
+              'Add an address to make your\\ncheckout experience faster.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
@@ -341,21 +474,32 @@ class _AddressScreenState extends State<AddressScreen> {
     );
   }
 
-  Widget _buildAddressList() {
+  Widget _buildAddressList(List<Address> addresses) {
     return Column(
-      children: _addresses
-          .map((address) => _buildAddressCard(address))
-          .toList(),
+      children: addresses.map((address) => _buildAddressCard(address)).toList(),
     );
   }
 
-  Widget _buildAddressCard(Map<String, dynamic> data) {
-    final isDefault = data['isDefault'] as bool;
+  IconData _getIconForType(AddressType type) {
+    switch (type) {
+      case AddressType.home:
+        return Icons.home_outlined;
+      case AddressType.work:
+        return Icons.business_center_outlined;
+      case AddressType.other:
+        return Icons.location_on_outlined;
+    }
+  }
+
+  String _capitalize(String s) => s.isNotEmpty ? '\${s[0].toUpperCase()}\${s.substring(1)}' : s;
+
+  Widget _buildAddressCard(Address data) {
+    final isDefault = data.isDefault;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
+        border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -373,7 +517,7 @@ class _AddressScreenState extends State<AddressScreen> {
                     color: AppTheme.black,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(data['icon'], color: AppTheme.white, size: 20),
+                  child: Icon(_getIconForType(data.addressType), color: AppTheme.white, size: 20),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -383,7 +527,9 @@ class _AddressScreenState extends State<AddressScreen> {
                       Row(
                         children: [
                           Text(
-                            data['name'],
+                            data.addressType == AddressType.home 
+                                ? data.recipientName 
+                                : _capitalize(data.addressType.name),
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -415,7 +561,16 @@ class _AddressScreenState extends State<AddressScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        data['address'],
+                        data.fullAddress,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.greyText,
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Phone: \${data.phoneNumber}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppTheme.greyText,
@@ -425,26 +580,28 @@ class _AddressScreenState extends State<AddressScreen> {
                     ],
                   ),
                 ),
-                Row(
+                Column(
                   children: [
-                    InkWell(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppTheme.greyBorder),
-                        ),
-                        child: const Icon(
-                          Icons.edit_outlined,
-                          size: 14,
-                          color: AppTheme.black,
+                    if (!isDefault) ...[
+                      InkWell(
+                        onTap: () => _showSetDefaultConfirmation(data),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppTheme.greyBorder),
+                          ),
+                          child: const Icon(
+                            Icons.star_outline,
+                            size: 14,
+                            color: AppTheme.black,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
+                      const SizedBox(height: 8),
+                    ],
                     InkWell(
-                      onTap: _showDeleteConfirmation,
+                      onTap: () => _showDeleteConfirmation(data),
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
@@ -467,7 +624,7 @@ class _AddressScreenState extends State<AddressScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: AppTheme.greyBackground.withValues(alpha: 0.3),
+                color: AppTheme.greyBackground.withOpacity(0.3),
                 borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(16),
                 ),

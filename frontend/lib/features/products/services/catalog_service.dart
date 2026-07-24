@@ -32,6 +32,11 @@ class CatalogService {
     String? search,
     bool? featured,
     int? limit,
+    double? minPrice,
+    double? maxPrice,
+    String? brandId,
+    bool? inStock,
+    String? sort,
   }) async {
     final query = <String, String>{};
     if (categoryId != null && categoryId.isNotEmpty) {
@@ -42,6 +47,11 @@ class CatalogService {
     }
     if (featured != null) query['featured'] = '$featured';
     if (limit != null) query['limit'] = '$limit';
+    if (minPrice != null) query['minPrice'] = '$minPrice';
+    if (maxPrice != null) query['maxPrice'] = '$maxPrice';
+    if (brandId != null) query['brandId'] = brandId;
+    if (inStock != null) query['inStock'] = '$inStock';
+    if (sort != null) query['sort'] = sort;
 
     final response = await _get('/api/catalog/products', query: query);
     final data = jsonDecode(response.body) as List;
