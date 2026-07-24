@@ -17,7 +17,7 @@ class AddressService {
     });
 
     if (result.isError) {
-      throw Exception('Failed to list addresses: \${result.message}');
+      throw Exception('Failed to list addresses: ${result.message}');
     }
 
     return result.data?.map((json) => Address.fromJson(json)).toList() ?? [];
@@ -35,7 +35,7 @@ class AddressService {
     });
 
     if (result.isError) {
-      throw Exception('Failed to get address: \${result.message}');
+      throw Exception('Failed to get address: ${result.message}');
     }
 
     if (result.data == null) return null;
@@ -57,7 +57,7 @@ class AddressService {
     });
 
     if (result.isError) {
-      throw Exception('Failed to create address: \${result.message}');
+      throw Exception('Failed to create address: ${result.message}');
     }
 
     return Address.fromJson(result.data!);
@@ -85,7 +85,7 @@ class AddressService {
     });
 
     if (result.isError) {
-      throw Exception('Failed to update address: \${result.message}');
+      throw Exception('Failed to update address: ${result.message}');
     }
 
     return Address.fromJson(result.data!);
@@ -102,7 +102,7 @@ class AddressService {
     });
 
     if (result.isError) {
-      throw Exception('Failed to delete address: \${result.message}');
+      throw Exception('Failed to delete address: ${result.message}');
     }
   }
 
@@ -117,7 +117,7 @@ class AddressService {
     });
 
     if (result.isError) {
-      throw Exception('Failed to set default address: \${result.message}');
+      throw Exception('Failed to set default address: ${result.message}');
     }
   }
 }

@@ -77,16 +77,22 @@ class CatalogController {
         query = query.lte('price', maxPrice);
       }
       if (brandId != null && brandId.isNotEmpty && brandId != 'All') {
-        final brandRes = await SupabaseDb.client
-            .from('brands')
-            .select('id')
-            .eq('name', brandId)
-            .maybeSingle();
-        if (brandRes != null) {
-          query = query.eq('brand_id', brandRes['id']);
+        final isUuid = RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', caseSensitive: false).hasMatch(brandId);
+        
+        if (isUuid) {
+          query = query.eq('brand_id', brandId);
         } else {
-          query = query.eq('brand_id',
-              '00000000-0000-0000-0000-000000000000'); // Force empty
+          final brandRes = await SupabaseDb.client
+              .from('brands')
+              .select('id')
+              .eq('name', brandId)
+              .maybeSingle();
+          if (brandRes != null) {
+            query = query.eq('brand_id', brandRes['id']);
+          } else {
+            query = query.eq('brand_id',
+                '00000000-0000-0000-0000-000000000000'); // Force empty
+          }
         }
       }
       if (inStock == 'true') {

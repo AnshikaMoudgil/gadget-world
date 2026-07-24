@@ -521,7 +521,7 @@ class _AddressScreenState extends State<AddressScreen> {
   }
 
   String _capitalize(String s) =>
-      s.isNotEmpty ? '\${s[0].toUpperCase()}\${s.substring(1)}' : s;
+      s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : s;
 
   Widget _buildAddressCard(Address data) {
     final isDefault = data.isDefault;
@@ -604,7 +604,7 @@ class _AddressScreenState extends State<AddressScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Phone: \${data.phoneNumber}',
+                        'Phone: ${data.phoneNumber}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppTheme.greyText,

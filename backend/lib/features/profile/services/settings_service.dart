@@ -13,7 +13,7 @@ class SettingsService {
     });
 
     if (result.isError) {
-      throw Exception('Failed to fetch settings: \${result.message}');
+      throw Exception('Failed to fetch settings: ${result.message}');
     }
 
     if (result.data == null) {
@@ -40,7 +40,7 @@ class SettingsService {
     });
 
     if (result.isError) {
-      throw Exception('Failed to update settings: \${result.message}');
+      throw Exception('Failed to update settings: ${result.message}');
     }
 
     return UserSettings.fromJson(result.data!);

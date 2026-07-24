@@ -35,7 +35,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
     try {
       await Provider.of<CartProvider>(context, listen: false).addToCart(
         item.productId,
-        1, // Defaulting to 1 as typical for reorders
+        item.quantity, // Use original order quantity
       );
 
       if (!mounted) return;
@@ -526,7 +526,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${formatCurrency.format(item.amount)}  •  Qty: 1',
+                        '${formatCurrency.format(item.amount)}  •  Qty: ${item.quantity}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppTheme.greyText,
