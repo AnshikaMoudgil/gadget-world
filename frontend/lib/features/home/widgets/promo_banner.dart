@@ -17,7 +17,7 @@ class PromoBannerPainter extends CustomPainter {
 
     // Draw waves
     final Paint wavePaint = Paint()
-      ..color = const Color(0xFFC7C9FF).withOpacity(0.4)
+      ..color = const Color(0xFFC7C9FF).withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
 
     final Path wavePath1 = Path()
@@ -56,7 +56,7 @@ class PromoBannerPainter extends CustomPainter {
       ..lineTo(size.width, size.height)
       ..close();
 
-    wavePaint.color = const Color(0xFFA6ADFF).withOpacity(0.3);
+    wavePaint.color = const Color(0xFFA6ADFF).withValues(alpha: 0.3);
     canvas.drawPath(wavePath2, wavePaint);
 
     // Draw sparkles
@@ -65,7 +65,7 @@ class PromoBannerPainter extends CustomPainter {
 
     // Draw dot grid (bottom right)
     final Paint dotPaint = Paint()
-      ..color = const Color(0xFFFFFFFF).withOpacity(0.6);
+      ..color = const Color(0xFFFFFFFF).withValues(alpha: 0.6);
     final double gridStartX = size.width * 0.82;
     final double gridStartY = size.height * 0.7;
     for (int row = 0; row < 3; row++) {
@@ -108,7 +108,7 @@ class CustomPromoBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -205,7 +205,7 @@ class CustomPromoBanner extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -214,7 +214,7 @@ class CustomPromoBanner extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -227,3 +227,4 @@ class CustomPromoBanner extends StatelessWidget {
     );
   }
 }
+

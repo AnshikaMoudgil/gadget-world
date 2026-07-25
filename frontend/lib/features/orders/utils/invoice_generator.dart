@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -85,8 +85,8 @@ class InvoiceGenerator {
                         pw.Text('Customer'),
                         // Ideally we have customer name/email, but order may only have address
                         if (order.shippingAddress != null) ...[
-                          pw.Text(order.shippingAddress!.recipientName ?? ''),
-                          pw.Text(order.shippingAddress!.phoneNumber ?? ''),
+                          pw.Text(order.shippingAddress!.recipientName),
+                          pw.Text(order.shippingAddress!.phoneNumber),
                         ],
                       ],
                     ),
@@ -110,7 +110,7 @@ class InvoiceGenerator {
                           pw.Text(
                             '${order.shippingAddress!.state}, ${order.shippingAddress!.postalCode}',
                           ),
-                          pw.Text('${order.shippingAddress!.country}'),
+                          pw.Text(order.shippingAddress!.country),
                         ] else
                           pw.Text('N/A'),
                       ],
@@ -282,3 +282,4 @@ class InvoiceGenerator {
     );
   }
 }
+
