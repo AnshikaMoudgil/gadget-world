@@ -13,6 +13,8 @@ import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:gadget_store/features/profile/providers/address_provider.dart';
+import 'package:gadget_store/features/profile/providers/settings_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +36,8 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => CatalogProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => AddressProvider()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
       child: const MyApp(),
     ),
@@ -120,17 +124,13 @@ class _AuthGuardState extends State<AuthGuard> {
       profileProvider.clearProfile();
       cartProvider.clearCartLocal();
       orderProvider.clearOrders();
-      // We check if current route is not login/signup/splash to avoid looping
-      bool isPublicRoute = false;
+      String? currentRoute;
       Navigator.popUntil(context, (route) {
-        final name = route.settings.name;
-        if (name == '/login' || name == '/' || name == null) {
-          isPublicRoute = true;
-        }
+        currentRoute = route.settings.name;
         return true;
       });
 
-      if (!isPublicRoute) {
+      if (currentRoute != '/login') {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/auth/providers/auth_provider.dart';
 import 'package:gadget_store/features/auth/screens/login_screen.dart'; // To navigate on logout
+import 'package:gadget_store/features/profile/providers/settings_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -12,12 +14,39 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _orderUpdates = true;
-  bool _promotions = false;
-  bool _accountAlerts = true;
-  String _selectedLanguage = 'English';
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSettings();
+    });
+  }
 
-  void _showLanguageBottomSheet() {
+  Future<void> _loadSettings() async {
+    final token = Supabase.instance.client.auth.currentSession?.accessToken;
+    if (token != null) {
+      await context.read<SettingsProvider>().fetchSettings(token);
+    }
+  }
+
+  Future<void> _updateSetting(String key, dynamic value) async {
+    final token = Supabase.instance.client.auth.currentSession?.accessToken;
+    if (token != null) {
+      try {
+        await context.read<SettingsProvider>().updateSettings(token, {
+          key: value,
+        });
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update setting: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  void _showLanguageBottomSheet(String currentLanguage) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -56,13 +85,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildLanguageOption('English', setModalState),
                   _buildLanguageOption(
-                    'à¤¹à¤¿à¤‚à¤¦à¥€ (Hindi)',
+                    'en',
+                    'English',
+                    currentLanguage,
                     setModalState,
                   ),
                   _buildLanguageOption(
-                    'à¦¬à¦¾à¦‚à¦²à¦¾ (Bengali)',
+                    'hi',
+                    'हिन्दी (Hindi)',
+                    currentLanguage,
+                    setModalState,
+                  ),
+                  _buildLanguageOption(
+                    'bn',
+                    'বাংলা (Bengali)',
+                    currentLanguage,
                     setModalState,
                   ),
                   const SizedBox(height: 16),
@@ -75,14 +113,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildLanguageOption(String language, StateSetter setModalState) {
-    final isSelected = _selectedLanguage == language;
+  Widget _buildLanguageOption(
+    String langCode,
+    String language,
+    String currentLanguage,
+    StateSetter setModalState,
+  ) {
+    final isSelected = currentLanguage == langCode;
     return InkWell(
       onTap: () {
-        setState(() {
-          _selectedLanguage = language;
-        });
         setModalState(() {});
+        _updateSetting('preferred_language', langCode);
         Future.delayed(const Duration(milliseconds: 200), () {
           if (!mounted) return;
           Navigator.pop(context);
@@ -193,6 +234,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
+                        // Clear settings
+                        Provider.of<SettingsProvider>(
+                          context,
+                          listen: false,
+                        ).clear();
+
                         // Sign out from Supabase first, then navigate
                         await Provider.of<AuthProvider>(
                           context,
@@ -233,6 +280,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  String _getLanguageName(String code) {
+    switch (code) {
+      case 'hi':
+        return 'हिन्दी (Hindi)';
+      case 'bn':
+        return 'বাংলা (Bengali)';
+      case 'en':
+      default:
+        return 'English';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -242,117 +301,151 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             _buildHeader(context),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Notifications',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.black,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildSwitchItem(
-                      icon: Icons.local_shipping_outlined,
-                      title: 'Order Updates',
-                      subtitle:
-                          'Get notified about your order status and delivery updates.',
-                      value: _orderUpdates,
-                      onChanged: (val) => setState(() => _orderUpdates = val),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildSwitchItem(
-                      icon: Icons.local_offer_outlined,
-                      title: 'Promotions',
-                      subtitle:
-                          'Receive offers, discounts and promotional updates.',
-                      value: _promotions,
-                      onChanged: (val) => setState(() => _promotions = val),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildSwitchItem(
-                      icon: Icons.person_outline,
-                      title: 'Account Alerts',
-                      subtitle:
-                          'Important alerts about your account and security.',
-                      value: _accountAlerts,
-                      onChanged: (val) => setState(() => _accountAlerts = val),
-                    ),
-                    const SizedBox(height: 32),
-                    const Text(
-                      'Preferences',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.black,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppTheme.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: AppTheme.greyBorder.withValues(alpha: 0.5),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          _buildPreferenceItem(
-                            icon: Icons.language_outlined,
-                            title: 'Language',
-                            trailingText: '$_selectedLanguage  >',
-                            onTap: _showLanguageBottomSheet,
-                          ),
+              child: Consumer<SettingsProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading && provider.settings == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                          Divider(
-                            height: 1,
-                            color: AppTheme.greyBorder.withValues(alpha: 0.5),
-                          ),
-                          _buildPreferenceItem(
-                            icon: Icons.info_outline,
-                            title: 'About App',
-                            trailingText: 'Version 1.0.0  >',
-                            onTap: () {},
-                          ),
-                        ],
+                  if (provider.error != null && provider.settings == null) {
+                    return Center(
+                      child: Text(
+                        'Error loading settings',
+                        style: const TextStyle(color: Colors.red),
                       ),
+                    );
+                  }
+
+                  final settings = provider.settings;
+                  if (settings == null) {
+                    return const SizedBox();
+                  }
+
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
                     ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: _showLogoutConfirmation,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: BorderSide(
-                            color: AppTheme.greyBorder.withValues(alpha: 0.5),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        icon: const Icon(Icons.logout, size: 20),
-                        label: const Text(
-                          'Logout',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Notifications',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
+                            color: AppTheme.black,
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 16),
+                        _buildSwitchItem(
+                          icon: Icons.local_shipping_outlined,
+                          title: 'Order Updates',
+                          subtitle:
+                              'Get notified about your order status and delivery updates.',
+                          value: settings
+                              .orderUpdatesEmail, // Mapping to order updates
+                          onChanged: (val) {
+                            _updateSetting('order_updates_email', val);
+                            _updateSetting('order_updates_sms', val);
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSwitchItem(
+                          icon: Icons.local_offer_outlined,
+                          title: 'Promotions',
+                          subtitle:
+                              'Receive offers, discounts and promotional updates.',
+                          value: settings.promotionsEmail,
+                          onChanged: (val) =>
+                              _updateSetting('promotions_email', val),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSwitchItem(
+                          icon: Icons.person_outline,
+                          title: 'Account Alerts',
+                          subtitle:
+                              'Important alerts about your account and security.',
+                          value: settings.notificationsEnabled,
+                          onChanged: (val) =>
+                              _updateSetting('notifications_enabled', val),
+                        ),
+                        const SizedBox(height: 32),
+                        const Text(
+                          'Preferences',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.black,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppTheme.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: AppTheme.greyBorder.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildPreferenceItem(
+                                icon: Icons.language_outlined,
+                                title: 'Language',
+                                trailingText:
+                                    '${_getLanguageName(settings.preferredLanguage)}  >',
+                                onTap: () => _showLanguageBottomSheet(
+                                  settings.preferredLanguage,
+                                ),
+                              ),
+                              Divider(
+                                height: 1,
+                                color: AppTheme.greyBorder.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              _buildPreferenceItem(
+                                icon: Icons.info_outline,
+                                title: 'About App',
+                                trailingText: 'Version 1.0.0  >',
+                                onTap: () {},
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: _showLogoutConfirmation,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                              side: BorderSide(
+                                color: AppTheme.greyBorder.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            icon: const Icon(Icons.logout, size: 20),
+                            label: const Text(
+                              'Logout',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+                      ],
                     ),
-                    const SizedBox(height: 48),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ],

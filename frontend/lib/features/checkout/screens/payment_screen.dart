@@ -154,9 +154,10 @@ class _PaymentScreenState extends State<PaymentScreen>
         'order_id': orderId,
         'description': 'Purchase from Gadget Store',
         'retry': {'enabled': true, 'max_count': 1},
-        'send_sms_hash': true,
         'prefill': {
           'email': Supabase.instance.client.auth.currentUser?.email ?? '',
+          'contact':
+              '9999999999', // Required by Razorpay Web to prevent silent failure
         },
       };
 
@@ -171,8 +172,6 @@ class _PaymentScreenState extends State<PaymentScreen>
           );
         }
       });
-
-      _razorpay.open(options);
     } catch (e) {
       _showErrorSnackbar(e.toString());
       setState(() => _isProcessing = false);

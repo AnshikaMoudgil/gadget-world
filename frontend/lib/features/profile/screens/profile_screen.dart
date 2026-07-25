@@ -10,6 +10,7 @@ import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 import 'package:gadget_store/features/orders/providers/order_provider.dart';
 import 'package:gadget_store/features/orders/screens/orders_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:gadget_store/features/orders/screens/reorder_screen.dart';
 
 enum DashboardState { existing, newBuyer }
 
@@ -671,7 +672,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Reorder',
                 'Buy again easily',
                 Colors.blue,
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ReorderScreen()),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 16),
@@ -815,17 +821,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
           _buildMenuItem(
-            Icons.credit_card_outlined,
-            'Payment Methods',
-            'Cards, UPI & more',
-            () {},
-          ),
-          const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildMenuItem(
             Icons.settings_outlined,
             'Settings',
             'App preferences',
-            () {},
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
           ),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
           _buildMenuItem(

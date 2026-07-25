@@ -18,7 +18,7 @@ class OrderItem {
       id: json['id'] ?? '',
       productId: json['product_id'] ?? '',
       quantity: json['quantity'] ?? 1,
-      amount: (json['amount_subunits'] as num? ?? 0) / 100,
+      amount: (json['total_price'] as num? ?? 0).toDouble(),
       productDetails: json['products'] as Map<String, dynamic>?,
     );
   }
@@ -42,12 +42,21 @@ class Order {
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
-    final itemsList = (json['payment_items'] as List?) ?? [];
+    final itemsList = (json['order_items'] as List?) ?? [];
+
+    // razorpay_order_id might be inside payments array if not in orders table directly
+    String rzpOrderId = json['razorpay_order_id'] ?? '';
+    if (rzpOrderId.isEmpty &&
+        json['payments'] != null &&
+        (json['payments'] as List).isNotEmpty) {
+      rzpOrderId = json['payments'][0]['razorpay_order_id'] ?? '';
+    }
+
     return Order(
       id: json['id'] ?? '',
-      razorpayOrderId: json['razorpay_order_id'] ?? '',
+      razorpayOrderId: rzpOrderId,
       status: json['status'] ?? 'pending',
-      amount: (json['amount_subunits'] as num? ?? 0) / 100,
+      amount: (json['total_amount'] as num? ?? 0).toDouble(),
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : DateTime.now(),

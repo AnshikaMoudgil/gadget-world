@@ -1,6 +1,8 @@
+import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import '../controllers/address_controller.dart';
+import '../../../core/network/auth_middleware.dart';
 
 /// Route definitions for the address feature.
 ///
@@ -29,5 +31,12 @@ class AddressRoutes {
     router.patch('/<id>/set-default', controller.setDefault);
 
     return router;
+  }
+
+  // Create a handler with auth middleware applied
+  Handler get handler {
+    return const Pipeline()
+        .addMiddleware(authMiddleware())
+        .addHandler(router.call);
   }
 }

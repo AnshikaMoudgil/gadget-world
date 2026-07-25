@@ -1,40 +1,66 @@
+import '../../../core/database/supabase_db.dart';
 import '../models/address.dart';
 import '../models/create_address_request.dart';
 import '../models/update_address_request.dart';
 
 /// Service layer for CRUD operations on the `user_addresses` table.
-///
-/// Currently stubbed — method bodies will be wired to a Supabase client
-/// once the DB connection layer is in place.
 class AddressService {
   /// Fetch all addresses belonging to [userId].
   Future<List<Address>> listAddresses(String userId) async {
-    // TODO: Implement with Supabase client
-    // e.g. supabase.from('user_addresses').select().eq('user_id', userId)
-    return [];
+    final result = await SupabaseDb.query<List<Map<String, dynamic>>>(() async {
+      return await SupabaseDb.adminClient
+          .from('user_addresses')
+          .select()
+          .eq('user_id', userId)
+          .order('is_default', ascending: false)
+          .order('created_at', ascending: false);
+    });
+
+    if (result.isError) {
+      throw Exception('Failed to list addresses: ${result.message}');
+    }
+
+    return result.data?.map((json) => Address.fromJson(json)).toList() ?? [];
   }
 
   /// Fetch a single address by [addressId], scoped to [userId].
   Future<Address?> getAddress(String userId, String addressId) async {
-    // TODO: Implement with Supabase client
-    return null;
+    final result = await SupabaseDb.querySingle<Map<String, dynamic>>(() async {
+      return await SupabaseDb.adminClient
+          .from('user_addresses')
+          .select()
+          .eq('user_id', userId)
+          .eq('id', addressId)
+          .maybeSingle();
+    });
+
+    if (result.isError) {
+      throw Exception('Failed to get address: ${result.message}');
+    }
+
+    if (result.data == null) return null;
+    return Address.fromJson(result.data!);
   }
 
   /// Insert a new address for [userId].
   Future<Address> createAddress(
       String userId, CreateAddressRequest request) async {
-    // TODO: Implement with Supabase client
-    // The DB trigger handles demoting the old default when is_default = true.
     final data = request.toJson();
     data['user_id'] = userId;
 
-    // Placeholder: return the request data wrapped in an Address.
-    return Address.fromJson({
-      ...data,
-      'id': 'placeholder-uuid',
-      'created_at': DateTime.now().toIso8601String(),
-      'updated_at': DateTime.now().toIso8601String(),
+    final result = await SupabaseDb.querySingle<Map<String, dynamic>>(() async {
+      return await SupabaseDb.adminClient
+          .from('user_addresses')
+          .insert(data)
+          .select()
+          .single();
     });
+
+    if (result.isError) {
+      throw Exception('Failed to create address: ${result.message}');
+    }
+
+    return Address.fromJson(result.data!);
   }
 
   /// Partially update an existing address.
@@ -43,29 +69,55 @@ class AddressService {
     String addressId,
     UpdateAddressRequest request,
   ) async {
-    // TODO: Implement with Supabase client
-    return Address(
-      id: addressId,
-      userId: userId,
-      recipientName: request.recipientName ?? '',
-      phoneNumber: request.phoneNumber ?? '',
-      addressLine1: request.addressLine1 ?? '',
-      city: request.city ?? '',
-      state: request.state ?? '',
-      postalCode: request.postalCode ?? '000000',
-    );
+    final data = request.toJson();
+    if (data.isEmpty) {
+      throw Exception('No fields to update');
+    }
+
+    final result = await SupabaseDb.querySingle<Map<String, dynamic>>(() async {
+      return await SupabaseDb.adminClient
+          .from('user_addresses')
+          .update(data)
+          .eq('user_id', userId)
+          .eq('id', addressId)
+          .select()
+          .single();
+    });
+
+    if (result.isError) {
+      throw Exception('Failed to update address: ${result.message}');
+    }
+
+    return Address.fromJson(result.data!);
   }
 
   /// Delete an address by [addressId], scoped to [userId].
   Future<void> deleteAddress(String userId, String addressId) async {
-    // TODO: Implement with Supabase client
+    final result = await SupabaseDb.execute(() async {
+      await SupabaseDb.adminClient
+          .from('user_addresses')
+          .delete()
+          .eq('user_id', userId)
+          .eq('id', addressId);
+    });
+
+    if (result.isError) {
+      throw Exception('Failed to delete address: ${result.message}');
+    }
   }
 
   /// Set [addressId] as the default address for [userId].
-  ///
-  /// The DB trigger (`handle_default_address`) automatically demotes the
-  /// previous default, so we only need to set `is_default = true` here.
   Future<void> setDefault(String userId, String addressId) async {
-    // TODO: Implement with Supabase client
+    final result = await SupabaseDb.execute(() async {
+      await SupabaseDb.adminClient
+          .from('user_addresses')
+          .update({'is_default': true})
+          .eq('user_id', userId)
+          .eq('id', addressId);
+    });
+
+    if (result.isError) {
+      throw Exception('Failed to set default address: ${result.message}');
+    }
   }
 }
