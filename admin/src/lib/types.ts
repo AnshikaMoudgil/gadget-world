@@ -106,7 +106,7 @@ export interface Order {
   user_id: string;
   shipping_address_id: string | null;
   order_number: string;
-  status: "pending_payment" | "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+  status: "pending_payment" | "pending" | "confirmed" | "processing" | "shipped" | "out_for_delivery" | "delivered" | "return_requested" | "returned" | "cancelled";
   payment_status: "unpaid" | "processing" | "paid" | "failed" | "refunded";
   payment_method: "cod" | "razorpay" | "bank_transfer" | "upi";
   total_amount: number;
@@ -165,4 +165,48 @@ export interface DashboardStats {
   totalUsers: number;
   totalOrders: number;
   activeProducts: number;
+}
+
+export interface SupportTicket {
+  id: string;
+  user_id: string;
+  order_id: string | null;
+  ticket_number: string;
+  subject: string;
+  category: "general" | "order_issue" | "payment" | "delivery" | "return_refund" | "product" | "account" | "other";
+  status: "open" | "in_progress" | "waiting_customer" | "resolved" | "closed";
+  priority: "low" | "medium" | "high" | "urgent";
+  assigned_to: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+  profile?: Profile;
+  messages?: SupportMessage[];
+}
+
+export interface SupportMessage {
+  id: string;
+  ticket_id: string;
+  sender_id: string;
+  sender_role: "customer" | "admin";
+  message: string;
+  attachments: Record<string, unknown>[];
+  is_internal: boolean;
+  created_at: string;
+  sender?: Profile;
+}
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  title: string;
+  body: string;
+  type: "order_update" | "payment" | "promotion" | "support" | "system" | "delivery";
+  reference_type: string | null;
+  reference_id: string | null;
+  image_url: string | null;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+  user_email?: string;
 }

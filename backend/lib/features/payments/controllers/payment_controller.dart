@@ -11,7 +11,8 @@ class PaymentController {
       final result = await _paymentService.createOrder(userId);
       return Response.ok(jsonEncode(result),
           headers: {'Content-Type': 'application/json'});
-    } catch (e) {
+    } catch (e, st) {
+      print('[PaymentController.createOrder ERROR] $e\n$st');
       return Response(400,
           body: jsonEncode({'error': e.toString()}),
           headers: {'Content-Type': 'application/json'});
@@ -26,14 +27,15 @@ class PaymentController {
 
       await _paymentService.verifyPayment(
         userId: userId,
-        razorpayOrderId: data['razorpayOrderId'],
-        razorpayPaymentId: data['razorpayPaymentId'],
-        razorpaySignature: data['razorpaySignature'],
+        razorpayOrderId: data['razorpayOrderId'] ?? '',
+        razorpayPaymentId: data['razorpayPaymentId'] ?? '',
+        razorpaySignature: data['razorpaySignature'] ?? '',
       );
 
       return Response.ok(jsonEncode({'status': 'success'}),
           headers: {'Content-Type': 'application/json'});
-    } catch (e) {
+    } catch (e, st) {
+      print('[PaymentController.verifyPayment ERROR] $e\n$st');
       return Response(400,
           body: jsonEncode({'error': e.toString()}),
           headers: {'Content-Type': 'application/json'});
@@ -46,7 +48,8 @@ class PaymentController {
       final result = await _paymentService.getOrders(userId);
       return Response.ok(jsonEncode(result),
           headers: {'Content-Type': 'application/json'});
-    } catch (e) {
+    } catch (e, st) {
+      print('[PaymentController.getOrders ERROR] $e\n$st');
       return Response.internalServerError(
           body: jsonEncode({'error': e.toString()}),
           headers: {'Content-Type': 'application/json'});
@@ -65,7 +68,8 @@ class PaymentController {
 
       return Response.ok(jsonEncode({'status': 'ok'}),
           headers: {'Content-Type': 'application/json'});
-    } catch (e) {
+    } catch (e, st) {
+      print('[PaymentController.handleWebhook ERROR] $e\n$st');
       return Response(400,
           body: jsonEncode({'error': e.toString()}),
           headers: {'Content-Type': 'application/json'});

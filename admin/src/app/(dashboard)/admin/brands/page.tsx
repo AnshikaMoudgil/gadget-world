@@ -1,5 +1,8 @@
 "use client";
 
+import MediaUploader from "@/components/MediaUploader";
+import ConfirmModal from "@/components/ConfirmModal";
+import { getGenericErrorMessage } from "@/lib/errorUtils";
 import { useEffect, useState, useCallback } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import type { Brand } from "@/lib/types";
@@ -12,12 +15,18 @@ export default function BrandsPage() {
   const [form, setForm] = useState({ name: "", slug: "", logo_url: "", is_active: true });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ type: string; message: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Brand | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const supabase = createBrowserSupabaseClient();
 
   const loadBrands = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from("brands").select("*").order("name");
-    if (data) setBrands(data);
+    const { data, error } = await supabase.from("brands").select("*").order("name");
+    if (!error) {
+      setBrands(data ?? []);
+    } else {
+      showToast("error", getGenericErrorMessage(error, "Failed to load brands"));
+    }
     setLoading(false);
   }, []);
 
@@ -36,23 +45,39 @@ export default function BrandsPage() {
     if (editingId) { ({ error } = await supabase.from("brands").update(payload).eq("id", editingId)); }
     else { ({ error } = await supabase.from("brands").insert(payload)); }
     setSaving(false);
-    if (error) { showToast("error", error.message); }
-    else { setShowModal(false); loadBrands(); showToast("success", editingId ? "Brand updated" : "Brand created"); }
+    if (error) {
+      showToast("error", getGenericErrorMessage(error, "Failed to save brand"));
+    } else {
+      setShowModal(false);
+      loadBrands();
+      showToast("success", editingId ? "Brand updated" : "Brand created");
+    }
   };
 
-  const deleteBrand = async (id: string) => {
-    if (!confirm("Delete this brand? Products using it may be affected.")) return;
-    const { error } = await supabase.from("brands").delete().eq("id", id);
-    if (!error) { setBrands((prev) => prev.filter((b) => b.id !== id)); showToast("success", "Brand deleted"); }
-    else { showToast("error", error.message); }
+  const handleDeleteBrand = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const { error } = await supabase.from("brands").delete().eq("id", deleteTarget.id);
+    if (!error) {
+      setBrands((prev) => prev.filter((b) => b.id !== deleteTarget.id));
+      showToast("success", "Brand deleted successfully");
+    } else {
+      showToast("error", getGenericErrorMessage(error, "Failed to delete brand"));
+    }
+    setIsDeleting(false);
+    setDeleteTarget(null);
   };
 
   const toggleActive = async (brand: Brand) => {
     const { error } = await supabase.from("brands").update({ is_active: !brand.is_active }).eq("id", brand.id);
-    if (!error) setBrands((prev) => prev.map((b) => b.id === brand.id ? { ...b, is_active: !b.is_active } : b));
+    if (!error) {
+      setBrands((prev) => prev.map((b) => b.id === brand.id ? { ...b, is_active: !b.is_active } : b));
+    } else {
+      showToast("error", getGenericErrorMessage(error, "Failed to update brand status"));
+    }
   };
 
-  const showToast = (type: string, message: string) => { setToast({ type, message }); setTimeout(() => setToast(null), 3000); };
+  const showToast = (type: string, message: string) => { setToast({ type, message }); setTimeout(() => setToast(null), 3500); };
 
   return (
     <div>
@@ -91,15 +116,32 @@ export default function BrandsPage() {
                   </td>
                   <td><code className="text-[0.8125rem] text-text-tertiary">{brand.slug}</code></td>
                   <td>
-                    <label className="toggle" onClick={() => toggleActive(brand)}>
-                      <input type="checkbox" checked={brand.is_active} readOnly /><span className="slider" />
-                    </label>
+                    <button
+                      onClick={() => toggleActive(brand)}
+                      className={`px-3 py-1 text-xs font-bold rounded-full border transition-all ${
+                        brand.is_active
+                          ? "bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200"
+                          : "bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200"
+                      }`}
+                    >
+                      {brand.is_active ? "Active" : "Inactive"}
+                    </button>
                   </td>
                   <td className="text-[0.8125rem] text-text-tertiary">{new Date(brand.created_at).toLocaleDateString()}</td>
                   <td>
-                    <div className="flex gap-1">
-                      <button className="btn btn-ghost btn-sm" onClick={() => openEdit(brand)}>✏️</button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => deleteBrand(brand.id)}>🗑️</button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEdit(brand)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setDeleteTarget(brand)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-colors"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -122,9 +164,14 @@ export default function BrandsPage() {
                 <label className="form-label">Slug</label>
                 <input className="form-input" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} required />
               </div>
-              <div className="flex flex-col gap-1.5 mb-4">
-                <label className="form-label">Logo URL</label>
-                <input className="form-input" placeholder="https://..." value={form.logo_url} onChange={(e) => setForm({ ...form, logo_url: e.target.value })} />
+              <div className="mb-4">
+                <MediaUploader
+                  bucket="brands"
+                  images={form.logo_url ? [form.logo_url] : []}
+                  onChange={(imgs) => setForm({ ...form, logo_url: imgs[0] || "" })}
+                  multiple={false}
+                  label="Brand Logo (Uploaded to Supabase Bucket)"
+                />
               </div>
               <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
                 <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="w-[18px] h-[18px] accent-accent" />
@@ -140,6 +187,18 @@ export default function BrandsPage() {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        title="Delete Brand"
+        message={`Are you sure you want to delete "${deleteTarget?.name}"? Products using this brand may be affected.`}
+        confirmLabel="Delete Brand"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleDeleteBrand}
+        onCancel={() => setDeleteTarget(null)}
+      />
 
       {toast && <div className={`toast ${toast.type === "success" ? "toast-success" : "toast-error"}`}>{toast.message}</div>}
     </div>

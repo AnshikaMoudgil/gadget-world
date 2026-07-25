@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
+import CustomSelect from "@/components/CustomSelect";
+import ConfirmModal from "@/components/ConfirmModal";
+import { getGenericErrorMessage } from "@/lib/errorUtils";
 import type { Product, Category, Brand } from "@/lib/types";
 import Link from "next/link";
 
@@ -17,6 +20,8 @@ export default function ProductsPage() {
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [toast, setToast] = useState<{ type: string; message: string } | null>(null);
+  const [deleteProductTarget, setDeleteProductTarget] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const pageSize = 15;
   const supabase = createBrowserSupabaseClient();
 
@@ -39,6 +44,8 @@ export default function ProductsPage() {
     if (!error) {
       setProducts(data ?? []);
       setTotal(count ?? 0);
+    } else {
+      showToast("error", getGenericErrorMessage(error, "Failed to load products"));
     }
     setLoading(false);
   }, [page, search, categoryFilter, brandFilter, statusFilter]);
@@ -51,8 +58,8 @@ export default function ProductsPage() {
         supabase.from("categories").select("*").order("name"),
         supabase.from("brands").select("*").order("name"),
       ]);
-      if (catRes.data) setCategories(catRes.data);
-      if (brandRes.data) setBrands(brandRes.data);
+      setCategories(catRes.data ?? []);
+      setBrands(brandRes.data ?? []);
     }
     loadFilters();
   }, []);
@@ -62,6 +69,8 @@ export default function ProductsPage() {
     if (!error) {
       setProducts((prev) => prev.map((p) => p.id === product.id ? { ...p, is_active: !p.is_active } : p));
       showToast("success", `Product ${!product.is_active ? "activated" : "deactivated"}`);
+    } else {
+      showToast("error", getGenericErrorMessage(error, "Failed to update product status"));
     }
   };
 
@@ -70,19 +79,24 @@ export default function ProductsPage() {
     if (!error) {
       setProducts((prev) => prev.map((p) => p.id === product.id ? { ...p, is_featured: !p.is_featured } : p));
       showToast("success", `Product ${!product.is_featured ? "featured" : "unfeatured"}`);
+    } else {
+      showToast("error", getGenericErrorMessage(error, "Failed to update featured state"));
     }
   };
 
-  const deleteProduct = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
+  const handleDeleteProduct = async () => {
+    if (!deleteProductTarget) return;
+    setIsDeleting(true);
+    const { error } = await supabase.from("products").delete().eq("id", deleteProductTarget.id);
     if (!error) {
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-      setTotal((t) => t - 1);
-      showToast("success", "Product deleted");
+      setProducts((prev) => prev.filter((p) => p.id !== deleteProductTarget.id));
+      setTotal((t) => Math.max(0, t - 1));
+      showToast("success", "Product deleted successfully");
     } else {
-      showToast("error", "Failed to delete product");
+      showToast("error", getGenericErrorMessage(error, "Failed to delete product"));
     }
+    setIsDeleting(false);
+    setDeleteProductTarget(null);
   };
 
   const showToast = (type: string, message: string) => {
@@ -117,20 +131,47 @@ export default function ProductsPage() {
             onChange={(e) => { setSearch(e.target.value); setPage(0); }}
           />
         </div>
-        <select className="form-select" value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); setPage(0); }}>
-          <option value="">All Categories</option>
-          {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
-        <select className="form-select" value={brandFilter} onChange={(e) => { setBrandFilter(e.target.value); setPage(0); }}>
-          <option value="">All Brands</option>
-          {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-        </select>
-        <select className="form-select" value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}>
-          <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="featured">Featured</option>
-        </select>
+        <div className="w-48">
+          <CustomSelect
+            options={[
+              { value: "", label: "All Categories" },
+              ...categories.map((c) => ({ value: c.id, label: c.name })),
+            ]}
+            value={categoryFilter}
+            onChange={(val) => {
+              setCategoryFilter(val);
+              setPage(0);
+            }}
+          />
+        </div>
+        <div className="w-44">
+          <CustomSelect
+            options={[
+              { value: "", label: "All Brands" },
+              ...brands.map((b) => ({ value: b.id, label: b.name })),
+            ]}
+            value={brandFilter}
+            onChange={(val) => {
+              setBrandFilter(val);
+              setPage(0);
+            }}
+          />
+        </div>
+        <div className="w-40">
+          <CustomSelect
+            options={[
+              { value: "", label: "All Statuses" },
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" },
+              { value: "featured", label: "Featured" },
+            ]}
+            value={statusFilter}
+            onChange={(val) => {
+              setStatusFilter(val);
+              setPage(0);
+            }}
+          />
+        </div>
       </div>
 
       <p className="text-[0.8125rem] text-text-tertiary mb-4">
@@ -173,7 +214,7 @@ export default function ProductsPage() {
                           {product.images?.[0] ? (
                             <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
                           ) : (
-                            <span>📦</span>
+                            <span className="text-[10px] text-text-tertiary font-semibold">No Image</span>
                           )}
                         </div>
                         <div>
@@ -198,21 +239,43 @@ export default function ProductsPage() {
                       </span>
                     </td>
                     <td>
-                      <label className="toggle" onClick={() => toggleActive(product)}>
-                        <input type="checkbox" checked={product.is_active} readOnly />
-                        <span className="slider" />
-                      </label>
+                      <button
+                        onClick={() => toggleActive(product)}
+                        className={`px-3 py-1 text-xs font-bold rounded-full border transition-all ${
+                          product.is_active
+                            ? "bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200"
+                            : "bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200"
+                        }`}
+                      >
+                        {product.is_active ? "Active" : "Inactive"}
+                      </button>
                     </td>
                     <td>
-                      <label className="toggle" onClick={() => toggleFeatured(product)}>
-                        <input type="checkbox" checked={product.is_featured} readOnly />
-                        <span className="slider" />
-                      </label>
+                      <button
+                        onClick={() => toggleFeatured(product)}
+                        className={`px-3 py-1 text-xs font-bold rounded-full border transition-all ${
+                          product.is_featured
+                            ? "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200"
+                            : "bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200"
+                        }`}
+                      >
+                        {product.is_featured ? "Featured" : "Standard"}
+                      </button>
                     </td>
                     <td>
-                      <div className="flex gap-1">
-                        <Link href={`/admin/products/${product.id}`} className="btn btn-ghost btn-sm" title="Edit">✏️</Link>
-                        <button className="btn btn-ghost btn-sm" onClick={() => deleteProduct(product.id)} title="Delete">🗑️</button>
+                      <div className="flex gap-2">
+                        <Link
+                          href={`/admin/products/${product.id}`}
+                          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 transition-colors"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => setDeleteProductTarget(product)}
+                          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-colors"
+                        >
+                          Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -246,6 +309,18 @@ export default function ProductsPage() {
           <button className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium text-text-secondary hover:bg-glass-hover hover:text-text-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>›</button>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deleteProductTarget}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${deleteProductTarget?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete Product"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleDeleteProduct}
+        onCancel={() => setDeleteProductTarget(null)}
+      />
 
       {toast && <div className={`toast ${toast.type === "success" ? "toast-success" : "toast-error"}`}>{toast.message}</div>}
     </div>
