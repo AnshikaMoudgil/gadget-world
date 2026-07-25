@@ -15,6 +15,9 @@ import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:gadget_store/features/orders/providers/order_provider.dart';
 import 'package:gadget_store/features/profile/providers/address_provider.dart';
 import 'package:gadget_store/features/profile/providers/settings_provider.dart';
+import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
+import 'package:gadget_store/features/more/providers/support_provider.dart';
+import 'package:gadget_store/features/more/providers/notification_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +41,9 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => AddressProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => WishlistProvider()),
+        ChangeNotifierProvider(create: (_) => SupportProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: const MyApp(),
     ),
@@ -56,16 +62,22 @@ Future<void> _initializeGoogleSignIn() async {
   }
 }
 
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: rootNavigatorKey,
       title: 'Gadget World',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const AuthGuard(child: SplashScreen()),
+      builder: (context, child) {
+        return AuthGuard(child: child!);
+      },
+      home: const SplashScreen(),
       routes: {'/login': (context) => const LoginScreen()},
     );
   }
@@ -113,26 +125,34 @@ class _AuthGuardState extends State<AuthGuard> {
     );
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final wishlistProvider = Provider.of<WishlistProvider>(context, listen: false);
+    final supportProvider = Provider.of<SupportProvider>(context, listen: false);
+    final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
 
     if (authProvider.isAuthenticated) {
       // User is logged in, fetch their profile data
       profileProvider.fetchProfile();
       cartProvider.loadCart();
       orderProvider.fetchOrders();
+      wishlistProvider.fetchWishlist();
+      supportProvider.fetchTickets();
+      notificationProvider.fetchNotifications();
     } else {
       // User is logged out, clear profile data and redirect to Login Screen
       profileProvider.clearProfile();
       cartProvider.clearCartLocal();
       orderProvider.clearOrders();
+      wishlistProvider.clearWishlistLocal();
+      supportProvider.clearTicketsLocal();
+      notificationProvider.clearNotificationsLocal();
       String? currentRoute;
-      Navigator.popUntil(context, (route) {
+      rootNavigatorKey.currentState?.popUntil((route) {
         currentRoute = route.settings.name;
         return true;
       });
 
       if (currentRoute != '/login') {
-        Navigator.pushAndRemoveUntil(
-          context,
+        rootNavigatorKey.currentState?.pushAndRemoveUntil(
           MaterialPageRoute(
             settings: const RouteSettings(name: '/login'),
             builder: (_) => const LoginScreen(),

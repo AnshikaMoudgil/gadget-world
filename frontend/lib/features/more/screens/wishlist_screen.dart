@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:provider/provider.dart';
+import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
+import 'package:gadget_store/features/products/screens/product_details_screen.dart';
 
 class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
@@ -9,47 +12,6 @@ class WishlistScreen extends StatefulWidget {
 }
 
 class _WishlistScreenState extends State<WishlistScreen> {
-  // Toggle this to true to see the empty state
-  bool _isEmptyState = false;
-
-  final List<Map<String, dynamic>> _wishlistItems = [
-    {
-      'name': 'boAt Rockerz 450',
-      'category': 'Over Ear Headphones',
-      'price': 'â‚¹1,999',
-      'image': Icons.headphones, // Placeholder icon
-    },
-    {
-      'name': 'Noise ColorFit Pulse 3',
-      'category': 'Smartwatch',
-      'price': 'â‚¹5,998',
-      'image': Icons.watch, // Placeholder icon
-    },
-    {
-      'name': 'Ambrane 10000mAh Power Bank',
-      'category': 'Power Bank',
-      'price': 'â‚¹1,199',
-      'image': Icons.battery_charging_full, // Placeholder icon
-    },
-    {
-      'name': 'boAt Airdopes 141',
-      'category': 'Wireless Earbuds',
-      'price': 'â‚¹1,499',
-      'image': Icons.earbuds, // Placeholder icon
-    },
-    {
-      'name': 'OnePlus Nord Buds 2',
-      'category': 'Wireless Earbuds',
-      'price': 'â‚¹2,999',
-      'image': Icons.earbuds, // Placeholder icon
-    },
-    {
-      'name': 'Samsung Galaxy Fit3',
-      'category': 'Smartwatch',
-      'price': 'â‚¹4,999',
-      'image': Icons.watch, // Placeholder icon
-    },
-  ];
 
   void _showRemoveBottomSheet(int index) {
     showModalBottomSheet(
@@ -134,12 +96,11 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          _wishlistItems.removeAt(index);
-                          if (_wishlistItems.isEmpty) {
-                            _isEmptyState = true;
-                          }
-                        });
+                        Provider.of<WishlistProvider>(context, listen: false)
+                            .toggleWishlist(
+                                Provider.of<WishlistProvider>(context, listen: false).items[index].productId,
+                                variantId: Provider.of<WishlistProvider>(context, listen: false).items[index].variantId,
+                            );
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -174,47 +135,50 @@ class _WishlistScreenState extends State<WishlistScreen> {
     return Scaffold(
       backgroundColor: AppTheme.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            if (!_isEmptyState)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${_wishlistItems.length} Items',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.black,
-                      ),
+        child: Consumer<WishlistProvider>(
+          builder: (context, wishlistProvider, child) {
+            final items = wishlistProvider.items;
+            final isEmpty = items.isEmpty;
+
+            return Column(
+              children: [
+                _buildHeader(context, items.length),
+                if (!isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
                     ),
-                    const Text(
-                      'Edit',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.black,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${items.length} Items',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.black,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                Expanded(
+                  child: wishlistProvider.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : isEmpty 
+                          ? _buildEmptyState() 
+                          : _buildProductGrid(items),
                 ),
-              ),
-            Expanded(
-              child: _isEmptyState ? _buildEmptyState() : _buildProductGrid(),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, int itemCount) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Row(
@@ -289,149 +253,162 @@ class _WishlistScreenState extends State<WishlistScreen> {
     );
   }
 
-  Widget _buildProductGrid() {
+  Widget _buildProductGrid(List items) {
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.85, // Adjust for product card height
+        childAspectRatio: 0.7, // Adjusted for typical product cards
       ),
-      itemCount: _wishlistItems.length,
+      itemCount: items.length,
       itemBuilder: (context, index) {
-        final item = _wishlistItems[index];
+        final item = items[index];
         return _buildProductCard(item, index);
       },
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> item, int index) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image Area
-          Expanded(
-            flex: 5,
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppTheme.greyBackground.withValues(alpha: 0.5),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
+  Widget _buildProductCard(dynamic item, int index) {
+    final product = item.product;
+    if (product == null) return const SizedBox.shrink();
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductDetailsScreen(product: product),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Area
+            Expanded(
+              flex: 5,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.greyBackground.withValues(alpha: 0.5),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: product.imageUrl != null
+                          ? Image.network(product.imageUrl!, fit: BoxFit.cover)
+                          : const Icon(Icons.image, size: 48, color: AppTheme.greyText),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: () => _showRemoveBottomSheet(index),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.black,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.favorite,
+                            color: AppTheme.white,
+                            size: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Icon(
-                      item['image'] as IconData,
-                      size: 48,
-                      color: AppTheme.black,
-                    ), // Placeholder for actual image
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: GestureDetector(
-                      onTap: () => _showRemoveBottomSheet(index),
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: AppTheme.black,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.favorite,
-                          color: AppTheme.white,
-                          size: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
-          ),
-          // Details Area
-          Expanded(
-            flex: 6,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['name'],
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.black,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        item['category'],
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: AppTheme.greyText,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        item['price'],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.black,
-                        foregroundColor: AppTheme.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.shopping_cart_outlined, size: 14),
-                          SizedBox(width: 4),
-                          Text(
-                            'Add to Cart',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
+            // Details Area
+            Expanded(
+              flex: 6,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.black,
                           ),
-                        ],
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          product.categoryName ?? 'Category',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.greyText,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '₹${product.price}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Handle add to cart here if needed
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.black,
+                          foregroundColor: AppTheme.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.shopping_cart_outlined, size: 14),
+                            SizedBox(width: 4),
+                            Text(
+                              'Add to Cart',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

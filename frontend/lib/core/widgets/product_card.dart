@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../theme.dart';
 import '../../features/products/models/product_model.dart';
+import '../../features/more/providers/wishlist_provider.dart';
 
 class ProductCard extends StatelessWidget {
+  final String? productId;
   final String imageUrl;
   final String title;
   final String price;
@@ -13,6 +16,7 @@ class ProductCard extends StatelessWidget {
 
   const ProductCard({
     super.key,
+    this.productId,
     required this.imageUrl,
     required this.title,
     required this.price,
@@ -28,6 +32,7 @@ class ProductCard extends StatelessWidget {
   }) {
     return ProductCard(
       key: key,
+      productId: product.id,
       imageUrl: product.imageUrl ?? 'assets/images/laptop.png',
       title: product.name,
       price: NumberFormat.simpleCurrency(
@@ -67,15 +72,33 @@ class ProductCard extends StatelessWidget {
                       child: _ProductImage(imageUrl: imageUrl),
                     ),
                   ),
-                  const Positioned(
-                    top: 4,
-                    right: 4,
-                    child: Icon(
-                      Icons.favorite_border,
-                      size: 20,
-                      color: AppTheme.greyText,
+                  if (productId != null)
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: Consumer<WishlistProvider>(
+                        builder: (context, provider, child) {
+                          final isInWishlist = provider.isInWishlist(productId!);
+                          return GestureDetector(
+                            onTap: () {
+                              provider.toggleWishlist(productId!);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.white.withValues(alpha: 0.8),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isInWishlist ? Icons.favorite : Icons.favorite_border,
+                                size: 20,
+                                color: isInWishlist ? Colors.red : AppTheme.greyText,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

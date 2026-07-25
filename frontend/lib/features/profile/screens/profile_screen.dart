@@ -11,6 +11,8 @@ import 'package:gadget_store/features/orders/providers/order_provider.dart';
 import 'package:gadget_store/features/orders/screens/orders_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/orders/screens/reorder_screen.dart';
+import 'package:gadget_store/features/more/providers/notification_provider.dart';
+import 'package:gadget_store/features/more/screens/notifications_screen.dart';
 
 enum DashboardState { existing, newBuyer }
 
@@ -43,14 +45,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  void _toggleState() {
-    setState(() {
-      _currentState = _currentState == DashboardState.existing
-          ? DashboardState.newBuyer
-          : DashboardState.existing;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final isExisting = _currentState == DashboardState.existing;
@@ -64,11 +58,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildCustomHeader(),
-              const SizedBox(height: 24),
-              if (isExisting)
-                _buildExistingHeroCard()
-              else
-                _buildNewBuyerHeroCard(),
               const SizedBox(height: 32),
 
               if (isExisting) ...[
@@ -184,41 +173,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Row(
               children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.notifications_none,
-                        color: AppTheme.black,
-                      ),
-                      onPressed: _toggleState,
-                    ),
-                    Positioned(
-                      right: 10,
-                      top: 10,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 14,
-                          minHeight: 14,
-                        ),
-                        child: const Text(
-                          '3',
-                          style: TextStyle(
-                            color: AppTheme.white,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
+                Consumer<NotificationProvider>(
+                  builder: (context, notificationProvider, child) {
+                    final unreadCount = notificationProvider.unreadCount;
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.notifications_none,
+                            color: AppTheme.black,
                           ),
-                          textAlign: TextAlign.center,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const NotificationsScreen(),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    ),
-                  ],
+                        if (unreadCount > 0)
+                          Positioned(
+                            right: 10,
+                            top: 10,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 14,
+                                minHeight: 14,
+                              ),
+                              child: Text(
+                                unreadCount > 9 ? '9+' : unreadCount.toString(),
+                                style: const TextStyle(
+                                  color: AppTheme.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 ),
                 IconButton(
                   icon: const Icon(
@@ -246,220 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildExistingHeroCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.green.shade50,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Your Orders',
-                  style: TextStyle(fontSize: 12, color: Colors.green.shade800),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  '3 Active Orders',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.black,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  '2 delivered in the last 30 days',
-                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white,
-                    border: Border.all(color: Colors.green.shade200),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'View All Orders',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Mock graphic
-          SizedBox(
-            width: 80,
-            height: 80,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade200.withValues(alpha: 0.5),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  top: 10,
-                  child: Icon(
-                    Icons.inventory_2,
-                    color: Colors.brown.shade300,
-                    size: 40,
-                  ),
-                ),
-                Positioned(
-                  right: 0,
-                  bottom: 10,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.white,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.shopping_bag,
-                      color: AppTheme.black,
-                      size: 24,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildNewBuyerHeroCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 6,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Welcome to Gadget Store!',
-                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Place your first order',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.black,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Explore our best products and enjoy a seamless shopping experience.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.greyText,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.black,
-                    foregroundColor: AppTheme.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: const Text(
-                    'Start Shopping',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          // Mock graphic
-          Expanded(
-            flex: 4,
-            child: SizedBox(
-              height: 100,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned(
-                    right: 0,
-                    top: 20,
-                    child: Icon(
-                      Icons.inventory_2_outlined,
-                      color: Colors.brown.shade300,
-                      size: 60,
-                    ),
-                  ),
-                  Positioned(
-                    left: 0,
-                    bottom: 10,
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.shopping_bag,
-                        color: AppTheme.black,
-                        size: 40,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildRecentOrders(BuildContext context) {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);

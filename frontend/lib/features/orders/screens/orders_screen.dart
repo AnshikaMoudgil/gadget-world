@@ -4,6 +4,7 @@ import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
 import 'package:gadget_store/features/orders/providers/order_provider.dart';
 import 'package:gadget_store/features/orders/models/order.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -150,7 +151,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () async {
-                        await Supabase.instance.client.auth.signOut();
+                        final authProvider = Provider.of<AuthProvider>(
+                          context,
+                          listen: false,
+                        );
+                        await authProvider.signOut();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.black,

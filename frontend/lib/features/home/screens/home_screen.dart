@@ -209,8 +209,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            _buildSectionHeader('Shop by Category'),
-            _buildCategories(),
+            _buildPromoBanner(),
+            const SizedBox(height: 24),
+            _buildFeatureTabs(),
             const SizedBox(height: 24),
             _buildSectionHeader(
               'Best Sellers',
@@ -335,84 +336,257 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategories() {
-    return Consumer<CatalogProvider>(
-      builder: (context, provider, child) {
-        if (provider.isLoadingCategories) {
-          return const SizedBox(
-            height: 120,
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        final categories = provider.categories;
-
-        if (categories.isEmpty) {
-          return const SizedBox(
-            height: 120,
-            child: Center(child: Text('No categories available.')),
-          );
-        }
-
-        return SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          ProductsByCategoryScreen(category: category),
+  Widget _buildPromoBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFFF3F0FF),
+            Color(0xFFE5E9FF),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: const TextSpan(
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.black,
+                      height: 1.2,
                     ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Column(
                     children: [
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          color: AppTheme.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppTheme.greyBorder),
-                        ),
-                        child: category.imageUrl != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.network(
-                                  category.imageUrl!,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : const Icon(Icons.category_outlined, size: 32),
+                      TextSpan(text: 'Upgrade Your\n'),
+                      TextSpan(
+                        text: 'Tech ',
+                        style: TextStyle(color: Color(0xFF5A5DF0)),
                       ),
-                      const SizedBox(height: 4),
-                      SizedBox(
-                        width: 72,
-                        child: Text(
-                          category.name,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                      ),
+                      TextSpan(text: 'Game'),
                     ],
                   ),
                 ),
-              );
-            },
+                const SizedBox(height: 12),
+                const Text(
+                  'Discover the latest gadgets\nand innovative tech products.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1A1B2F),
+                    foregroundColor: AppTheme.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Text(
+                    'Shop Now',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF1A1B2F),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.greyBorder,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        );
-      },
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Consumer<CatalogProvider>(
+              builder: (context, provider, child) {
+                final products = provider.products;
+                if (products.length >= 2) {
+                  return SizedBox(
+                    width: 200,
+                    height: 180,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Positioned(
+                          right: 0,
+                          bottom: 40,
+                          child: Transform.rotate(
+                            angle: 0.2,
+                            child: SizedBox(
+                              width: 110,
+                              height: 110,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  products[1].images.first,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => const Icon(Icons.image),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 80,
+                          bottom: 10,
+                          child: Transform.rotate(
+                            angle: -0.1,
+                            child: SizedBox(
+                              width: 130,
+                              height: 130,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  products[0].images.first,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => const Icon(Icons.image),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return SizedBox(
+                  width: 140,
+                  height: 140,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        Icons.devices_other,
+                        size: 80,
+                        color: const Color(0xFF5A5DF0).withValues(alpha: 0.2),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureTabs() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+      decoration: BoxDecoration(
+        color: AppTheme.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildFeatureItem(
+            icon: Icons.verified_user_outlined,
+            title: 'Secure\nPayments',
+            subtitle: '100% secure',
+          ),
+          _buildFeatureDivider(),
+          _buildFeatureItem(
+            icon: Icons.local_shipping_outlined,
+            title: 'Free\nDelivery',
+            subtitle: 'Above ₹999',
+          ),
+          _buildFeatureDivider(),
+          _buildFeatureItem(
+            icon: Icons.replay,
+            title: 'Easy\nReturns',
+            subtitle: '7-day return',
+          ),
+          _buildFeatureDivider(),
+          _buildFeatureItem(
+            icon: Icons.support_agent,
+            title: '24/7\nSupport',
+            subtitle: "We're here to help",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, color: const Color(0xFF5A5DF0), size: 24),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.black,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: const TextStyle(
+              fontSize: 9,
+              color: AppTheme.greyText,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureDivider() {
+    return Container(
+      width: 1,
+      height: 40,
+      color: AppTheme.greyBorder.withValues(alpha: 0.3),
     );
   }
 
