@@ -6,6 +6,7 @@ import 'package:gadget_store/core/widgets/product_card.dart';
 import '../models/product_model.dart';
 import '../providers/catalog_provider.dart';
 import 'product_details_screen.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 
 class NewArrivalsScreen extends StatefulWidget {
   const NewArrivalsScreen({super.key});
@@ -80,7 +81,24 @@ class _ProductGrid extends StatelessWidget {
               builder: (_) => ProductDetailsScreen(product: product),
             ),
           ),
-          onAdd: () {},
+          onAdd: () {
+            if (product.stockQuantity > 0) {
+              context.read<CartProvider>().addToCart(product.id, 1);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${product.name} added to cart'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Out of stock'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+          },
         );
       },
     );

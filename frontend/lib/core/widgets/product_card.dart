@@ -87,32 +87,10 @@ class ProductCard extends StatelessWidget {
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  price,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: onAdd,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: AppTheme.black,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.add,
-                      color: AppTheme.white,
-                      size: 18,
-                    ),
-                  ),
-                ),
-              ],
+            Text(
+              price,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

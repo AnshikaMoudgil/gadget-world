@@ -7,6 +7,7 @@ import '../providers/catalog_provider.dart';
 import '../../cart/providers/cart_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:gadget_store/features/checkout/screens/cart_screen.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final ProductModel product;
@@ -259,33 +260,78 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                   ],
                   const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton.icon(
-                      onPressed: _product.stockQuantity > 0
-                          ? () {
-                              context.read<CartProvider>().addToCart(
-                                _product.id,
-                                1,
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    '${_product.name} added to cart',
-                                  ),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            }
-                          : null,
-                      icon: const Icon(Icons.shopping_cart_outlined),
-                      label: const Text('Add to cart'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.black,
-                        foregroundColor: AppTheme.white,
+                  Row(
+                    children: [
+                      SizedBox(
+                        height: 52,
+                        width: 52,
+                        child: OutlinedButton(
+                          onPressed: _product.stockQuantity > 0
+                              ? () async {
+                                  context.read<CartProvider>().addToCart(
+                                    _product.id,
+                                    1,
+                                  );
+
+                                  _showAddedToCartPopup(context);
+                                }
+                              : null,
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            side: const BorderSide(
+                              color: AppTheme.black,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.shopping_cart_outlined,
+                            color: AppTheme.black,
+                            size: 22,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SizedBox(
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed: _product.stockQuantity > 0
+                                ? () async {
+                                    final nav = Navigator.of(context);
+                                    await context
+                                        .read<CartProvider>()
+                                        .addToCart(_product.id, 1);
+                                    if (mounted) {
+                                      nav.push(
+                                        MaterialPageRoute(
+                                          builder: (_) => const CartScreen(),
+                                        ),
+                                      );
+                                    }
+                                  }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.black,
+                              foregroundColor: AppTheme.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Text(
+                              'Buy Now',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -293,6 +339,132 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showAddedToCartPopup(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: AppTheme.white,
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: const [
+                  Icon(Icons.check_circle, color: Colors.green, size: 28),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Added to Cart!',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      color: AppTheme.greyBackground,
+                      child:
+                          _product.imageUrl != null &&
+                              _product.imageUrl!.isNotEmpty
+                          ? Image.network(
+                              _product.imageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) =>
+                                  const Icon(Icons.image_outlined),
+                            )
+                          : const Icon(Icons.image_outlined),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _product.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          NumberFormat.simpleCurrency(
+                            name: 'INR',
+                            decimalDigits: 0,
+                          ).format(_product.price),
+                          style: const TextStyle(color: AppTheme.greyText),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CartScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.black,
+                    foregroundColor: AppTheme.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'View Cart & Checkout',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text(
+                    'Continue Shopping',
+                    style: TextStyle(color: AppTheme.black),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

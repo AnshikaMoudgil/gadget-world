@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.gadget_store"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
