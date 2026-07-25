@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/checkout/screens/order_success_screen.dart';
 import 'package:gadget_store/features/checkout/screens/order_failed_screen.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:razorpay_web/razorpay_web.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gadget_store/features/payments/services/payment_api_service.dart';
 import 'package:gadget_store/features/orders/providers/order_provider.dart';
@@ -161,7 +161,8 @@ class _PaymentScreenState extends State<PaymentScreen>
         },
       };
 
-      _razorpay.open(options);
+      if (!mounted) return;
+      _razorpay.open(options, context: context);
 
       // Also set a 15 second timeout to reset the button if Razorpay fails to open
       Future.delayed(const Duration(seconds: 15), () {

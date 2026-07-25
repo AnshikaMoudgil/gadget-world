@@ -9,6 +9,7 @@ import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart'
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 import 'package:gadget_store/features/products/screens/products_by_category_screen.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import '../widgets/filter_bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -486,7 +487,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         builder: (_) => ProductDetailsScreen(product: product),
                       ),
                     ),
-                    onAdd: () {},
+                    onAdd: () {
+                      if (product.stockQuantity > 0) {
+                        context.read<CartProvider>().addToCart(product.id, 1);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${product.name} added to cart'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Out of stock'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
               );
