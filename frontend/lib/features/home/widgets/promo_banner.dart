@@ -227,4 +227,3 @@ class CustomPromoBanner extends StatelessWidget {
     );
   }
 }
-
