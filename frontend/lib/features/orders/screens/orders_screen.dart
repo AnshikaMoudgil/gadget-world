@@ -6,7 +6,6 @@ import 'package:gadget_store/features/orders/providers/order_provider.dart';
 import 'package:gadget_store/features/orders/models/order.dart';
 import 'package:gadget_store/features/auth/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum OrdersState { loaded, loading, empty }
 

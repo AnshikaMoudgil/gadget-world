@@ -8,7 +8,6 @@ import 'package:gadget_store/features/products/screens/best_sellers_screen.dart'
 import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
-import 'package:gadget_store/features/products/screens/products_by_category_screen.dart';
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import '../widgets/filter_bottom_sheet.dart';
 
@@ -453,7 +452,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Image.network(
                                   products[1].images.first,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) =>
+                                  errorBuilder: (context, error, stackTrace) =>
                                       const Icon(Icons.image),
                                 ),
                               ),
@@ -473,7 +472,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Image.network(
                                   products[0].images.first,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) =>
+                                  errorBuilder: (context, error, stackTrace) =>
                                       const Icon(Icons.image),
                                 ),
                               ),

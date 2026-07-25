@@ -52,7 +52,6 @@ class WishlistProvider extends ChangeNotifier {
           .map((item) => WishlistItem.fromJson(item))
           .toList();
     } catch (e) {
-      print('WISHLIST FETCH ERROR: $e');
       _error = e.toString();
     } finally {
       _isLoading = false;
@@ -137,7 +136,6 @@ class WishlistProvider extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      print('WISHLIST TOGGLE ERROR: $e');
       _error = e.toString();
       notifyListeners();
       // Optionally refresh to ensure state is consistent

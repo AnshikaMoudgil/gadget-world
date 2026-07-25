@@ -52,14 +52,18 @@ class SupportProvider extends ChangeNotifier {
 
     try {
       // Create the ticket
+      final Map<String, dynamic> insertData = {
+        'user_id': _supabase.auth.currentUser!.id,
+        'subject': subject,
+        'category': category,
+      };
+      if (orderId != null) {
+        insertData['order_id'] = orderId;
+      }
+
       final ticketResponse = await _supabase
           .from('support_tickets')
-          .insert({
-            'user_id': _supabase.auth.currentUser!.id,
-            'subject': subject,
-            'category': category,
-            if (orderId != null) 'order_id': orderId,
-          })
+          .insert(insertData)
           .select()
           .single();
 

@@ -193,7 +193,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
         return ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: tickets.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final ticket = tickets[index];
             return InkWell(

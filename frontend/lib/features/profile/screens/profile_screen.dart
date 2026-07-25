@@ -24,7 +24,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  DashboardState _currentState = DashboardState.existing;
+  final DashboardState _currentState = DashboardState.existing;
 
   @override
   void initState() {
