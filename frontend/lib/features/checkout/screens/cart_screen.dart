@@ -41,7 +41,9 @@ class _CartScreenState extends State<CartScreen> {
 
         double subtotal = 0;
         for (var item in items) {
-          final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
+          final price = item.product?['price'] != null
+              ? (double.tryParse(item.product!['price'].toString()) ?? 0.0)
+              : 0.0;
           subtotal += price * item.quantity;
         }
 
@@ -383,7 +385,9 @@ class _CartScreenState extends State<CartScreen> {
     CartProvider cartProvider,
   ) {
     final title = item.product?['name'] as String? ?? 'Unknown Product';
-    final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
+    final price = item.product?['price'] != null
+        ? (double.tryParse(item.product!['price'].toString()) ?? 0.0)
+        : 0.0;
     final totalPrice = price * item.quantity;
     final moq = (item.product?['moq'] as int?) ?? 1;
 

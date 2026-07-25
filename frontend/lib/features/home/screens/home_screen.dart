@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/home/widgets/promo_banner.dart';
 import 'package:gadget_store/core/widgets/logo_widget.dart';
 import 'package:gadget_store/core/widgets/product_card.dart';
 import 'package:gadget_store/features/products/screens/search_results_screen.dart';
@@ -208,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            _buildPromoBanner(),
+            const CustomPromoBanner(),
             const SizedBox(height: 24),
             _buildFeatureTabs(),
             const SizedBox(height: 24),
@@ -335,183 +336,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Icon(Icons.arrow_forward_ios, size: 12),
               ],
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPromoBanner() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          colors: [Color(0xFFF3F0FF), Color(0xFFE5E9FF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: const TextSpan(
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.black,
-                      height: 1.2,
-                    ),
-                    children: [
-                      TextSpan(text: 'Upgrade Your\n'),
-                      TextSpan(
-                        text: 'Tech ',
-                        style: TextStyle(color: Color(0xFF5A5DF0)),
-                      ),
-                      TextSpan(text: 'Game'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Discover the latest gadgets\nand innovative tech products.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.greyText,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const BestSellersScreen(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1A1B2F),
-                    foregroundColor: AppTheme.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: const Text(
-                    'Shop Now',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1A1B2F),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.greyBorder,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Consumer<CatalogProvider>(
-              builder: (context, provider, child) {
-                final products = provider.products;
-                if (products.length >= 2) {
-                  return SizedBox(
-                    width: 200,
-                    height: 180,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Positioned(
-                          right: 0,
-                          bottom: 40,
-                          child: Transform.rotate(
-                            angle: 0.2,
-                            child: SizedBox(
-                              width: 110,
-                              height: 110,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.network(
-                                  products[1].images.first,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(Icons.image),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          right: 80,
-                          bottom: 10,
-                          child: Transform.rotate(
-                            angle: -0.1,
-                            child: SizedBox(
-                              width: 130,
-                              height: 130,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.network(
-                                  products[0].images.first,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(Icons.image),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return SizedBox(
-                  width: 140,
-                  height: 140,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(
-                        Icons.devices_other,
-                        size: 80,
-                        color: const Color(0xFF5A5DF0).withValues(alpha: 0.2),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
         ],
       ),
     );

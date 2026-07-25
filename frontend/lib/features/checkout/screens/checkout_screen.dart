@@ -3,6 +3,7 @@ import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/checkout/screens/payment_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+import 'package:gadget_store/features/profile/providers/address_provider.dart';
 import 'package:intl/intl.dart';
 
 enum CheckoutState { normal, priceChange, processing }
@@ -230,6 +231,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildShippingAddress() {
+    final addressProvider = Provider.of<AddressProvider>(context);
+    final address = addressProvider.defaultAddress;
+
+    if (address == null) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppTheme.white,
+          border: Border.all(color: AppTheme.greyBorder),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Text(
+          'No address selected. Please add an address to proceed.',
+          style: TextStyle(color: AppTheme.greyText),
+        ),
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
       padding: const EdgeInsets.all(16),
@@ -253,48 +273,50 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               children: [
                 Row(
                   children: [
-                    const Text(
-                      'Rohit Sharma',
-                      style: TextStyle(
+                    Text(
+                      address.recipientName,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                         color: AppTheme.black,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.black,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'Default',
-                        style: TextStyle(
-                          color: AppTheme.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
+                    if (address.isDefault) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.black,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'Default',
+                          style: TextStyle(
+                            color: AppTheme.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '456, Lajpat Nagar, Part 2,\nNear Metro Station, New Delhi - 110024',
-                  style: TextStyle(
+                Text(
+                  '${address.addressLine1}, ${address.addressLine2 != null ? '${address.addressLine2}, ' : ''}\n${address.city}, ${address.state} - ${address.postalCode}',
+                  style: const TextStyle(
                     color: AppTheme.greyText,
                     fontSize: 12,
                     height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '+91 98765 43210',
-                  style: TextStyle(
+                Text(
+                  address.phoneNumber,
+                  style: const TextStyle(
                     color: AppTheme.black,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -325,7 +347,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               final item = cart.items[i];
               final product = item.product;
               final variantName = item.variant?['name'] as String? ?? 'Default';
-              final price = (product?['price'] as num?)?.toDouble() ?? 0.0;
+              final price = product?['price'] != null
+                  ? (double.tryParse(product!['price'].toString()) ?? 0.0)
+                  : 0.0;
               final oldPrice = price + (price * 0.1);
 
               return _buildOrderItem(
@@ -676,10 +700,32 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               onPressed: isProcessing
                   ? null
                   : () {
+                      final addressProvider = Provider.of<AddressProvider>(
+                        context,
+                        listen: false,
+                      );
+                      final cartProvider = Provider.of<CartProvider>(
+                        context,
+                        listen: false,
+                      );
+                      final address = addressProvider.defaultAddress;
+                      if (address == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please add a shipping address'),
+                          ),
+                        );
+                        return;
+                      }
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const PaymentScreen(),
+                          builder: (_) => PaymentScreen(
+                            addressId: address.id ?? '',
+                            shippingFee: cartProvider.shippingFee,
+                            discount: cartProvider.discount,
+                          ),
                         ),
                       );
                     },

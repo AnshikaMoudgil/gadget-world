@@ -275,7 +275,9 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                           ),
                         ),
                         Text(
-                          DateFormat('MMM dd, yyyy').format(ticket.createdAt),
+                          DateFormat(
+                            'MMM dd, yyyy',
+                          ).format(ticket.createdAt.toLocal()),
                           style: const TextStyle(
                             fontSize: 10,
                             color: AppTheme.greyText,
