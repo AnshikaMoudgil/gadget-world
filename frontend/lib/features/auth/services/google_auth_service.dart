@@ -39,17 +39,12 @@ class GoogleAuthService {
     _currentNonce = _generateNonce();
     final hashedNonce = _sha256ofString(_currentNonce!);
 
-    // Initialize the singleton.
-    // Web: clientId identifies the app to Google Identity Services.
-    // Android: serverClientId (the web client ID) is required to get an ID token.
-    // iOS: not configured yet — needs its own clientId when iOS support is added.
     await google.GoogleSignIn.instance.initialize(
       clientId: kIsWeb ? webClientId : null,
       serverClientId: kIsWeb ? null : webClientId,
-      nonce: hashedNonce, // Google gets the hashed nonce
+      nonce: hashedNonce,
     );
 
-    // On web, the renderButton automatically triggers this stream when the user logs in.
     if (kIsWeb) {
       google.GoogleSignIn.instance.authenticationEvents.listen((event) async {
         if (event is google.GoogleSignInAuthenticationEventSignIn) {
@@ -58,7 +53,6 @@ class GoogleAuthService {
           final idToken = googleAuth.idToken;
 
           if (idToken != null) {
-            // We must retrieve the auth client for access token in v7
             final authz = await account.authorizationClient
                 .authorizationForScopes([]);
             final accessToken = authz?.accessToken;
@@ -70,13 +64,10 @@ class GoogleAuthService {
                 accessToken: accessToken,
                 nonce: _currentNonce,
               );
-
               if (res.user != null) {
-                // Profile row is auto-created by the DB trigger (handle_new_user_signup).
                 authSuccessStream.add(null);
               }
             } catch (e) {
-              debugPrint("Supabase sign in failed from stream: $e");
               if (e is AuthException) {
                 authErrorStream.add(e.message);
               } else {
@@ -89,12 +80,11 @@ class GoogleAuthService {
     }
   }
 
-  // Sign in with Google (used for Android/iOS primarily)
-  // On web, the renderButton handles it via the stream listener above.
+  /// Sign in with Google (supports Web, Android, iOS)
   Future<AuthResponse?> signInWithGoogle() async {
     if (kIsWeb) {
-      // On web, we don't manually call authenticate(). The renderButton does it.
-      // Returning null here because the actual login happens in the stream listener above.
+      // On web, the renderButton overlay handles auth via the stream listener.
+      // Returning null here; actual login completes through authenticationEvents.
       return null;
     }
 
@@ -109,7 +99,9 @@ class GoogleAuthService {
     final googleAuth = googleUser.authentication;
     final idToken = googleAuth.idToken;
 
-    if (idToken == null) throw 'No ID Token found.';
+    if (idToken == null) {
+      throw 'No ID Token found.';
+    }
 
     final authz = await googleUser.authorizationClient.authorizationForScopes(
       [],
@@ -123,7 +115,6 @@ class GoogleAuthService {
       nonce: _currentNonce,
     );
 
-    // Profile row is auto-created by the DB trigger (handle_new_user_signup).
     return res;
   }
 }
