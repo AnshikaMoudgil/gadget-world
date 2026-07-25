@@ -9,6 +9,11 @@ import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:gadget_store/features/profile/providers/address_provider.dart';
+import 'package:gadget_store/features/profile/providers/settings_provider.dart';
+import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
+import 'package:gadget_store/features/more/providers/support_provider.dart';
+import 'package:gadget_store/features/more/providers/notification_provider.dart';
 import 'package:gadget_store/main.dart';
 
 void main() {
@@ -29,6 +34,11 @@ void main() {
           ChangeNotifierProvider(create: (_) => CatalogProvider()),
           ChangeNotifierProvider(create: (_) => CartProvider()),
           ChangeNotifierProvider(create: (_) => OrderProvider()),
+          ChangeNotifierProvider(create: (_) => AddressProvider()),
+          ChangeNotifierProvider(create: (_) => SettingsProvider()),
+          ChangeNotifierProvider(create: (_) => WishlistProvider()),
+          ChangeNotifierProvider(create: (_) => SupportProvider()),
+          ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ],
         child: const MyApp(),
       ),

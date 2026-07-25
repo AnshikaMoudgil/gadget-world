@@ -415,7 +415,9 @@ class _ReorderScreenState extends State<ReorderScreen> {
     }
 
     // Format date
-    final String dateStr = DateFormat('dd MMM yyyy').format(order.createdAt);
+    final String dateStr = DateFormat(
+      'dd MMM yyyy',
+    ).format(order.createdAt.toLocal());
 
     // Status color
     Color statusColor = Colors.orange;

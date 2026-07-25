@@ -8,6 +8,7 @@ import '../../cart/providers/cart_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:gadget_store/features/checkout/screens/cart_screen.dart';
+import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final ProductModel product;
@@ -81,7 +82,20 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               );
             },
           ),
-          IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
+          Consumer<WishlistProvider>(
+            builder: (context, provider, child) {
+              final isInWishlist = provider.isInWishlist(_product.id);
+              return IconButton(
+                icon: Icon(
+                  isInWishlist ? Icons.favorite : Icons.favorite_border,
+                  color: isInWishlist ? Colors.red : null,
+                ),
+                onPressed: () {
+                  provider.toggleWishlist(_product.id);
+                },
+              );
+            },
+          ),
         ],
       ),
       body: SingleChildScrollView(

@@ -15,13 +15,23 @@ class PaymentApiService {
     return base.endsWith('/api') ? base : '$base/api';
   }
 
-  Future<Map<String, dynamic>> createOrder(String token) async {
+  Future<Map<String, dynamic>> createOrder({
+    required String token,
+    required String addressId,
+    required double shippingFee,
+    required double discount,
+  }) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/payments/create-order'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
+      body: jsonEncode({
+        'addressId': addressId,
+        'shippingFee': shippingFee,
+        'discount': discount,
+      }),
     );
 
     if (response.statusCode >= 200 && response.statusCode < 300) {

@@ -54,9 +54,13 @@ class ProductVariant {
     return ProductVariant(
       id: json['id'] as String? ?? '',
       name: json['variant_name'] as String? ?? json['name'] as String? ?? '',
-      price: json['price'] != null ? (json['price'] as num).toDouble() : null,
+      price: json['price'] != null
+          ? double.tryParse(json['price'].toString())
+          : null,
       images: _stringList(json['images']),
-      stockQuantity: (json['stock_quantity'] as num?)?.toInt() ?? 0,
+      stockQuantity: json['stock_quantity'] != null
+          ? (int.tryParse(json['stock_quantity'].toString()) ?? 0)
+          : 0,
     );
   }
 }
@@ -120,9 +124,13 @@ class ProductModel {
       description: json['description'] as String?,
       aboutPoints: _stringList(json['about_points']),
       images: _stringList(json['images']),
-      price: (json['price'] as num?)?.toDouble() ?? 0,
-      mrp: json['mrp'] != null ? (json['mrp'] as num).toDouble() : null,
-      stockQuantity: (json['stock_quantity'] as num?)?.toInt() ?? 0,
+      price: json['price'] != null
+          ? (double.tryParse(json['price'].toString()) ?? 0.0)
+          : 0.0,
+      mrp: json['mrp'] != null ? double.tryParse(json['mrp'].toString()) : null,
+      stockQuantity: json['stock_quantity'] != null
+          ? (int.tryParse(json['stock_quantity'].toString()) ?? 0)
+          : 0,
       isActive: json['is_active'] as bool? ?? true,
       isFeatured: json['is_featured'] as bool? ?? false,
       specs: _mapList(

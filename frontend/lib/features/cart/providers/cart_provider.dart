@@ -22,7 +22,9 @@ class CartProvider extends ChangeNotifier {
     if (_cart == null) return 0.0;
     double total = 0;
     for (var item in _cart!.items) {
-      final price = (item.product?['price'] as num?)?.toDouble() ?? 0.0;
+      final price = item.product?['price'] != null
+          ? (double.tryParse(item.product!['price'].toString()) ?? 0.0)
+          : 0.0;
       total += price * item.quantity;
     }
     return total;

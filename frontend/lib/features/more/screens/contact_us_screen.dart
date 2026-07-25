@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/more/providers/support_provider.dart';
+import 'package:gadget_store/features/more/screens/ticket_chat_screen.dart';
+import 'package:intl/intl.dart';
 
 enum ContactState { form, submitting, success }
 
@@ -10,121 +14,284 @@ class ContactUsScreen extends StatefulWidget {
   State<ContactUsScreen> createState() => _ContactUsScreenState();
 }
 
-class _ContactUsScreenState extends State<ContactUsScreen> {
+class _ContactUsScreenState extends State<ContactUsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   ContactState _currentState = ContactState.form;
   bool _hasMessageError = false;
+  bool _hasSubjectError = false;
 
-  final TextEditingController _nameController = TextEditingController(
-    text: 'Rohit Sharma',
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: 'rohit.sharma@example.com',
-  );
-  final TextEditingController _phoneController = TextEditingController(
-    text: '+91 98765 43210',
-  );
+  final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
+
+  String _selectedCategory = 'general';
+  final List<String> _categories = [
+    'general',
+    'order_issue',
+    'payment',
+    'delivery',
+    'return_refund',
+    'product',
+    'account',
+    'other',
+  ];
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _messageController.addListener(() {
-      setState(() {}); // Rebuild to update character count
+      setState(() {});
     });
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
+    _tabController.dispose();
+    _subjectController.dispose();
     _messageController.dispose();
     super.dispose();
   }
 
-  void _handleSubmit() {
-    // Basic validation for mockup purposes: if empty or 'error', show error
-    if (_messageController.text.trim().isEmpty ||
-        _messageController.text.toLowerCase() == 'error') {
-      setState(() {
-        _hasMessageError = true;
-      });
+  Future<void> _handleSubmit() async {
+    if (_subjectController.text.trim().isEmpty) {
+      setState(() => _hasSubjectError = true);
+      return;
+    }
+    if (_messageController.text.trim().isEmpty) {
+      setState(() => _hasMessageError = true);
       return;
     }
 
     setState(() {
+      _hasSubjectError = false;
       _hasMessageError = false;
       _currentState = ContactState.submitting;
     });
 
-    // Simulate network request
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
+    final provider = Provider.of<SupportProvider>(context, listen: false);
+    final success = await provider.createTicket(
+      subject: _subjectController.text.trim(),
+      category: _selectedCategory,
+      message: _messageController.text.trim(),
+    );
+
+    if (mounted) {
+      if (success) {
         setState(() {
           _currentState = ContactState.success;
         });
+      } else {
+        setState(() {
+          _currentState = ContactState.form;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(provider.error ?? 'Failed to create ticket')),
+        );
       }
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: _currentState == ContactState.success
-                    ? _buildSuccessView()
-                    : _buildFormView(),
+      appBar: AppBar(
+        backgroundColor: AppTheme.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppTheme.black),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(
+              'Support',
+              style: TextStyle(
+                color: AppTheme.black,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            Text(
+              "We're here to help",
+              style: TextStyle(color: AppTheme.greyText, fontSize: 12),
             ),
           ],
         ),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: AppTheme.black,
+          unselectedLabelColor: AppTheme.greyText,
+          indicatorColor: AppTheme.black,
+          tabs: const [
+            Tab(text: 'My Tickets'),
+            Tab(text: 'New Ticket'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [_buildMyTicketsView(), _buildFormArea()],
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppTheme.black),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Contact Us',
-                    style: TextStyle(
-                      color: AppTheme.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+  Widget _buildFormArea() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: _currentState == ContactState.success
+          ? _buildSuccessView()
+          : _buildFormView(),
+    );
+  }
+
+  Widget _buildMyTicketsView() {
+    return Consumer<SupportProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final tickets = provider.tickets;
+
+        if (tickets.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.support_agent,
+                  size: 64,
+                  color: AppTheme.greyText,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'No tickets yet',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Create a new ticket if you need help',
+                  style: TextStyle(color: AppTheme.greyText),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    _tabController.animateTo(1);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.black,
+                    foregroundColor: AppTheme.white,
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    "We're here to help. Send us a message.",
-                    style: TextStyle(color: AppTheme.greyText, fontSize: 12),
-                  ),
-                ],
-              ),
+                  child: const Text('Create Ticket'),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
+          );
+        }
+
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: tickets.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final ticket = tickets[index];
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TicketChatScreen(ticket: ticket),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppTheme.greyBorder),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          ticket.ticketNumber,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                ticket.status == 'open' ||
+                                    ticket.status == 'in_progress'
+                                ? Colors.orange.shade100
+                                : Colors.green.shade100,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            ticket.status.toUpperCase(),
+                            style: TextStyle(
+                              color:
+                                  ticket.status == 'open' ||
+                                      ticket.status == 'in_progress'
+                                  ? Colors.orange.shade800
+                                  : Colors.green.shade800,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      ticket.subject,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          ticket.category.replaceAll('_', ' ').toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.greyText,
+                          ),
+                        ),
+                        Text(
+                          DateFormat(
+                            'MMM dd, yyyy',
+                          ).format(ticket.createdAt.toLocal()),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.greyText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -134,25 +301,39 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildLabel('Full Name'),
-          _buildTextField(
-            controller: _nameController,
-            hint: 'Enter full name',
-            icon: Icons.person_outline,
+          _buildLabel('Category'),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppTheme.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.greyBorder),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _selectedCategory,
+                isExpanded: true,
+                items: _categories
+                    .map(
+                      (c) => DropdownMenuItem(
+                        value: c,
+                        child: Text(c.replaceAll('_', ' ').toUpperCase()),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedCategory = val);
+                },
+              ),
+            ),
           ),
           const SizedBox(height: 16),
-          _buildLabel('Email Address'),
+          _buildLabel('Subject'),
           _buildTextField(
-            controller: _emailController,
-            hint: 'Enter email address',
-            icon: Icons.email_outlined,
-          ),
-          const SizedBox(height: 16),
-          _buildLabel('Phone Number'),
-          _buildTextField(
-            controller: _phoneController,
-            hint: 'Enter phone number',
-            icon: Icons.phone_outlined,
+            controller: _subjectController,
+            hint: 'E.g. Issue with order #123',
+            icon: Icons.title,
+            hasError: _hasSubjectError,
           ),
           const SizedBox(height: 16),
           _buildLabel('Message'),
@@ -185,8 +366,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                disabledBackgroundColor: AppTheme
-                    .black, // Keep it black even when disabled for loading state
+                disabledBackgroundColor: AppTheme.black,
               ),
               child: _currentState == ContactState.submitting
                   ? Row(
@@ -229,7 +409,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                             ),
                             SizedBox(width: 8),
                             Text(
-                              'Submit Inquiry',
+                              'Submit Ticket',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -252,7 +432,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
           ),
           const SizedBox(height: 24),
           _buildSupportInfoCard(),
-          const SizedBox(height: 48), // Scroll padding
+          const SizedBox(height: 48),
         ],
       ),
     );
@@ -276,12 +456,13 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     required TextEditingController controller,
     required String hint,
     required IconData icon,
+    bool hasError = false,
   }) {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.greyBorder),
+        border: Border.all(color: hasError ? Colors.red : AppTheme.greyBorder),
       ),
       child: TextField(
         controller: controller,
@@ -318,12 +499,11 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
             maxLength: 500,
             style: const TextStyle(fontSize: 14, color: AppTheme.black),
             decoration: const InputDecoration(
-              hintText:
-                  'I want to know more about bulk orders and corporate discounts.',
+              hintText: 'Describe your issue in detail...',
               hintStyle: TextStyle(fontSize: 14, color: AppTheme.greyText),
               border: InputBorder.none,
               contentPadding: EdgeInsets.all(16),
-              counterText: '', // We use a custom counter
+              counterText: '',
             ),
           ),
           Padding(
@@ -409,7 +589,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Thank You!',
+            'Ticket Created!',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -418,69 +598,10 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Your message has been sent successfully.\nWe\'ll get back to you soon.',
+            'Your ticket has been submitted successfully.\nWe\'ll get back to you soon.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
-              color: AppTheme.greyText,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 32),
-          // Ticket ID Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppTheme.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppTheme.greyBorder,
-                style: BorderStyle.solid,
-              ), // Flutter doesn't have dashed border built-in without packages, using solid
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Your Ticket ID',
-                      style: TextStyle(fontSize: 12, color: AppTheme.greyText),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '#TKT-250709',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.greyBackground.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.copy_outlined,
-                    size: 20,
-                    color: AppTheme.black,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'You will also receive a confirmation email\nshortly.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
               color: AppTheme.greyText,
               height: 1.4,
             ),
@@ -490,8 +611,12 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                // Navigate back to home/dashboard
-                Navigator.pop(context);
+                setState(() {
+                  _subjectController.clear();
+                  _messageController.clear();
+                  _currentState = ContactState.form;
+                  _tabController.animateTo(0); // Go back to My Tickets
+                });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.black,
@@ -505,37 +630,12 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   Text(
-                    'Back to Home',
+                    'View My Tickets',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(width: 8),
                   Icon(Icons.arrow_forward, size: 20),
                 ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _messageController.clear();
-                  _currentState = ContactState.form;
-                });
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.black,
-                side: const BorderSide(color: AppTheme.greyBorder),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              icon: const Icon(Icons.email_outlined, size: 20),
-              label: const Text(
-                'Email Us Again',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
             ),
           ),

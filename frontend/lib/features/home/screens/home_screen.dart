@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/home/widgets/promo_banner.dart';
 import 'package:gadget_store/core/widgets/logo_widget.dart';
 import 'package:gadget_store/core/widgets/product_card.dart';
 import 'package:gadget_store/features/products/screens/search_results_screen.dart';
@@ -8,7 +9,6 @@ import 'package:gadget_store/features/products/screens/best_sellers_screen.dart'
 import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
-import 'package:gadget_store/features/products/screens/products_by_category_screen.dart';
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import '../widgets/filter_bottom_sheet.dart';
 
@@ -209,8 +209,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            _buildSectionHeader('Shop by Category'),
-            _buildCategories(),
+            const CustomPromoBanner(),
+            const SizedBox(height: 24),
+            _buildFeatureTabs(),
             const SizedBox(height: 24),
             _buildSectionHeader(
               'Best Sellers',
@@ -293,14 +294,18 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           if (onViewAll != null)
             GestureDetector(
               onTap: onViewAll,
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
                     'View All',
@@ -317,6 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           else
             Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
                   'View All',
@@ -335,84 +341,83 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategories() {
-    return Consumer<CatalogProvider>(
-      builder: (context, provider, child) {
-        if (provider.isLoadingCategories) {
-          return const SizedBox(
-            height: 120,
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        final categories = provider.categories;
-
-        if (categories.isEmpty) {
-          return const SizedBox(
-            height: 120,
-            child: Center(child: Text('No categories available.')),
-          );
-        }
-
-        return SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          ProductsByCategoryScreen(category: category),
-                    ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          color: AppTheme.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppTheme.greyBorder),
-                        ),
-                        child: category.imageUrl != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.network(
-                                  category.imageUrl!,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : const Icon(Icons.category_outlined, size: 32),
-                      ),
-                      const SizedBox(height: 4),
-                      SizedBox(
-                        width: 72,
-                        child: Text(
-                          category.name,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+  Widget _buildFeatureTabs() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+      decoration: BoxDecoration(
+        color: AppTheme.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildFeatureItem(
+            icon: Icons.verified_user_outlined,
+            title: 'Secure\nPayments',
+            subtitle: '100% secure',
           ),
-        );
-      },
+          _buildFeatureDivider(),
+          _buildFeatureItem(
+            icon: Icons.local_shipping_outlined,
+            title: 'Free\nDelivery',
+            subtitle: 'Above ₹999',
+          ),
+          _buildFeatureDivider(),
+          _buildFeatureItem(
+            icon: Icons.replay,
+            title: 'Easy\nReturns',
+            subtitle: '7-day return',
+          ),
+          _buildFeatureDivider(),
+          _buildFeatureItem(
+            icon: Icons.support_agent,
+            title: '24/7\nSupport',
+            subtitle: "We're here to help",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, color: const Color(0xFF5A5DF0), size: 24),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.black,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: const TextStyle(fontSize: 9, color: AppTheme.greyText),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureDivider() {
+    return Container(
+      width: 1,
+      height: 40,
+      color: AppTheme.greyBorder.withValues(alpha: 0.3),
     );
   }
 

@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   flutter_inappwebview_linux
   gtk
+  printing
   url_launcher_linux
 )
 

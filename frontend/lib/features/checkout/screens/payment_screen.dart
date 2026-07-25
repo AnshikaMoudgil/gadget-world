@@ -13,7 +13,15 @@ import 'package:intl/intl.dart';
 enum PaymentState { initial, processing }
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+  final String addressId;
+  final double shippingFee;
+  final double discount;
+  const PaymentScreen({
+    super.key,
+    required this.addressId,
+    required this.shippingFee,
+    required this.discount,
+  });
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -142,7 +150,12 @@ class _PaymentScreenState extends State<PaymentScreen>
       final token = Supabase.instance.client.auth.currentSession?.accessToken;
       if (token == null) throw Exception('User not authenticated');
 
-      final orderData = await _paymentApiService.createOrder(token);
+      final orderData = await _paymentApiService.createOrder(
+        token: token,
+        addressId: widget.addressId,
+        shippingFee: widget.shippingFee,
+        discount: widget.discount,
+      );
 
       final keyId = orderData['keyId'] as String? ?? '';
       final orderId = orderData['orderId'] as String? ?? '';

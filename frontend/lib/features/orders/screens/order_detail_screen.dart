@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 
 import 'package:gadget_store/features/orders/models/order.dart';
+import 'package:gadget_store/features/orders/utils/invoice_generator.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final Order order;
@@ -69,6 +70,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     _buildActionTile(
                       Icons.download_outlined,
                       'Download Invoice',
+                      onTap: () {
+                        InvoiceGenerator.generateAndPrintInvoice(widget.order);
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildActionTile(
@@ -154,6 +158,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   String _formatDate(DateTime date) {
+    date = date.toLocal();
     final day = date.day.toString().padLeft(2, '0');
     final month = _getMonth(date.month);
     final year = date.year;
@@ -500,8 +505,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final confirmedDate = widget.order.createdAt.add(
       const Duration(minutes: 45),
     );
-    final shippedDate = widget.order.createdAt.add(const Duration(days: 1));
-    final deliveredDate = widget.order.createdAt.add(const Duration(days: 2));
+    final shippedDate =
+        widget.order.shippedAt ??
+        widget.order.createdAt.add(const Duration(days: 1));
+    final deliveredDate =
+        widget.order.deliveredAt ??
+        widget.order.createdAt.add(const Duration(days: 2));
 
     String displayDate = '';
     if (isDelivered) {
@@ -614,7 +623,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   _buildTimelineItem(
                     'Delivered',
                     isDelivered
-                        ? _formatDate(deliveredDate)
+                        ? (widget.order.deliveredAt != null
+                              ? _formatDate(widget.order.deliveredAt!)
+                              : _formatDate(deliveredDate))
                         : 'Expected on ${_formatDate(deliveredDate)}',
                     isDelivered,
                     isDelivered,
@@ -749,14 +760,38 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Address used during checkout will be displayed here.\nFor now, we are delivering to your saved address.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.greyText,
-                    height: 1.4,
+                if (widget.order.shippingAddress != null) ...[
+                  Text(
+                    widget.order.shippingAddress!.recipientName,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.black,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${widget.order.shippingAddress!.addressLine1}, ${widget.order.shippingAddress!.addressLine2 != null ? '${widget.order.shippingAddress!.addressLine2}, ' : ''}\n${widget.order.shippingAddress!.city}, ${widget.order.shippingAddress!.state} - ${widget.order.shippingAddress!.postalCode}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.greyText,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.order.shippingAddress!.phoneNumber,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.black,
+                    ),
+                  ),
+                ] else
+                  const Text(
+                    'No shipping address available.',
+                    style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                  ),
               ],
             ),
           ),
@@ -848,14 +883,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       0,
       (sum, item) => sum + item.quantity,
     );
-    final subtotal = widget.order.items.fold<double>(
-      0,
-      (sum, item) => sum + item.amount,
-    );
-
-    // Reverse calculate shipping and discount to match total.
-    // This assumes if amount > 50000 there is 0 shipping, otherwise 49.
-    final shipping = subtotal > 50000 ? 0.0 : 49.0;
+    final subtotal = widget.order.subtotal;
+    final shipping = widget.order.shippingFee;
+    final discount = widget.order.discount;
 
     // We can infer the discount if the subtotal + shipping > total
     // But since the API returns amount as total, let's just make it simple
@@ -914,6 +944,25 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               ),
             ],
           ),
+          if (discount > 0) ...[
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Discount',
+                    style: TextStyle(fontSize: 10, color: Colors.green),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '- ₹${discount.toStringAsFixed(0)}',
+                  style: const TextStyle(fontSize: 10, color: Colors.green),
+                ),
+              ],
+            ),
+          ],
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0),
             child: Divider(color: AppTheme.greyBorder, height: 1),
@@ -952,30 +1001,33 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
-  Widget _buildActionTile(IconData icon, String title) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: AppTheme.black, size: 20),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.black,
+  Widget _buildActionTile(IconData icon, String title, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppTheme.white,
+          border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: AppTheme.black, size: 20),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
               ),
             ),
-          ),
-          const Icon(Icons.chevron_right, color: AppTheme.greyText, size: 20),
-        ],
+            const Icon(Icons.chevron_right, color: AppTheme.greyText, size: 20),
+          ],
+        ),
       ),
     );
   }

@@ -9,7 +9,12 @@ class PaymentService {
   final CartService _cartService = CartService();
   final RazorpayService _razorpayService = RazorpayService();
 
-  Future<Map<String, dynamic>> createOrder(String userId) async {
+  Future<Map<String, dynamic>> createOrder(
+    String userId, {
+    String? addressId,
+    double shippingFee = 0.0,
+    double discount = 0.0,
+  }) async {
     // 1. Fetch user's cart
     final cartResult = await _cartService.getCart(userId);
     if (cartResult.isError) {
@@ -59,8 +64,11 @@ class PaymentService {
               'status': 'pending_payment',
               'payment_status': 'unpaid',
               'payment_method': 'razorpay',
-              'total_amount': totalAmount,
+              'total_amount': totalAmount + shippingFee - discount,
               'subtotal': totalAmount,
+              if (addressId != null) 'address_id': addressId,
+              'shipping_fee': shippingFee,
+              'discount': discount,
             })
             .select()
             .single());
@@ -97,7 +105,7 @@ class PaymentService {
               'order_id': orderId,
               'provider': 'razorpay',
               'razorpay_order_id': razorpayOrderId,
-              'amount': totalAmount,
+              'amount': totalAmount + shippingFee - discount,
               'currency': currency,
               'status': 'created',
             })
@@ -193,7 +201,8 @@ class PaymentService {
         () => SupabaseDb.adminClient.from('orders').select('''
           *,
           order_items (*, products(*)),
-          payments (*)
+          payments (*),
+          user_addresses!orders_address_id_fkey (*)
         ''').eq('user_id', userId).order('created_at', ascending: false));
 
     if (result.isError) {
