@@ -151,18 +151,18 @@ class PaymentService {
     final double amount = (paymentRes.data!['amount'] as num).toDouble();
 
     // 3. Call confirm_order_payment RPC or update orders/payments directly
-    try {
-      await SupabaseDb.execute(() => SupabaseDb.adminClient.rpc(
-            'confirm_order_payment',
-            params: {
-              'p_order_id': orderId,
-              'p_razorpay_payment_id': razorpayPaymentId,
-              'p_razorpay_order_id': razorpayOrderId,
-              'p_razorpay_signature': razorpaySignature,
-              'p_amount': amount,
-            },
-          ));
-    } catch (_) {
+    final rpcResult = await SupabaseDb.execute(() => SupabaseDb.adminClient.rpc(
+          'confirm_order_payment',
+          params: {
+            'p_order_id': orderId,
+            'p_razorpay_payment_id': razorpayPaymentId,
+            'p_razorpay_order_id': razorpayOrderId,
+            'p_razorpay_signature': razorpaySignature,
+            'p_amount': amount,
+          },
+        ));
+
+    if (rpcResult.isError) {
       await SupabaseDb.adminClient.from('payments').update({
         'status': 'captured',
         'razorpay_payment_id': razorpayPaymentId,
