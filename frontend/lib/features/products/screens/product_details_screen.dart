@@ -269,9 +269,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           onPressed: _product.stockQuantity > 0
                               ? () async {
                                   context.read<CartProvider>().addToCart(
-                                        _product.id,
-                                        1,
-                                      );
+                                    _product.id,
+                                    1,
+                                  );
 
                                   _showAddedToCartPopup(context);
                                 }
@@ -303,10 +303,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                     final nav = Navigator.of(context);
                                     await context
                                         .read<CartProvider>()
-                                        .addToCart(
-                                          _product.id,
-                                          1,
-                                        );
+                                        .addToCart(_product.id, 1);
                                     if (mounted) {
                                       nav.push(
                                         MaterialPageRoute(
@@ -391,7 +388,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       width: 60,
                       height: 60,
                       color: AppTheme.greyBackground,
-                      child: _product.imageUrl != null &&
+                      child:
+                          _product.imageUrl != null &&
                               _product.imageUrl!.isNotEmpty
                           ? Image.network(
                               _product.imageUrl!,
@@ -416,8 +414,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         const SizedBox(height: 4),
                         Text(
                           NumberFormat.simpleCurrency(
-                                  name: 'INR', decimalDigits: 0)
-                              .format(_product.price),
+                            name: 'INR',
+                            decimalDigits: 0,
+                          ).format(_product.price),
                           style: const TextStyle(color: AppTheme.greyText),
                         ),
                       ],
@@ -434,8 +433,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     Navigator.pop(ctx);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (_) => const CartScreen()),
+                      MaterialPageRoute(builder: (_) => const CartScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
