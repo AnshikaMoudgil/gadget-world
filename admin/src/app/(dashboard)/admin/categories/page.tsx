@@ -1,5 +1,8 @@
 "use client";
 
+import MediaUploader from "@/components/MediaUploader";
+import ConfirmModal from "@/components/ConfirmModal";
+import { getGenericErrorMessage } from "@/lib/errorUtils";
 import { useEffect, useState, useCallback } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import type { Category } from "@/lib/types";
@@ -12,12 +15,18 @@ export default function CategoriesPage() {
   const [form, setForm] = useState({ name: "", slug: "", image_url: "", is_active: true });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ type: string; message: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const supabase = createBrowserSupabaseClient();
 
   const loadCategories = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from("categories").select("*").order("name");
-    if (data) setCategories(data);
+    const { data, error } = await supabase.from("categories").select("*").order("name");
+    if (!error) {
+      setCategories(data ?? []);
+    } else {
+      showToast("error", getGenericErrorMessage(error, "Failed to load categories"));
+    }
     setLoading(false);
   }, []);
 
@@ -36,23 +45,39 @@ export default function CategoriesPage() {
     if (editingId) { ({ error } = await supabase.from("categories").update(payload).eq("id", editingId)); }
     else { ({ error } = await supabase.from("categories").insert(payload)); }
     setSaving(false);
-    if (error) { showToast("error", error.message); }
-    else { setShowModal(false); loadCategories(); showToast("success", editingId ? "Category updated" : "Category created"); }
+    if (error) {
+      showToast("error", getGenericErrorMessage(error, "Failed to save category"));
+    } else {
+      setShowModal(false);
+      loadCategories();
+      showToast("success", editingId ? "Category updated" : "Category created");
+    }
   };
 
-  const deleteCategory = async (id: string) => {
-    if (!confirm("Delete this category? Products using it may be affected.")) return;
-    const { error } = await supabase.from("categories").delete().eq("id", id);
-    if (!error) { setCategories((prev) => prev.filter((c) => c.id !== id)); showToast("success", "Category deleted"); }
-    else { showToast("error", error.message); }
+  const handleDeleteCategory = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const { error } = await supabase.from("categories").delete().eq("id", deleteTarget.id);
+    if (!error) {
+      setCategories((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+      showToast("success", "Category deleted successfully");
+    } else {
+      showToast("error", getGenericErrorMessage(error, "Failed to delete category"));
+    }
+    setIsDeleting(false);
+    setDeleteTarget(null);
   };
 
   const toggleActive = async (cat: Category) => {
     const { error } = await supabase.from("categories").update({ is_active: !cat.is_active }).eq("id", cat.id);
-    if (!error) setCategories((prev) => prev.map((c) => c.id === cat.id ? { ...c, is_active: !c.is_active } : c));
+    if (!error) {
+      setCategories((prev) => prev.map((c) => c.id === cat.id ? { ...c, is_active: !c.is_active } : c));
+    } else {
+      showToast("error", getGenericErrorMessage(error, "Failed to update category status"));
+    }
   };
 
-  const showToast = (type: string, message: string) => { setToast({ type, message }); setTimeout(() => setToast(null), 3000); };
+  const showToast = (type: string, message: string) => { setToast({ type, message }); setTimeout(() => setToast(null), 3500); };
 
   return (
     <div>
@@ -87,15 +112,32 @@ export default function CategoriesPage() {
                   </td>
                   <td><code className="text-[0.8125rem] text-text-tertiary">{cat.slug}</code></td>
                   <td>
-                    <label className="toggle" onClick={() => toggleActive(cat)}>
-                      <input type="checkbox" checked={cat.is_active} readOnly /><span className="slider" />
-                    </label>
+                    <button
+                      onClick={() => toggleActive(cat)}
+                      className={`px-3 py-1 text-xs font-bold rounded-full border transition-all ${
+                        cat.is_active
+                          ? "bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200"
+                          : "bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200"
+                      }`}
+                    >
+                      {cat.is_active ? "Active" : "Inactive"}
+                    </button>
                   </td>
                   <td className="text-[0.8125rem] text-text-tertiary">{new Date(cat.created_at).toLocaleDateString()}</td>
                   <td>
-                    <div className="flex gap-1">
-                      <button className="btn btn-ghost btn-sm" onClick={() => openEdit(cat)}>✏️</button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => deleteCategory(cat.id)}>🗑️</button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEdit(cat)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setDeleteTarget(cat)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-colors"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -118,9 +160,14 @@ export default function CategoriesPage() {
                 <label className="form-label">Slug</label>
                 <input className="form-input" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} required />
               </div>
-              <div className="flex flex-col gap-1.5 mb-4">
-                <label className="form-label">Image URL</label>
-                <input className="form-input" placeholder="https://..." value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
+              <div className="mb-4">
+                <MediaUploader
+                  bucket="categories"
+                  images={form.image_url ? [form.image_url] : []}
+                  onChange={(imgs) => setForm({ ...form, image_url: imgs[0] || "" })}
+                  multiple={false}
+                  label="Category Image (Uploaded to Supabase Bucket)"
+                />
               </div>
               <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
                 <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="w-[18px] h-[18px] accent-accent" />
@@ -136,6 +183,18 @@ export default function CategoriesPage() {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        title="Delete Category"
+        message={`Are you sure you want to delete "${deleteTarget?.name}"? Products assigned to this category may be affected.`}
+        confirmLabel="Delete Category"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleDeleteCategory}
+        onCancel={() => setDeleteTarget(null)}
+      />
 
       {toast && <div className={`toast ${toast.type === "success" ? "toast-success" : "toast-error"}`}>{toast.message}</div>}
     </div>
