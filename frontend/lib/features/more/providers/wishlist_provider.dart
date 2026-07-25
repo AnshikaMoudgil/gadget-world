@@ -8,10 +8,34 @@ class WishlistProvider extends ChangeNotifier {
   List<WishlistItem> _items = [];
   bool _isLoading = false;
   String? _error;
+  String? _wishlistId;
 
   List<WishlistItem> get items => _items;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  Future<String?> _getWishlistId() async {
+    if (_supabase.auth.currentUser == null) return null;
+    if (_wishlistId != null) return _wishlistId;
+
+    final wishlistResponse = await _supabase
+        .from('wishlists')
+        .select('id')
+        .eq('user_id', _supabase.auth.currentUser!.id)
+        .maybeSingle();
+
+    if (wishlistResponse == null) {
+      final newWishlist = await _supabase
+          .from('wishlists')
+          .insert({'user_id': _supabase.auth.currentUser!.id})
+          .select('id')
+          .single();
+      _wishlistId = newWishlist['id'] as String;
+    } else {
+      _wishlistId = wishlistResponse['id'] as String;
+    }
+    return _wishlistId;
+  }
 
   Future<void> fetchWishlist() async {
     if (_supabase.auth.currentUser == null) return;
@@ -21,24 +45,11 @@ class WishlistProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // 1. First ensure the wishlist exists for the user.
-      final wishlistResponse = await _supabase
-          .from('wishlists')
-          .select('id')
-          .eq('user_id', _supabase.auth.currentUser!.id)
-          .maybeSingle();
-
-      String wishlistId;
-      if (wishlistResponse == null) {
-        // Create one if it doesn't exist
-        final newWishlist = await _supabase
-            .from('wishlists')
-            .insert({'user_id': _supabase.auth.currentUser!.id})
-            .select('id')
-            .single();
-        wishlistId = newWishlist['id'] as String;
-      } else {
-        wishlistId = wishlistResponse['id'] as String;
+      final wishlistId = await _getWishlistId();
+      if (wishlistId == null) {
+        _isLoading = false;
+        notifyListeners();
+        return;
       }
 
       // 2. Fetch the items with product details
@@ -78,24 +89,8 @@ class WishlistProvider extends ChangeNotifier {
     // Optimistically update the UI if possible?
     // Usually toggles are fast enough to just show loading or update instantly.
     try {
-      // Get the user's wishlist ID
-      final wishlistResponse = await _supabase
-          .from('wishlists')
-          .select('id')
-          .eq('user_id', _supabase.auth.currentUser!.id)
-          .maybeSingle();
-
-      String wishlistId;
-      if (wishlistResponse == null) {
-        final newWishlist = await _supabase
-            .from('wishlists')
-            .insert({'user_id': _supabase.auth.currentUser!.id})
-            .select('id')
-            .single();
-        wishlistId = newWishlist['id'] as String;
-      } else {
-        wishlistId = wishlistResponse['id'] as String;
-      }
+      final wishlistId = await _getWishlistId();
+      if (wishlistId == null) return;
 
       final alreadyInWishlist = isInWishlist(productId, variantId: variantId);
 
@@ -146,6 +141,7 @@ class WishlistProvider extends ChangeNotifier {
   void clearWishlistLocal() {
     _items = [];
     _error = null;
+    _wishlistId = null;
     notifyListeners();
   }
 }

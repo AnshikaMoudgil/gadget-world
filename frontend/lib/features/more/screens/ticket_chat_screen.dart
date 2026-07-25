@@ -56,9 +56,11 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
     final text = _messageController.text.trim();
     _messageController.clear();
 
+    final tempId = DateTime.now().toString();
+
     // Optimistic UI update
     final newMessage = SupportMessage(
-      id: DateTime.now().toString(), // temp ID
+      id: tempId, // temp ID
       ticketId: widget.ticket.id,
       senderId: 'me', // doesn't matter for UI comparison if we just check role
       senderRole: 'customer',
@@ -73,22 +75,26 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
     _scrollToBottom();
 
     final provider = Provider.of<SupportProvider>(context, listen: false);
-    final success = await provider.sendMessage(
+    final sentMessage = await provider.sendMessage(
       ticketId: widget.ticket.id,
       message: text,
     );
 
-    if (!success && mounted) {
+    if (sentMessage == null && mounted) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Failed to send message')));
       // Remove optimistic message
       setState(() {
-        _messages.removeLast();
+        _messages.removeWhere((msg) => msg.id == tempId);
       });
-    } else {
-      // Reload to get actual ID and updated_at
-      _loadMessages();
+    } else if (sentMessage != null && mounted) {
+      setState(() {
+        final index = _messages.indexWhere((msg) => msg.id == tempId);
+        if (index != -1) {
+          _messages[index] = sentMessage;
+        }
+      });
     }
   }
 

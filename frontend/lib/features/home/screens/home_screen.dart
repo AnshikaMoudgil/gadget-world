@@ -293,14 +293,18 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           if (onViewAll != null)
             GestureDetector(
               onTap: onViewAll,
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
                     'View All',
@@ -317,6 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           else
             Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
                   'View All',
@@ -383,7 +388,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const BestSellersScreen(),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1A1B2F),
                     foregroundColor: AppTheme.white,

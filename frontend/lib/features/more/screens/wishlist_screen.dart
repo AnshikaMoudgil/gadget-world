@@ -3,6 +3,8 @@ import 'package:gadget_store/core/theme.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
 import 'package:gadget_store/features/products/screens/product_details_screen.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+import 'package:gadget_store/features/more/models/wishlist.dart';
 
 class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
@@ -12,7 +14,7 @@ class WishlistScreen extends StatefulWidget {
 }
 
 class _WishlistScreenState extends State<WishlistScreen> {
-  void _showRemoveBottomSheet(int index) {
+  void _showRemoveBottomSheet(WishlistItem item) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -95,18 +97,13 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Provider.of<WishlistProvider>(
+                        final provider = Provider.of<WishlistProvider>(
                           context,
                           listen: false,
-                        ).toggleWishlist(
-                          Provider.of<WishlistProvider>(
-                            context,
-                            listen: false,
-                          ).items[index].productId,
-                          variantId: Provider.of<WishlistProvider>(
-                            context,
-                            listen: false,
-                          ).items[index].variantId,
+                        );
+                        provider.toggleWishlist(
+                          item.productId,
+                          variantId: item.variantId,
                         );
                         Navigator.pop(context);
                       },
@@ -260,7 +257,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
     );
   }
 
-  Widget _buildProductGrid(List items) {
+  Widget _buildProductGrid(List<WishlistItem> items) {
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -272,12 +269,12 @@ class _WishlistScreenState extends State<WishlistScreen> {
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        return _buildProductCard(item, index);
+        return _buildProductCard(item);
       },
     );
   }
 
-  Widget _buildProductCard(dynamic item, int index) {
+  Widget _buildProductCard(WishlistItem item) {
     final product = item.product;
     if (product == null) return const SizedBox.shrink();
 
@@ -324,7 +321,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       top: 8,
                       right: 8,
                       child: GestureDetector(
-                        onTap: () => _showRemoveBottomSheet(index),
+                        onTap: () => _showRemoveBottomSheet(item),
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: const BoxDecoration(
@@ -388,7 +385,26 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Handle add to cart here if needed
+                          if (product.stockQuantity > 0) {
+                            context.read<CartProvider>().addToCart(
+                              product.id,
+                              1,
+                              variantId: item.variantId,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${product.name} added to cart'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Out of stock'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.black,
@@ -396,18 +412,24 @@ class _WishlistScreenState extends State<WishlistScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 8,
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
                             Icon(Icons.shopping_cart_outlined, size: 14),
                             SizedBox(width: 4),
-                            Text(
-                              'Add to Cart',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                            Flexible(
+                              child: Text(
+                                'Add to Cart',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],

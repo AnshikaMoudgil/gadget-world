@@ -560,19 +560,25 @@ class _CartScreenState extends State<CartScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                  formatCurrency.format(price),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                Flexible(
+                  child: Text(
+                    formatCurrency.format(price),
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  '${formatCurrency.format(totalPrice)} (${item.quantity} units)',
-                  style: const TextStyle(
-                    color: AppTheme.greyText,
-                    fontSize: 10,
+                Flexible(
+                  child: Text(
+                    '${formatCurrency.format(totalPrice)} (${item.quantity} units)',
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppTheme.greyText,
+                      fontSize: 10,
+                    ),
                   ),
                 ),
               ],

@@ -104,22 +104,26 @@ class SupportProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> sendMessage({
+  Future<SupportMessage?> sendMessage({
     required String ticketId,
     required String message,
   }) async {
-    if (_supabase.auth.currentUser == null) return false;
+    if (_supabase.auth.currentUser == null) return null;
 
     try {
-      await _supabase.from('support_messages').insert({
-        'ticket_id': ticketId,
-        'sender_id': _supabase.auth.currentUser!.id,
-        'message': message,
-      });
+      final response = await _supabase
+          .from('support_messages')
+          .insert({
+            'ticket_id': ticketId,
+            'sender_id': _supabase.auth.currentUser!.id,
+            'message': message,
+          })
+          .select()
+          .single();
       // The DB trigger updates the ticket's updated_at
-      return true;
+      return SupportMessage.fromJson(response);
     } catch (e) {
-      return false;
+      return null;
     }
   }
 
