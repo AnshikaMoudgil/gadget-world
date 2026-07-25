@@ -125,9 +125,18 @@ class _AuthGuardState extends State<AuthGuard> {
     );
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-    final wishlistProvider = Provider.of<WishlistProvider>(context, listen: false);
-    final supportProvider = Provider.of<SupportProvider>(context, listen: false);
-    final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
+    final wishlistProvider = Provider.of<WishlistProvider>(
+      context,
+      listen: false,
+    );
+    final supportProvider = Provider.of<SupportProvider>(
+      context,
+      listen: false,
+    );
+    final notificationProvider = Provider.of<NotificationProvider>(
+      context,
+      listen: false,
+    );
 
     if (authProvider.isAuthenticated) {
       // User is logged in, fetch their profile data

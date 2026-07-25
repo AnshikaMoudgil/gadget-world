@@ -12,7 +12,6 @@ class WishlistScreen extends StatefulWidget {
 }
 
 class _WishlistScreenState extends State<WishlistScreen> {
-
   void _showRemoveBottomSheet(int index) {
     showModalBottomSheet(
       context: context,
@@ -96,11 +95,19 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Provider.of<WishlistProvider>(context, listen: false)
-                            .toggleWishlist(
-                                Provider.of<WishlistProvider>(context, listen: false).items[index].productId,
-                                variantId: Provider.of<WishlistProvider>(context, listen: false).items[index].variantId,
-                            );
+                        Provider.of<WishlistProvider>(
+                          context,
+                          listen: false,
+                        ).toggleWishlist(
+                          Provider.of<WishlistProvider>(
+                            context,
+                            listen: false,
+                          ).items[index].productId,
+                          variantId: Provider.of<WishlistProvider>(
+                            context,
+                            listen: false,
+                          ).items[index].variantId,
+                        );
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -166,9 +173,9 @@ class _WishlistScreenState extends State<WishlistScreen> {
                 Expanded(
                   child: wishlistProvider.isLoading
                       ? const Center(child: CircularProgressIndicator())
-                      : isEmpty 
-                          ? _buildEmptyState() 
-                          : _buildProductGrid(items),
+                      : isEmpty
+                      ? _buildEmptyState()
+                      : _buildProductGrid(items),
                 ),
               ],
             );
@@ -307,7 +314,11 @@ class _WishlistScreenState extends State<WishlistScreen> {
                     Center(
                       child: product.imageUrl != null
                           ? Image.network(product.imageUrl!, fit: BoxFit.cover)
-                          : const Icon(Icons.image, size: 48, color: AppTheme.greyText),
+                          : const Icon(
+                              Icons.image,
+                              size: 48,
+                              color: AppTheme.greyText,
+                            ),
                     ),
                     Positioned(
                       top: 8,

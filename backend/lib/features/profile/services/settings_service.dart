@@ -10,7 +10,7 @@ class SettingsService {
           .select()
           .eq('user_id', userId)
           .maybeSingle();
-      
+
       if (data == null) {
         data = await SupabaseDb.adminClient
             .from('user_settings')

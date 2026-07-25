@@ -35,14 +35,14 @@ class SupportTicket {
       category: json['category'] as String? ?? 'general',
       status: json['status'] as String? ?? 'open',
       priority: json['priority'] as String? ?? 'medium',
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
           : DateTime.now(),
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.parse(json['updated_at']) 
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
           : DateTime.now(),
-      resolvedAt: json['resolved_at'] != null 
-          ? DateTime.parse(json['resolved_at']) 
+      resolvedAt: json['resolved_at'] != null
+          ? DateTime.parse(json['resolved_at'])
           : null,
     );
   }
@@ -76,7 +76,7 @@ class SupportMessage {
           .map((e) => e.toString())
           .toList();
     }
-    
+
     return SupportMessage(
       id: json['id'] as String? ?? '',
       ticketId: json['ticket_id'] as String? ?? '',
@@ -85,8 +85,8 @@ class SupportMessage {
       message: json['message'] as String? ?? '',
       attachments: parsedAttachments,
       isInternal: json['is_internal'] as bool? ?? false,
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
           : DateTime.now(),
     );
   }

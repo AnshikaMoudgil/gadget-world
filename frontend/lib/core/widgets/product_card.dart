@@ -78,7 +78,9 @@ class ProductCard extends StatelessWidget {
                       right: 4,
                       child: Consumer<WishlistProvider>(
                         builder: (context, provider, child) {
-                          final isInWishlist = provider.isInWishlist(productId!);
+                          final isInWishlist = provider.isInWishlist(
+                            productId!,
+                          );
                           return GestureDetector(
                             onTap: () {
                               provider.toggleWishlist(productId!);
@@ -90,9 +92,13 @@ class ProductCard extends StatelessWidget {
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
-                                isInWishlist ? Icons.favorite : Icons.favorite_border,
+                                isInWishlist
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
                                 size: 20,
-                                color: isInWishlist ? Colors.red : AppTheme.greyText,
+                                color: isInWishlist
+                                    ? Colors.red
+                                    : AppTheme.greyText,
                               ),
                             ),
                           );

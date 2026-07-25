@@ -4,7 +4,7 @@ import '../models/wishlist.dart';
 
 class WishlistProvider extends ChangeNotifier {
   final _supabase = Supabase.instance.client;
-  
+
   List<WishlistItem> _items = [];
   bool _isLoading = false;
   String? _error;
@@ -15,7 +15,7 @@ class WishlistProvider extends ChangeNotifier {
 
   Future<void> fetchWishlist() async {
     if (_supabase.auth.currentUser == null) return;
-    
+
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -62,8 +62,9 @@ class WishlistProvider extends ChangeNotifier {
 
   bool isInWishlist(String productId, {String? variantId}) {
     if (variantId != null) {
-      return _items.any((item) => 
-          item.productId == productId && item.variantId == variantId);
+      return _items.any(
+        (item) => item.productId == productId && item.variantId == variantId,
+      );
     }
     return _items.any((item) => item.productId == productId);
   }
@@ -75,7 +76,7 @@ class WishlistProvider extends ChangeNotifier {
       return;
     }
 
-    // Optimistically update the UI if possible? 
+    // Optimistically update the UI if possible?
     // Usually toggles are fast enough to just show loading or update instantly.
     try {
       // Get the user's wishlist ID
@@ -106,18 +107,18 @@ class WishlistProvider extends ChangeNotifier {
             .delete()
             .eq('wishlist_id', wishlistId)
             .eq('product_id', productId);
-            
+
         if (variantId != null) {
           query = query.eq('variant_id', variantId);
         } else {
           query = query.isFilter('variant_id', null);
         }
-        
+
         await query;
-        
-        _items.removeWhere((item) => 
-            item.productId == productId && item.variantId == variantId);
-            
+
+        _items.removeWhere(
+          (item) => item.productId == productId && item.variantId == variantId,
+        );
       } else {
         // Add to wishlist
         final Map<String, dynamic> insertData = {
@@ -133,7 +134,7 @@ class WishlistProvider extends ChangeNotifier {
         await fetchWishlist();
         return;
       }
-      
+
       notifyListeners();
     } catch (e) {
       print('WISHLIST TOGGLE ERROR: $e');

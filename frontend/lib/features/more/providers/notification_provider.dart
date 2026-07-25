@@ -4,7 +4,7 @@ import '../models/notification_model.dart';
 
 class NotificationProvider extends ChangeNotifier {
   final _supabase = Supabase.instance.client;
-  
+
   List<NotificationModel> _notifications = [];
   bool _isLoading = false;
   String? _error;
@@ -17,7 +17,7 @@ class NotificationProvider extends ChangeNotifier {
 
   Future<void> fetchNotifications() async {
     if (_supabase.auth.currentUser == null) return;
-    
+
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -32,7 +32,7 @@ class NotificationProvider extends ChangeNotifier {
       _notifications = (response as List)
           .map((item) => NotificationModel.fromJson(item))
           .toList();
-          
+
       _updateUnreadCount();
     } catch (e) {
       _error = e.toString();
@@ -48,7 +48,7 @@ class NotificationProvider extends ChangeNotifier {
 
   Future<void> markAsRead(String notificationId) async {
     if (_supabase.auth.currentUser == null) return;
-    
+
     // Optimistic update
     final index = _notifications.indexWhere((n) => n.id == notificationId);
     if (index != -1 && !_notifications[index].isRead) {
@@ -70,9 +70,12 @@ class NotificationProvider extends ChangeNotifier {
       notifyListeners();
 
       try {
-        await _supabase.rpc('mark_notifications_read', params: {
-          'p_notification_ids': [notificationId],
-        });
+        await _supabase.rpc(
+          'mark_notifications_read',
+          params: {
+            'p_notification_ids': [notificationId],
+          },
+        );
       } catch (e) {
         // Revert on failure
         _notifications[index] = old;

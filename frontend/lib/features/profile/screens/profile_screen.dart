@@ -248,8 +248,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
-
   Widget _buildRecentOrders(BuildContext context) {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final recentOrders = orderProvider.orders.take(3).toList();

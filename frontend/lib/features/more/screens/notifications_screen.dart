@@ -63,10 +63,7 @@ class NotificationsScreen extends StatelessWidget {
                   SizedBox(height: 16),
                   Text(
                     'No notifications yet',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8),
                   Text(
@@ -96,7 +93,9 @@ class NotificationsScreen extends StatelessWidget {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: _getIconColor(notification.type).withValues(alpha: 0.1),
+                    color: _getIconColor(
+                      notification.type,
+                    ).withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

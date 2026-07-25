@@ -7,7 +7,7 @@ class WishlistItem {
   final String? variantId;
   final String? note;
   final DateTime addedAt;
-  
+
   // Joined data
   final ProductModel? product;
   final ProductVariant? variant;
@@ -40,8 +40,8 @@ class WishlistItem {
       productId: json['product_id'] as String? ?? '',
       variantId: json['variant_id'] as String?,
       note: json['note'] as String?,
-      addedAt: json['added_at'] != null 
-          ? DateTime.parse(json['added_at']) 
+      addedAt: json['added_at'] != null
+          ? DateTime.parse(json['added_at'])
           : DateTime.now(),
       product: parsedProduct,
       variant: parsedVariant,

@@ -55,7 +55,7 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
 
     final text = _messageController.text.trim();
     _messageController.clear();
-    
+
     // Optimistic UI update
     final newMessage = SupportMessage(
       id: DateTime.now().toString(), // temp ID
@@ -66,7 +66,7 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
       isInternal: false,
       createdAt: DateTime.now(),
     );
-    
+
     setState(() {
       _messages.add(newMessage);
     });
@@ -79,9 +79,9 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
     );
 
     if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to send message')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to send message')));
       // Remove optimistic message
       setState(() {
         _messages.removeLast();
@@ -112,10 +112,7 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
             ),
             Text(
               widget.ticket.subject,
-              style: const TextStyle(
-                color: AppTheme.greyText,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: AppTheme.greyText, fontSize: 12),
             ),
           ],
         ),
@@ -125,7 +122,9 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: widget.ticket.status == 'open' || widget.ticket.status == 'in_progress'
+              color:
+                  widget.ticket.status == 'open' ||
+                      widget.ticket.status == 'in_progress'
                   ? Colors.orange.shade100
                   : Colors.green.shade100,
               borderRadius: BorderRadius.circular(4),
@@ -133,9 +132,11 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
             child: Text(
               widget.ticket.status.toUpperCase(),
               style: TextStyle(
-                color: widget.ticket.status == 'open' || widget.ticket.status == 'in_progress'
-                  ? Colors.orange.shade800
-                  : Colors.green.shade800,
+                color:
+                    widget.ticket.status == 'open' ||
+                        widget.ticket.status == 'in_progress'
+                    ? Colors.orange.shade800
+                    : Colors.green.shade800,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),
@@ -159,7 +160,8 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
                     },
                   ),
           ),
-          if (widget.ticket.status != 'resolved' && widget.ticket.status != 'closed')
+          if (widget.ticket.status != 'resolved' &&
+              widget.ticket.status != 'closed')
             _buildMessageInput(),
         ],
       ),
@@ -178,8 +180,12 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
         decoration: BoxDecoration(
           color: isMe ? AppTheme.black : AppTheme.white,
           borderRadius: BorderRadius.circular(12).copyWith(
-            bottomRight: isMe ? const Radius.circular(0) : const Radius.circular(12),
-            bottomLeft: !isMe ? const Radius.circular(0) : const Radius.circular(12),
+            bottomRight: isMe
+                ? const Radius.circular(0)
+                : const Radius.circular(12),
+            bottomLeft: !isMe
+                ? const Radius.circular(0)
+                : const Radius.circular(12),
           ),
           border: isMe ? null : Border.all(color: AppTheme.greyBorder),
         ),
@@ -246,11 +252,7 @@ class _TicketChatScreenState extends State<TicketChatScreen> {
                 color: AppTheme.black,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.send,
-                color: AppTheme.white,
-                size: 20,
-              ),
+              child: const Icon(Icons.send, color: AppTheme.white, size: 20),
             ),
           ),
         ],

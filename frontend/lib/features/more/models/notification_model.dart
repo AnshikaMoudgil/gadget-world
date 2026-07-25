@@ -36,11 +36,9 @@ class NotificationModel {
       referenceId: json['reference_id'] as String?,
       imageUrl: json['image_url'] as String?,
       isRead: json['is_read'] as bool? ?? false,
-      readAt: json['read_at'] != null 
-          ? DateTime.parse(json['read_at']) 
-          : null,
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
+      readAt: json['read_at'] != null ? DateTime.parse(json['read_at']) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
           : DateTime.now(),
     );
   }

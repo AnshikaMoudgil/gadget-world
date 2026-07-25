@@ -14,20 +14,27 @@ class ContactUsScreen extends StatefulWidget {
   State<ContactUsScreen> createState() => _ContactUsScreenState();
 }
 
-class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProviderStateMixin {
+class _ContactUsScreenState extends State<ContactUsScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   ContactState _currentState = ContactState.form;
   bool _hasMessageError = false;
   bool _hasSubjectError = false;
 
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
-  
+
   String _selectedCategory = 'general';
   final List<String> _categories = [
-    'general', 'order_issue', 'payment', 'delivery',
-    'return_refund', 'product', 'account', 'other'
+    'general',
+    'order_issue',
+    'payment',
+    'delivery',
+    'return_refund',
+    'product',
+    'account',
+    'other',
   ];
 
   @override
@@ -35,7 +42,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProv
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _messageController.addListener(() {
-      setState(() {}); 
+      setState(() {});
     });
   }
 
@@ -124,14 +131,11 @@ class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProv
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildMyTicketsView(),
-          _buildFormArea(),
-        ],
+        children: [_buildMyTicketsView(), _buildFormArea()],
       ),
     );
   }
-  
+
   Widget _buildFormArea() {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
@@ -147,19 +151,29 @@ class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProv
         if (provider.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
-        
+
         final tickets = provider.tickets;
-        
+
         if (tickets.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.support_agent, size: 64, color: AppTheme.greyText),
+                const Icon(
+                  Icons.support_agent,
+                  size: 64,
+                  color: AppTheme.greyText,
+                ),
                 const SizedBox(height: 16),
-                const Text('No tickets yet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text(
+                  'No tickets yet',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 8),
-                const Text('Create a new ticket if you need help', style: TextStyle(color: AppTheme.greyText)),
+                const Text(
+                  'Create a new ticket if you need help',
+                  style: TextStyle(color: AppTheme.greyText),
+                ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
@@ -186,7 +200,9 @@ class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProv
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => TicketChatScreen(ticket: ticket)),
+                  MaterialPageRoute(
+                    builder: (_) => TicketChatScreen(ticket: ticket),
+                  ),
                 );
               },
               borderRadius: BorderRadius.circular(12),
@@ -204,20 +220,30 @@ class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProv
                       children: [
                         Text(
                           ticket.ticketNumber,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: ticket.status == 'open' || ticket.status == 'in_progress' 
-                                ? Colors.orange.shade100 
+                            color:
+                                ticket.status == 'open' ||
+                                    ticket.status == 'in_progress'
+                                ? Colors.orange.shade100
                                 : Colors.green.shade100,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             ticket.status.toUpperCase(),
                             style: TextStyle(
-                              color: ticket.status == 'open' || ticket.status == 'in_progress'
+                              color:
+                                  ticket.status == 'open' ||
+                                      ticket.status == 'in_progress'
                                   ? Colors.orange.shade800
                                   : Colors.green.shade800,
                               fontSize: 10,
@@ -230,7 +256,10 @@ class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProv
                     const SizedBox(height: 8),
                     Text(
                       ticket.subject,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -240,11 +269,17 @@ class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProv
                       children: [
                         Text(
                           ticket.category.replaceAll('_', ' ').toUpperCase(),
-                          style: const TextStyle(fontSize: 10, color: AppTheme.greyText),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.greyText,
+                          ),
                         ),
                         Text(
                           DateFormat('MMM dd, yyyy').format(ticket.createdAt),
-                          style: const TextStyle(fontSize: 10, color: AppTheme.greyText),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.greyText,
+                          ),
                         ),
                       ],
                     ),
@@ -276,10 +311,14 @@ class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProv
               child: DropdownButton<String>(
                 value: _selectedCategory,
                 isExpanded: true,
-                items: _categories.map((c) => DropdownMenuItem(
-                  value: c,
-                  child: Text(c.replaceAll('_', ' ').toUpperCase()),
-                )).toList(),
+                items: _categories
+                    .map(
+                      (c) => DropdownMenuItem(
+                        value: c,
+                        child: Text(c.replaceAll('_', ' ').toUpperCase()),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (val) {
                   if (val != null) setState(() => _selectedCategory = val);
                 },
@@ -391,7 +430,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProv
           ),
           const SizedBox(height: 24),
           _buildSupportInfoCard(),
-          const SizedBox(height: 48), 
+          const SizedBox(height: 48),
         ],
       ),
     );
@@ -462,7 +501,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> with SingleTickerProv
               hintStyle: TextStyle(fontSize: 14, color: AppTheme.greyText),
               border: InputBorder.none,
               contentPadding: EdgeInsets.all(16),
-              counterText: '', 
+              counterText: '',
             ),
           ),
           Padding(

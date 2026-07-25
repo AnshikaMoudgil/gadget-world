@@ -343,10 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFFF3F0FF),
-            Color(0xFFE5E9FF),
-          ],
+          colors: [Color(0xFFF3F0FF), Color(0xFFE5E9FF)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -456,7 +453,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Image.network(
                                   products[1].images.first,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const Icon(Icons.image),
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.image),
                                 ),
                               ),
                             ),
@@ -475,7 +473,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Image.network(
                                   products[0].images.first,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const Icon(Icons.image),
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.image),
                                 ),
                               ),
                             ),
@@ -572,10 +571,7 @@ class _HomeScreenState extends State<HomeScreen> {
             subtitle,
             textAlign: TextAlign.center,
             maxLines: 1,
-            style: const TextStyle(
-              fontSize: 9,
-              color: AppTheme.greyText,
-            ),
+            style: const TextStyle(fontSize: 9, color: AppTheme.greyText),
           ),
         ],
       ),
