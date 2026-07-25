@@ -36,7 +36,8 @@ class CartService {
     final itemsResult = await SupabaseDb.query(() => SupabaseDb.adminClient
         .from('cart_items')
         .select('*, products(*), product_variants(*)')
-        .eq('cart_id', cartId));
+        .eq('cart_id', cartId)
+        .order('created_at', ascending: true));
 
     if (itemsResult.isError) return DbResult.error(itemsResult.message!);
 
