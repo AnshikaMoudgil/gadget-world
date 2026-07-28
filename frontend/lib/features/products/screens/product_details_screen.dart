@@ -357,6 +357,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   void _showAddedToCartPopup(BuildContext context) {
+    if (context.read<CartProvider>().error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: SelectableText('DEBUG ADD ERROR: ${context.read<CartProvider>().error}', style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 10),
+      ));
+      return;
+    }
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(

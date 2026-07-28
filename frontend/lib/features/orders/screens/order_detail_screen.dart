@@ -74,15 +74,17 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         InvoiceGenerator.generateAndPrintInvoice(widget.order);
                       },
                     ),
-                    const SizedBox(height: 12),
-                    _buildActionTile(
-                      Icons.local_shipping_outlined,
-                      'Track Package',
-                    ),
-                    const SizedBox(height: 12),
                     _buildActionTile(
                       Icons.assignment_return_outlined,
                       'Return or Replace',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Return/Replace request initiated successfully.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 48), // Bottom padding
                   ],
@@ -499,26 +501,20 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final status = widget.order.status.toLowerCase();
     final isDelivered = status == 'delivered' || status == 'completed';
     final isShipped = isDelivered || status == 'shipped';
-    final isConfirmed = isShipped || status == 'confirmed';
-
-    // Calculate mock dates based on order creation
-    final confirmedDate = widget.order.createdAt.add(
-      const Duration(minutes: 45),
-    );
-    final shippedDate =
-        widget.order.shippedAt ??
-        widget.order.createdAt.add(const Duration(days: 1));
-    final deliveredDate =
-        widget.order.deliveredAt ??
-        widget.order.createdAt.add(const Duration(days: 2));
+    final isPacked = isShipped || status == 'packed';
+    final isConfirmed = isPacked || status == 'confirmed';
 
     String displayDate = '';
     if (isDelivered) {
-      displayDate = 'Delivered on ${_formatDate(deliveredDate)}';
+      displayDate = widget.order.deliveredAt != null 
+          ? 'Delivered on ${_formatDate(widget.order.deliveredAt!)}'
+          : 'Delivered';
     } else if (isShipped) {
-      displayDate = 'Expected Delivery on ${_formatDate(deliveredDate)}';
+      displayDate = widget.order.shippedAt != null
+          ? 'Shipped on ${_formatDate(widget.order.shippedAt!)}'
+          : 'Shipped';
     } else {
-      displayDate = 'Estimated Delivery on ${_formatDate(deliveredDate)}';
+      displayDate = 'Pending delivery';
     }
 
     return Container(
@@ -597,19 +593,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   ),
                   _buildTimelineItem(
                     'Order Confirmed',
-                    isConfirmed ? _formatDate(confirmedDate) : 'Processing...',
+                    isConfirmed ? _formatDate(widget.order.createdAt.add(const Duration(minutes: 45))) : 'Processing...',
                     isConfirmed,
                     status == 'confirmed',
                   ),
                   _buildTimelineItem(
                     'Packed',
-                    isConfirmed
-                        ? _formatDate(
-                            confirmedDate.add(const Duration(hours: 4)),
-                          )
-                        : 'Waiting for confirmation',
-                    isShipped,
-                    false,
+                    isPacked ? 'Packed for shipping' : 'Waiting to pack',
+                    isPacked,
+                    status == 'packed',
                   ),
                   _buildTimelineItem(
                     'Shipped',
@@ -618,15 +610,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         : 'Waiting to ship',
                     isShipped,
                     status == 'shipped',
-                    trailingDate: isShipped ? _formatDate(shippedDate) : null,
+                    trailingDate: widget.order.shippedAt != null ? _formatDate(widget.order.shippedAt!) : null,
                   ),
                   _buildTimelineItem(
                     'Delivered',
                     isDelivered
                         ? (widget.order.deliveredAt != null
                               ? _formatDate(widget.order.deliveredAt!)
-                              : _formatDate(deliveredDate))
-                        : 'Expected on ${_formatDate(deliveredDate)}',
+                              : 'Delivered')
+                        : 'Pending delivery',
                     isDelivered,
                     isDelivered,
                     isLast: true,
