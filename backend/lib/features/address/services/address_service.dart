@@ -48,7 +48,8 @@ class AddressService {
     final data = request.toJson();
     data['user_id'] = userId;
 
-    final existing = await SupabaseDb.querySingle<Map<String, dynamic>>(() async {
+    final existing =
+        await SupabaseDb.querySingle<Map<String, dynamic>>(() async {
       return await SupabaseDb.adminClient
           .from('user_addresses')
           .select('id')

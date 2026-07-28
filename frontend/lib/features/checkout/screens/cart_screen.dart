@@ -84,8 +84,19 @@ class _CartScreenState extends State<CartScreen> {
           body: cartProvider.isLoading && items.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : cartProvider.error != null
-                  ? Center(child: Padding(padding: const EdgeInsets.all(16), child: SelectableText('DEBUG ERROR: ${cartProvider.error}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold))))
-                  : items.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SelectableText(
+                      'DEBUG ERROR: ${cartProvider.error}',
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )
+              : items.isEmpty
               ? _buildEmptyCart()
               : SingleChildScrollView(
                   child: Column(

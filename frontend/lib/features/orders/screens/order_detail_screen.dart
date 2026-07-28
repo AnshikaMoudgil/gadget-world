@@ -80,7 +80,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Return/Replace request initiated successfully.'),
+                            content: Text(
+                              'Return/Replace request initiated successfully.',
+                            ),
                             backgroundColor: Colors.green,
                           ),
                         );
@@ -506,7 +508,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
     String displayDate = '';
     if (isDelivered) {
-      displayDate = widget.order.deliveredAt != null 
+      displayDate = widget.order.deliveredAt != null
           ? 'Delivered on ${_formatDate(widget.order.deliveredAt!)}'
           : 'Delivered';
     } else if (isShipped) {
@@ -593,7 +595,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   ),
                   _buildTimelineItem(
                     'Order Confirmed',
-                    isConfirmed ? _formatDate(widget.order.createdAt.add(const Duration(minutes: 45))) : 'Processing...',
+                    isConfirmed
+                        ? _formatDate(
+                            widget.order.createdAt.add(
+                              const Duration(minutes: 45),
+                            ),
+                          )
+                        : 'Processing...',
                     isConfirmed,
                     status == 'confirmed',
                   ),
@@ -610,7 +618,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         : 'Waiting to ship',
                     isShipped,
                     status == 'shipped',
-                    trailingDate: widget.order.shippedAt != null ? _formatDate(widget.order.shippedAt!) : null,
+                    trailingDate: widget.order.shippedAt != null
+                        ? _formatDate(widget.order.shippedAt!)
+                        : null,
                   ),
                   _buildTimelineItem(
                     'Delivered',

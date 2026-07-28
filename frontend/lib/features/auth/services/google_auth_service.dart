@@ -35,7 +35,6 @@ class GoogleAuthService {
   /// Call this once at app startup
   static Future<void> init() async {
     final webClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
-    final androidClientId = dotenv.env['GOOGLE_ANDROID_CLIENT_ID'];
 
     _currentNonce = _generateNonce();
     final hashedNonce = _sha256ofString(_currentNonce!);

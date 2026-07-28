@@ -78,9 +78,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   onChange: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const AddressScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const AddressScreen()),
                     );
                   },
                 ),
@@ -213,7 +211,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title, bool showChangeBtn, {VoidCallback? onChange}) {
+  Widget _buildSectionTitle(
+    String title,
+    bool showChangeBtn, {
+    VoidCallback? onChange,
+  }) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
       child: Row(
