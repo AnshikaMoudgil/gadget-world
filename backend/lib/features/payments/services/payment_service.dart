@@ -12,8 +12,6 @@ class PaymentService {
   Future<Map<String, dynamic>> createOrder(
     String userId, {
     String? addressId,
-    double shippingFee = 0.0,
-    double discount = 0.0,
   }) async {
     // 1. Fetch user's cart
     final cartResult = await _cartService.getCart(userId);
@@ -27,20 +25,25 @@ class PaymentService {
     }
 
     // 2. Calculate total amount
-    double totalAmount = 0;
+    double subtotal = 0;
     for (var item in cart.items) {
       final product = item.product;
       if (product == null) continue;
 
       final price = (product['price'] as num).toDouble();
-      totalAmount += price * item.quantity;
+      subtotal += price * item.quantity;
     }
 
-    if (totalAmount <= 0) {
+    if (subtotal <= 0) {
       throw Exception('Invalid total amount');
     }
 
-    final int amountSubunits = (totalAmount * 100).round();
+    // Server-side calculation of shipping and discount
+    double shippingFee = subtotal > 50000 ? 0.0 : 299.0;
+    double discount = 0.0;
+    double finalAmount = subtotal + shippingFee - discount;
+
+    final int amountSubunits = (finalAmount * 100).round();
     final String currency = 'INR';
 
     // 3. Create Razorpay order
@@ -64,8 +67,8 @@ class PaymentService {
               'status': 'pending_payment',
               'payment_status': 'unpaid',
               'payment_method': 'razorpay',
-              'total_amount': totalAmount + shippingFee - discount,
-              'subtotal': totalAmount,
+              'total_amount': finalAmount,
+              'subtotal': subtotal,
               if (addressId != null) 'address_id': addressId,
               'shipping_fee': shippingFee,
               'discount': discount,
@@ -105,7 +108,7 @@ class PaymentService {
               'order_id': orderId,
               'provider': 'razorpay',
               'razorpay_order_id': razorpayOrderId,
-              'amount': totalAmount + shippingFee - discount,
+              'amount': finalAmount,
               'currency': currency,
               'status': 'created',
             })

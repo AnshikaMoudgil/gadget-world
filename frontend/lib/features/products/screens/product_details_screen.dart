@@ -361,7 +361,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: SelectableText(
-            'DEBUG ADD ERROR: ${context.read<CartProvider>().error}',
+            'Failed to add item to cart: ${context.read<CartProvider>().error}',
             style: const TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.red,

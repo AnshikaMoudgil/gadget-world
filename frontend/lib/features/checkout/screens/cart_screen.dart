@@ -88,7 +88,7 @@ class _CartScreenState extends State<CartScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: SelectableText(
-                      'DEBUG ERROR: ${cartProvider.error}',
+                      'Error loading cart: ${cartProvider.error}',
                       style: const TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart' as google;
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -89,11 +90,20 @@ class GoogleAuthService {
     }
 
     google.GoogleSignInAccount? googleUser;
+    bool isCancelled = false;
     try {
       googleUser = await google.GoogleSignIn.instance.authenticate();
+    } on PlatformException catch (e) {
+      if (e.code == 'sign_in_canceled' || e.code == 'CANCELED') {
+        isCancelled = true;
+      } else {
+        debugPrint("Google Sign In Error: $e");
+      }
     } catch (e) {
       debugPrint("Google Sign In Error: $e");
     }
+
+    if (isCancelled) return null;
 
     if (googleUser == null) {
       // Fallback: If native Google Sign-In fails (e.g. SHA-1 issue), use OAuth browser flow!
