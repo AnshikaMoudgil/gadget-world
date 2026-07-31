@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart' as google;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -33,8 +35,7 @@ class GoogleAuthService {
 
   /// Call this once at app startup
   static Future<void> init() async {
-    const webClientId =
-        '1066748448834-ltr6bv67jk0oa6jdcs39sphdklqcfjj2.apps.googleusercontent.com';
+    final webClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
 
     _currentNonce = _generateNonce();
     final hashedNonce = _sha256ofString(_currentNonce!);
@@ -88,11 +89,30 @@ class GoogleAuthService {
       return null;
     }
 
-    google.GoogleSignInAccount googleUser;
+    google.GoogleSignInAccount? googleUser;
+    bool isCancelled = false;
     try {
       googleUser = await google.GoogleSignIn.instance.authenticate();
     } catch (e) {
-      debugPrint("Google Sign In Error: $e");
+      if (e is PlatformException && (e.code == 'sign_in_canceled' || e.code == 'CANCELED')) {
+        isCancelled = true;
+      } else if (e is google.GoogleSignInException && e.code == google.GoogleSignInExceptionCode.canceled) {
+        isCancelled = true;
+      } else {
+        debugPrint("Google Sign In Error: $e");
+      }
+    }
+
+    if (isCancelled) return null;
+
+    if (googleUser == null) {
+      // Fallback: If native Google Sign-In fails (e.g. SHA-1 issue), use OAuth browser flow!
+      await _supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'com.tensorik.gadgetstore://login-callback/',
+      );
+      // Wait a moment for the deep link to process
+      await Future.delayed(const Duration(milliseconds: 500));
       return null;
     }
 

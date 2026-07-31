@@ -4,6 +4,7 @@ import 'package:gadget_store/features/checkout/screens/payment_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:gadget_store/features/profile/providers/address_provider.dart';
+import 'package:gadget_store/features/profile/screens/address_screen.dart';
 import 'package:intl/intl.dart';
 
 enum CheckoutState { normal, priceChange, processing }
@@ -71,7 +72,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 _buildHeader(),
                 if (_currentState == CheckoutState.priceChange)
                   _buildPriceChangeWarning(),
-                _buildSectionTitle('1. Shipping Address', true),
+                _buildSectionTitle(
+                  '1. Shipping Address',
+                  true,
+                  onChange: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AddressScreen()),
+                    );
+                  },
+                ),
                 _buildShippingAddress(),
                 _buildSectionTitle('2. Order Summary', false),
                 _buildOrderSummary(),
@@ -201,7 +211,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title, bool showChangeBtn) {
+  Widget _buildSectionTitle(
+    String title,
+    bool showChangeBtn, {
+    VoidCallback? onChange,
+  }) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
       child: Row(
@@ -216,13 +230,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
           ),
           if (showChangeBtn)
-            const Text(
-              'Change',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                decoration: TextDecoration.underline,
-                color: AppTheme.black,
+            InkWell(
+              onTap: onChange,
+              child: const Text(
+                'Change',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  decoration: TextDecoration.underline,
+                  color: AppTheme.black,
+                ),
               ),
             ),
         ],

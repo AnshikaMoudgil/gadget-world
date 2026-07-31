@@ -182,14 +182,14 @@ class InvoiceGenerator {
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
                           child: pw.Text(
-                            'Rs. ${item.amount.toStringAsFixed(2)}',
+                            'Rs. ${(item.quantity > 0 ? item.amount / item.quantity : 0).toStringAsFixed(2)}',
                             textAlign: pw.TextAlign.right,
                           ),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
                           child: pw.Text(
-                            'Rs. ${(item.amount * item.quantity).toStringAsFixed(2)}',
+                            'Rs. ${item.amount.toStringAsFixed(2)}',
                             textAlign: pw.TextAlign.right,
                           ),
                         ),

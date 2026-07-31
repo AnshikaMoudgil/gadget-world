@@ -12,14 +12,10 @@ class PaymentController {
       final data = jsonDecode(body) as Map<String, dynamic>;
 
       final addressId = data['addressId'] as String?;
-      final shippingFee = (data['shippingFee'] as num?)?.toDouble() ?? 0.0;
-      final discount = (data['discount'] as num?)?.toDouble() ?? 0.0;
 
       final result = await _paymentService.createOrder(
         userId,
         addressId: addressId,
-        shippingFee: shippingFee,
-        discount: discount,
       );
       return Response.ok(jsonEncode(result),
           headers: {'Content-Type': 'application/json'});
