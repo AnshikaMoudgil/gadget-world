@@ -212,12 +212,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.shield_outlined, color: Colors.orange, size: 24),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade100.withValues(alpha: 0.5),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.shield_outlined, color: Colors.orange, size: 24),
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -251,7 +257,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildSectionHeader(IconData icon, String title) {
     return Row(
       children: [
-        Icon(icon, color: Colors.deepPurple, size: 20),
+        Icon(icon, color: AppTheme.black, size: 20),
         const SizedBox(width: 8),
         Text(
           title,
@@ -388,7 +394,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.greyBackground.withValues(alpha: 0.3),
+        color: AppTheme.white,
         border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -412,7 +418,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   value,
                   style: const TextStyle(
                     fontSize: 14,
-                    color: AppTheme.greyText,
+                    color: AppTheme.black,
                   ),
                 ),
               ],
@@ -432,7 +438,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: ElevatedButton(
             onPressed: isLoading ? null : _saveChanges,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
+              backgroundColor: AppTheme.black,
               foregroundColor: AppTheme.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -470,8 +476,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: OutlinedButton(
             onPressed: isLoading ? null : () => Navigator.pop(context),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.deepPurple,
-              side: const BorderSide(color: Colors.deepPurple),
+              foregroundColor: AppTheme.black,
+              side: const BorderSide(color: AppTheme.black),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
