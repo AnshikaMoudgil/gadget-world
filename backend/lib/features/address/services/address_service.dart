@@ -123,14 +123,8 @@ class AddressService {
   /// Set [addressId] as the default address for [userId].
   Future<void> setDefault(String userId, String addressId) async {
     final result = await SupabaseDb.execute(() async {
-      // Unset previous default
-      await SupabaseDb.adminClient
-          .from('user_addresses')
-          .update({'is_default': false})
-          .eq('user_id', userId)
-          .eq('is_default', true);
-
-      // Set new default
+      // The database trigger `on_user_address_default_set` will automatically
+      // unset the previous default address for this user.
       await SupabaseDb.adminClient
           .from('user_addresses')
           .update({'is_default': true})
