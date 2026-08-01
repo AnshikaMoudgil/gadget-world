@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/profile/screens/address_screen.dart';
@@ -62,8 +63,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 24),
               Consumer<OrderProvider>(
                 builder: (context, provider, _) {
-                  final hasOrders = provider.orders.isNotEmpty;
-                  return _buildPromoBanners(hasOrders);
+                  // Only show the "first order" banner if we are certain they have no orders
+                  final isTrulyEmpty = provider.orders.isEmpty &&
+                      !provider.isLoading &&
+                      provider.error == null;
+                  return _buildPromoBanners(!isTrulyEmpty);
                 },
               ),
               const SizedBox(height: 32),
@@ -264,16 +268,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       children: recentOrders.map((order) {
         int itemCount = order.items.fold(0, (sum, item) => sum + item.quantity);
+
+        String? firstImageUrl;
+        if (order.items.isNotEmpty && order.items.first.productDetails != null) {
+          final details = order.items.first.productDetails!;
+          dynamic imagesData = details['images'];
+          if (imagesData is List && imagesData.isNotEmpty) {
+            firstImageUrl = imagesData[0].toString();
+          } else if (imagesData is String && imagesData.isNotEmpty) {
+            try {
+              final parsed = jsonDecode(imagesData);
+              if (parsed is List && parsed.isNotEmpty) {
+                firstImageUrl = parsed[0].toString();
+              }
+            } catch (_) {}
+          } else if (details['image_url'] != null) {
+            firstImageUrl = details['image_url'].toString();
+          }
+        }
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
           child: _buildCompactOrderCard(
-            '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
-            order.status.toUpperCase(),
-            '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
-            '₹${order.amount.toStringAsFixed(0)}',
-            '$itemCount Items',
-            Icons.shopping_bag_outlined,
-            _getStatusColor(order.status),
+            id: '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
+            status: order.status.toUpperCase(),
+            date: '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
+            price: '₹${order.amount.toStringAsFixed(0)}',
+            items: '$itemCount Items',
+            statusColor: _getStatusColor(order.status),
+            imageUrl: firstImageUrl,
           ),
         );
       }).toList(),
@@ -313,15 +336,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return months[month - 1];
   }
 
-  Widget _buildCompactOrderCard(
-    String id,
-    String status,
-    String date,
-    String price,
-    String items,
-    IconData icon,
-    Color statusColor,
-  ) {
+  Widget _buildCompactOrderCard({
+    required String id,
+    required String status,
+    required String date,
+    required String price,
+    required String items,
+    required Color statusColor,
+    String? imageUrl,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -338,7 +361,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: AppTheme.greyBackground,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: AppTheme.black),
+            clipBehavior: Clip.hardEdge,
+            child: imageUrl != null && imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.shopping_bag_outlined, color: AppTheme.black),
+                  )
+                : const Icon(Icons.shopping_bag_outlined, color: AppTheme.black),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -534,6 +565,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildQuickActionsGrid() {
     return Column(
       children: [
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionTile(
+                Icons.refresh,
+                'Reorder',
+                'Buy again easily',
+                Colors.blue,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ReorderScreen()),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildActionTile(
+                Icons.local_shipping_outlined,
+                'Track Order',
+                'Check delivery status',
+                Colors.green,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const OrdersScreen()),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/products/screens/best_sellers_screen.dart';
@@ -119,6 +120,28 @@ class CustomPromoBanner extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(child: CustomPaint(painter: PromoBannerPainter())),
+            Positioned(
+              right: -30,
+              top: -10,
+              bottom: -10,
+              width: 220,
+              child: ShaderMask(
+                shaderCallback: (rect) {
+                  return const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Colors.transparent, Colors.black],
+                    stops: [0.0, 0.5],
+                  ).createShader(rect);
+                },
+                blendMode: BlendMode.dstIn,
+                child: Image.asset(
+                  'assets/images/banner_upgrade_tech.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => const SizedBox(),
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
@@ -185,37 +208,309 @@ class CustomPromoBanner extends StatelessWidget {
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PromoBannerSlider extends StatefulWidget {
+  const PromoBannerSlider({super.key});
+
+  @override
+  State<PromoBannerSlider> createState() => _PromoBannerSliderState();
+}
+
+class _PromoBannerSliderState extends State<PromoBannerSlider> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      int nextPage = _currentPage + 1;
+      if (nextPage > 2) nextPage = 0;
+
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeIn,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 200,
+          child: PageView(
+            controller: _pageController,
+            onPageChanged: (int page) {
+              setState(() {
+                _currentPage = page;
+              });
+              _timer?.cancel();
+              _startTimer();
+            },
+            children: const [
+              CustomPromoBanner(),
+              PromoBannerGreen(),
+              PromoBannerOrange(),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(3, (index) {
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: _currentPage == index
+                    ? const Color(0xFF161828)
+                    : Colors.black.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+}
+
+class PromoBannerGreen extends StatelessWidget {
+  const PromoBannerGreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      width: double.infinity,
+      height: 200,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8F5E9),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
             Positioned(
-              bottom: 16,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              right: -30,
+              top: -10,
+              bottom: -10,
+              width: 220,
+              child: ShaderMask(
+                shaderCallback: (rect) {
+                  return const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Colors.transparent, Colors.black],
+                    stops: [0.0, 0.5],
+                  ).createShader(rect);
+                },
+                blendMode: BlendMode.dstIn,
+                child: Image.asset(
+                  'assets/images/banner_smart_gadgets.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => const SizedBox(),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF161828),
-                      shape: BoxShape.circle,
+                  RichText(
+                    text: const TextSpan(
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.black,
+                        height: 1.2,
+                        letterSpacing: -0.5,
+                      ),
+                      children: [
+                        TextSpan(text: 'Smart Gadgets\n'),
+                        TextSpan(
+                          text: 'Better ',
+                          style: TextStyle(color: Color(0xFF2E7D32)),
+                        ),
+                        TextSpan(text: 'Living'),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Explore smart devices that\nmake everyday life easier.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF555555),
+                      height: 1.4,
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BestSellersScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF161828),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: const Text(
+                      'Explore Now',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PromoBannerOrange extends StatelessWidget {
+  const PromoBannerOrange({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      width: double.infinity,
+      height: 200,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3E0),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -30,
+              top: -10,
+              bottom: -10,
+              width: 220,
+              child: ShaderMask(
+                shaderCallback: (rect) {
+                  return const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Colors.transparent, Colors.black],
+                    stops: [0.0, 0.5],
+                  ).createShader(rect);
+                },
+                blendMode: BlendMode.dstIn,
+                child: Image.asset(
+                  'assets/images/banner_great_deals.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => const SizedBox(),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: const TextSpan(
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.black,
+                        height: 1.2,
+                        letterSpacing: -0.5,
+                      ),
+                      children: [
+                        TextSpan(text: 'Great Deals\n'),
+                        TextSpan(text: 'You\'ll '),
+                        TextSpan(
+                          text: 'Love',
+                          style: TextStyle(color: Color(0xFFF57C00)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Grab exciting offers and discounts\non top gadgets.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF555555),
+                      height: 1.4,
+                    ),
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BestSellersScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF161828),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: const Text(
+                      'Shop Deals',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],

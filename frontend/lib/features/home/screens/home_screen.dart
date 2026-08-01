@@ -209,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            const CustomPromoBanner(),
+            const PromoBannerSlider(),
             const SizedBox(height: 24),
             _buildFeatureTabs(),
             const SizedBox(height: 24),

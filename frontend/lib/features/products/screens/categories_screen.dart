@@ -4,6 +4,7 @@ import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/core/widgets/logo_widget.dart';
 import '../providers/catalog_provider.dart';
 import 'products_by_category_screen.dart';
+import 'search_results_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -39,7 +40,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             ],
           ),
         ),
-        actions: [IconButton(icon: const Icon(Icons.search), onPressed: () {})],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SearchResultsScreen()),
+              );
+            },
+          )
+        ],
       ),
       body: Consumer<CatalogProvider>(
         builder: (context, provider, child) {

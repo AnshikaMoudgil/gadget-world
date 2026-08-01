@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/checkout/screens/payment_screen.dart';
@@ -369,6 +370,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   : 0.0;
               final oldPrice = price + (price * 0.1);
 
+              String? firstImageUrl;
+              if (product != null) {
+                dynamic imagesData = product['images'];
+                if (imagesData is List && imagesData.isNotEmpty) {
+                  firstImageUrl = imagesData[0].toString();
+                } else if (imagesData is String && imagesData.isNotEmpty) {
+                  try {
+                    final parsed = jsonDecode(imagesData);
+                    if (parsed is List && parsed.isNotEmpty) {
+                      firstImageUrl = parsed[0].toString();
+                    }
+                  } catch (_) {}
+                }
+              }
+
               return _buildOrderItem(
                 title: product?['name'] as String? ?? 'Unknown Product',
                 color: variantName,
@@ -377,6 +393,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 hasPriceChange: _currentState == CheckoutState.priceChange,
                 newPrice: formatCurrency.format(oldPrice),
                 priceDiff: '↑ ${formatCurrency.format(oldPrice - price)}',
+                imageUrl: firstImageUrl,
               );
             },
           ),
@@ -399,6 +416,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     String? priceDiff,
     String? subtitle,
     bool hasPriceChange = false,
+    String? imageUrl,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -412,10 +430,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               color: AppTheme.greyBackground,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
-              Icons.headphones,
-              color: AppTheme.greyText,
-            ), // placeholder icon
+            clipBehavior: Clip.hardEdge,
+            child: imageUrl != null && imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.shopping_bag_outlined, color: AppTheme.greyText),
+                  )
+                : const Icon(
+                    Icons.shopping_bag_outlined,
+                    color: AppTheme.greyText,
+                  ), // placeholder icon
           ),
           const SizedBox(width: 12),
           Expanded(

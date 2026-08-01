@@ -345,6 +345,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 item['subtitle'] ?? '',
                 item['qty'] ?? 1,
                 item['priceStr'] ?? '',
+                imageUrl: item['imageUrl'],
               ),
               const Divider(color: AppTheme.greyBorder, height: 1),
             ],
@@ -356,7 +357,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     );
   }
 
-  Widget _buildOrderItem(String title, String color, int qty, String price) {
+  Widget _buildOrderItem(String title, String color, int qty, String price, {String? imageUrl}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
@@ -369,7 +370,15 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               color: AppTheme.greyBackground,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.headphones, color: AppTheme.black),
+            clipBehavior: Clip.hardEdge,
+            child: imageUrl != null && imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.shopping_bag_outlined, color: AppTheme.greyText),
+                  )
+                : const Icon(Icons.shopping_bag_outlined, color: AppTheme.greyText),
           ),
           const SizedBox(width: 16),
           Expanded(
