@@ -64,7 +64,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Consumer<OrderProvider>(
                 builder: (context, provider, _) {
                   // Only show the "first order" banner if we are certain they have no orders
-                  final isTrulyEmpty = provider.orders.isEmpty &&
+                  final isTrulyEmpty =
+                      provider.orders.isEmpty &&
                       !provider.isLoading &&
                       provider.error == null;
                   return _buildPromoBanners(!isTrulyEmpty);
@@ -270,7 +271,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         int itemCount = order.items.fold(0, (sum, item) => sum + item.quantity);
 
         String? firstImageUrl;
-        if (order.items.isNotEmpty && order.items.first.productDetails != null) {
+        if (order.items.isNotEmpty &&
+            order.items.first.productDetails != null) {
           final details = order.items.first.productDetails!;
           dynamic imagesData = details['images'];
           if (imagesData is List && imagesData.isNotEmpty) {
@@ -292,7 +294,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: _buildCompactOrderCard(
             id: '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
             status: order.status.toUpperCase(),
-            date: '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
+            date:
+                '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
             price: '₹${order.amount.toStringAsFixed(0)}',
             items: '$itemCount Items',
             statusColor: _getStatusColor(order.status),
@@ -366,10 +369,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ? Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.shopping_bag_outlined, color: AppTheme.black),
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.shopping_bag_outlined,
+                      color: AppTheme.black,
+                    ),
                   )
-                : const Icon(Icons.shopping_bag_outlined, color: AppTheme.black),
+                : const Icon(
+                    Icons.shopping_bag_outlined,
+                    color: AppTheme.black,
+                  ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -473,8 +481,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildBannerItem(String topText, String title, String subtitle,
-      String imagePath, Color bgColor) {
+  Widget _buildBannerItem(
+    String topText,
+    String title,
+    String subtitle,
+    String imagePath,
+    Color bgColor,
+  ) {
     return Container(
       margin: const EdgeInsets.only(right: 16),
       padding: const EdgeInsets.all(16),
@@ -536,7 +549,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 0),
+                      horizontal: 16,
+                      vertical: 0,
+                    ),
                     minimumSize: const Size(0, 32),
                   ),
                   child: const Text(
@@ -553,8 +568,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Image.asset(
               imagePath,
               fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.image_not_supported, color: AppTheme.greyText),
+              errorBuilder: (context, error, stackTrace) => const Icon(
+                Icons.image_not_supported,
+                color: AppTheme.greyText,
+              ),
             ),
           ),
         ],

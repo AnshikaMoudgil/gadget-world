@@ -106,11 +106,7 @@ class MyProfileScreen extends StatelessWidget {
               color: AppTheme.greyBackground,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.person,
-              size: 40,
-              color: AppTheme.greyText,
-            ),
+            child: const Icon(Icons.person, size: 40, color: AppTheme.greyText),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -214,21 +210,33 @@ class MyProfileScreen extends StatelessWidget {
             ),
           ),
           const Divider(
-              color: AppTheme.greyBorder, height: 1, indent: 16, endIndent: 16),
+            color: AppTheme.greyBorder,
+            height: 1,
+            indent: 16,
+            endIndent: 16,
+          ),
           _buildInfoRow(
             Icons.person_outline,
             'Full Name',
             profile?.fullName ?? 'Not provided',
           ),
           const Divider(
-              color: AppTheme.greyBorder, height: 1, indent: 56, endIndent: 16),
+            color: AppTheme.greyBorder,
+            height: 1,
+            indent: 56,
+            endIndent: 16,
+          ),
           _buildInfoRow(
             Icons.email_outlined,
             'Email Address',
             profile?.email ?? 'Not provided',
           ),
           const Divider(
-              color: AppTheme.greyBorder, height: 1, indent: 56, endIndent: 16),
+            color: AppTheme.greyBorder,
+            height: 1,
+            indent: 56,
+            endIndent: 16,
+          ),
           _buildInfoRow(
             Icons.phone_outlined,
             'Phone Number',

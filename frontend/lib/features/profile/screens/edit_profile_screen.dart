@@ -222,7 +222,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               color: Colors.orange.shade100.withValues(alpha: 0.5),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.shield_outlined, color: Colors.orange, size: 24),
+            child: const Icon(
+              Icons.shield_outlined,
+              color: Colors.orange,
+              size: 24,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -416,10 +420,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.black,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: AppTheme.black),
                 ),
               ],
             ),

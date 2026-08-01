@@ -308,7 +308,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
         );
 
         String? firstImageUrl;
-        if (order.items.isNotEmpty && order.items.first.productDetails != null) {
+        if (order.items.isNotEmpty &&
+            order.items.first.productDetails != null) {
           final details = order.items.first.productDetails!;
           dynamic imagesData = details['images'];
           if (imagesData is List && imagesData.isNotEmpty) {
@@ -431,9 +432,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           imageUrl,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.shopping_bag_outlined, color: AppTheme.black, size: 30),
+                              const Icon(
+                                Icons.shopping_bag_outlined,
+                                color: AppTheme.black,
+                                size: 30,
+                              ),
                         )
-                      : const Icon(Icons.shopping_bag_outlined, color: AppTheme.black, size: 30),
+                      : const Icon(
+                          Icons.shopping_bag_outlined,
+                          color: AppTheme.black,
+                          size: 30,
+                        ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

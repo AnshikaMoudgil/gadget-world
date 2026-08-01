@@ -49,7 +49,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 MaterialPageRoute(builder: (_) => const SearchResultsScreen()),
               );
             },
-          )
+          ),
         ],
       ),
       body: Consumer<CatalogProvider>(

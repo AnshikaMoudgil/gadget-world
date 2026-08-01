@@ -435,8 +435,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ? Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.shopping_bag_outlined, color: AppTheme.greyText),
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.shopping_bag_outlined,
+                      color: AppTheme.greyText,
+                    ),
                   )
                 : const Icon(
                     Icons.shopping_bag_outlined,

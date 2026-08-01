@@ -357,7 +357,13 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     );
   }
 
-  Widget _buildOrderItem(String title, String color, int qty, String price, {String? imageUrl}) {
+  Widget _buildOrderItem(
+    String title,
+    String color,
+    int qty,
+    String price, {
+    String? imageUrl,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
@@ -375,10 +381,15 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 ? Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.shopping_bag_outlined, color: AppTheme.greyText),
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.shopping_bag_outlined,
+                      color: AppTheme.greyText,
+                    ),
                   )
-                : const Icon(Icons.shopping_bag_outlined, color: AppTheme.greyText),
+                : const Icon(
+                    Icons.shopping_bag_outlined,
+                    color: AppTheme.greyText,
+                  ),
           ),
           const SizedBox(width: 16),
           Expanded(
