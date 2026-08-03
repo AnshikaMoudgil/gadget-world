@@ -52,7 +52,6 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
           decoration: const InputDecoration(
             hintText: 'Search products',
             border: InputBorder.none,
-            prefixIcon: Icon(Icons.search),
           ),
         ),
         actions: [

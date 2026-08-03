@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/profile/screens/address_screen.dart';
 import 'package:gadget_store/features/profile/screens/my_profile_screen.dart';
@@ -58,6 +60,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildCustomHeader(),
+              const SizedBox(height: 24),
+              Consumer<OrderProvider>(
+                builder: (context, provider, _) {
+                  // Only show the "first order" banner if we are certain they have no orders
+                  final isTrulyEmpty =
+                      provider.orders.isEmpty &&
+                      !provider.isLoading &&
+                      provider.error == null;
+                  return _buildPromoBanners(!isTrulyEmpty);
+                },
+              ),
               const SizedBox(height: 32),
 
               if (isExisting) ...[
@@ -82,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               'Recent Orders',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w800,
                                 color: AppTheme.black,
                               ),
                             ),
@@ -98,8 +111,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Text(
                                 'View All',
                                 style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
                                   color: Colors.blue.shade700,
                                 ),
                               ),
@@ -121,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Quick Actions',
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                   color: AppTheme.black,
                 ),
               ),
@@ -133,7 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Account',
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                   color: AppTheme.black,
                 ),
               ),
@@ -165,8 +178,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'Hi, $firstName 👋',
                   style: const TextStyle(
                     color: AppTheme.black,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
                   ),
                 );
               },
@@ -242,7 +256,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           isExisting
               ? 'Welcome back! Glad to see you.'
               : 'Welcome! Let\'s get you started.',
-          style: const TextStyle(color: AppTheme.greyText, fontSize: 12),
+          style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13),
         ),
       ],
     );
@@ -255,16 +269,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       children: recentOrders.map((order) {
         int itemCount = order.items.fold(0, (sum, item) => sum + item.quantity);
+
+        String? firstImageUrl;
+        if (order.items.isNotEmpty &&
+            order.items.first.productDetails != null) {
+          final details = order.items.first.productDetails!;
+          dynamic imagesData = details['images'];
+          if (imagesData is List && imagesData.isNotEmpty) {
+            firstImageUrl = imagesData[0].toString();
+          } else if (imagesData is String && imagesData.isNotEmpty) {
+            try {
+              final parsed = jsonDecode(imagesData);
+              if (parsed is List && parsed.isNotEmpty) {
+                firstImageUrl = parsed[0].toString();
+              }
+            } catch (_) {}
+          } else if (details['image_url'] != null) {
+            firstImageUrl = details['image_url'].toString();
+          }
+        }
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
           child: _buildCompactOrderCard(
-            '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
-            order.status.toUpperCase(),
-            '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
-            '₹${order.amount.toStringAsFixed(0)}',
-            '$itemCount Items',
-            Icons.shopping_bag_outlined,
-            _getStatusColor(order.status),
+            id: '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
+            status: order.status.toUpperCase(),
+            date:
+                '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
+            price: '₹${order.amount.toStringAsFixed(0)}',
+            items: '$itemCount Items',
+            statusColor: _getStatusColor(order.status),
+            imageUrl: firstImageUrl,
           ),
         );
       }).toList(),
@@ -304,15 +339,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return months[month - 1];
   }
 
-  Widget _buildCompactOrderCard(
-    String id,
-    String status,
-    String date,
-    String price,
-    String items,
-    IconData icon,
-    Color statusColor,
-  ) {
+  Widget _buildCompactOrderCard({
+    required String id,
+    required String status,
+    required String date,
+    required String price,
+    required String items,
+    required Color statusColor,
+    String? imageUrl,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -329,7 +364,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: AppTheme.greyBackground,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: AppTheme.black),
+            clipBehavior: Clip.hardEdge,
+            child: imageUrl != null && imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.shopping_bag_outlined,
+                      color: AppTheme.black,
+                    ),
+                  )
+                : const Icon(
+                    Icons.shopping_bag_outlined,
+                    color: AppTheme.black,
+                  ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -338,12 +386,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      'Order $id',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.black,
+                    Expanded(
+                      child: Text(
+                        'Order $id',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.black,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -369,18 +421,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '$date â€¢ $price',
+                  '$date • $price',
                   style: const TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.greyText,
+                    fontSize: 11,
+                    color: Color(0xFF6B7280),
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   items,
                   style: const TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.greyText,
+                    fontSize: 11,
+                    color: Color(0xFF6B7280),
                   ),
                 ),
               ],
@@ -393,54 +445,133 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildEmptyOrdersState() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppTheme.greyBackground.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.3)),
-      ),
-      child: Column(
+    return const SizedBox.shrink(); // Handled by promo banners now
+  }
+
+  Widget _buildPromoBanners(bool hasOrders) {
+    return SizedBox(
+      height: 200,
+      child: PageView(
         children: [
-          Icon(
-            Icons.shopping_bag_outlined,
-            size: 60,
-            color: AppTheme.greyBorder,
+          if (!hasOrders)
+            _buildBannerItem(
+              'Welcome to Gadget Store!',
+              'Place your first order',
+              'Explore our best products and enjoy a seamless shopping experience.',
+              'assets/images/promo_banner_1.png',
+              const Color(0xFFFFF7ED),
+            )
+          else
+            _buildBannerItem(
+              'Exclusive Deal!',
+              'Members Only Sale',
+              'As a returning customer, enjoy special access to our newest gadgets.',
+              'assets/images/promo_banner_1.png',
+              const Color(0xFFFFF7ED),
+            ),
+          _buildBannerItem(
+            'Special Offer!',
+            'Get 20% Off',
+            'Enjoy exclusive discounts on premium electronics this week only.',
+            'assets/images/promo_banner_1.png',
+            const Color(0xFFF3F0FF),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'No orders yet',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.black,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBannerItem(
+    String topText,
+    String title,
+    String subtitle,
+    String imagePath,
+    Color bgColor,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(right: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  topText,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.black,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF6B7280),
+                    height: 1.5,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const MainScreen(initialIndex: 0),
+                      ),
+                      (route) => false,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.black,
+                    foregroundColor: AppTheme.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 0,
+                    ),
+                    minimumSize: const Size(0, 32),
+                  ),
+                  child: const Text(
+                    'Start Shopping',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'When you place your first order,\nit will appear here.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppTheme.greyText,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.black,
-              foregroundColor: AppTheme.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => const Icon(
+                Icons.image_not_supported,
+                color: AppTheme.greyText,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-            child: const Text(
-              'Start Shopping',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -474,7 +605,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Track Order',
                 'Check delivery status',
                 Colors.green,
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const OrdersScreen()),
+                  );
+                },
               ),
             ),
           ],
@@ -530,7 +666,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.white,
+          color: color.withValues(alpha: 0.05),
           border: Border.all(color: color.withValues(alpha: 0.2)),
           borderRadius: BorderRadius.circular(12),
         ),
@@ -552,8 +688,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
                       color: AppTheme.black,
                     ),
                   ),
@@ -562,7 +698,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     subtitle,
                     style: const TextStyle(
                       fontSize: 10,
-                      color: AppTheme.greyText,
+                      color: Color(0xFF6B7280),
                     ),
                   ),
                 ],
@@ -657,7 +793,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title,
                     style: const TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: AppTheme.black,
                     ),
                   ),
@@ -666,7 +802,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     subtitle,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: AppTheme.greyText,
+                      color: Color(0xFF6B7280),
                     ),
                   ),
                 ],

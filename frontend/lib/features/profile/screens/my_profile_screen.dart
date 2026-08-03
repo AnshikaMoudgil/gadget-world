@@ -17,7 +17,7 @@ class MyProfileScreen extends StatelessWidget {
             _buildHeader(context),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -91,7 +91,7 @@ class MyProfileScreen extends StatelessWidget {
     final profile = Provider.of<ProfileProvider>(context).profile;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.white,
         border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
@@ -99,47 +99,14 @@ class MyProfileScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Stack(
-            children: [
-              Container(
-                width: 70,
-                height: 70,
-                decoration: const BoxDecoration(
-                  color: AppTheme.greyBackground,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.person,
-                  size: 40,
-                  color: AppTheme.greyText,
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppTheme.greyBorder.withValues(alpha: 0.3),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt_outlined,
-                    size: 12,
-                    color: AppTheme.black,
-                  ),
-                ),
-              ),
-            ],
+          Container(
+            width: 70,
+            height: 70,
+            decoration: const BoxDecoration(
+              color: AppTheme.greyBackground,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.person, size: 40, color: AppTheme.greyText),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -200,7 +167,7 @@ class MyProfileScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             ),
             icon: const Icon(Icons.edit_outlined, size: 14),
             label: const Text(
@@ -242,19 +209,34 @@ class MyProfileScreen extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(color: AppTheme.greyBorder, height: 1),
+          const Divider(
+            color: AppTheme.greyBorder,
+            height: 1,
+            indent: 16,
+            endIndent: 16,
+          ),
           _buildInfoRow(
             Icons.person_outline,
             'Full Name',
             profile?.fullName ?? 'Not provided',
           ),
-          const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
+          const Divider(
+            color: AppTheme.greyBorder,
+            height: 1,
+            indent: 56,
+            endIndent: 16,
+          ),
           _buildInfoRow(
             Icons.email_outlined,
             'Email Address',
             profile?.email ?? 'Not provided',
           ),
-          const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
+          const Divider(
+            color: AppTheme.greyBorder,
+            height: 1,
+            indent: 56,
+            endIndent: 16,
+          ),
           _buildInfoRow(
             Icons.phone_outlined,
             'Phone Number',
@@ -281,14 +263,22 @@ class MyProfileScreen extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           Expanded(
+            flex: 2,
             child: Text(
               label,
               style: const TextStyle(fontSize: 12, color: AppTheme.black),
             ),
           ),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
+            ),
           ),
         ],
       ),
@@ -308,10 +298,10 @@ class MyProfileScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
+              color: AppTheme.greyBackground.withValues(alpha: 0.5),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.security, color: Colors.orange, size: 20),
+            child: const Icon(Icons.security, color: AppTheme.black, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/checkout/screens/order_success_screen.dart';
@@ -73,11 +74,26 @@ class _PaymentScreenState extends State<PaymentScreen>
 
       final itemsList =
           cartProvider.cart?.items.map((item) {
+            String? firstImageUrl;
+            if (item.product != null) {
+              dynamic imagesData = item.product!['images'];
+              if (imagesData is List && imagesData.isNotEmpty) {
+                firstImageUrl = imagesData[0].toString();
+              } else if (imagesData is String && imagesData.isNotEmpty) {
+                try {
+                  final parsed = jsonDecode(imagesData);
+                  if (parsed is List && parsed.isNotEmpty) {
+                    firstImageUrl = parsed[0].toString();
+                  }
+                } catch (_) {}
+              }
+            }
             return {
-              'title': item.product?['title']?.toString() ?? 'Product',
+              'title': item.product?['name']?.toString() ?? 'Product',
               'subtitle': 'Standard',
               'qty': item.quantity,
               'priceStr': '₹${item.product?['price']?.toString() ?? ''}',
+              'imageUrl': firstImageUrl,
             };
           }).toList() ??
           [];

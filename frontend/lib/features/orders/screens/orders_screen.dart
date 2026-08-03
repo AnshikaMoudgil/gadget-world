@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
@@ -52,10 +53,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
+          if (Navigator.canPop(context))
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0, top: 0),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'My Orders',
                   style: TextStyle(
@@ -296,6 +307,25 @@ class _OrdersScreenState extends State<OrdersScreen> {
           (int sum, item) => sum + item.quantity,
         );
 
+        String? firstImageUrl;
+        if (order.items.isNotEmpty &&
+            order.items.first.productDetails != null) {
+          final details = order.items.first.productDetails!;
+          dynamic imagesData = details['images'];
+          if (imagesData is List && imagesData.isNotEmpty) {
+            firstImageUrl = imagesData[0].toString();
+          } else if (imagesData is String && imagesData.isNotEmpty) {
+            try {
+              final parsed = jsonDecode(imagesData);
+              if (parsed is List && parsed.isNotEmpty) {
+                firstImageUrl = parsed[0].toString();
+              }
+            } catch (_) {}
+          } else if (details['image_url'] != null) {
+            firstImageUrl = details['image_url'].toString();
+          }
+        }
+
         return _buildOrderItemCard(
           order: order,
           id: '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
@@ -304,7 +334,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
           price: '₹${order.amount.toStringAsFixed(0)}',
           items: '$itemCount Items',
-          icon: Icons.shopping_bag_outlined,
+          imageUrl: firstImageUrl,
         );
       },
     );
@@ -335,7 +365,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     required String status,
     required String items,
     required String price,
-    required IconData icon,
+    String? imageUrl,
   }) {
     Color statusColor;
     Color statusBgColor;
@@ -396,7 +426,23 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     color: AppTheme.greyBackground,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(icon, color: AppTheme.black, size: 30),
+                  clipBehavior: Clip.hardEdge,
+                  child: imageUrl != null && imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(
+                                Icons.shopping_bag_outlined,
+                                color: AppTheme.black,
+                                size: 30,
+                              ),
+                        )
+                      : const Icon(
+                          Icons.shopping_bag_outlined,
+                          color: AppTheme.black,
+                          size: 30,
+                        ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -420,7 +466,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Row(
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 4,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -440,7 +489,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
                           Text(
                             items,
                             style: const TextStyle(

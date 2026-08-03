@@ -94,9 +94,11 @@ class GoogleAuthService {
     try {
       googleUser = await google.GoogleSignIn.instance.authenticate();
     } catch (e) {
-      if (e is PlatformException && (e.code == 'sign_in_canceled' || e.code == 'CANCELED')) {
+      if (e is PlatformException &&
+          (e.code == 'sign_in_canceled' || e.code == 'CANCELED')) {
         isCancelled = true;
-      } else if (e is google.GoogleSignInException && e.code == google.GoogleSignInExceptionCode.canceled) {
+      } else if (e is google.GoogleSignInException &&
+          e.code == google.GoogleSignInExceptionCode.canceled) {
         isCancelled = true;
       } else {
         debugPrint("Google Sign In Error: $e");
