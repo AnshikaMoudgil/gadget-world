@@ -55,8 +55,9 @@ class _MainScreenState extends State<MainScreen> {
               label: 'Home',
             ),
             const BottomNavigationBarItem(
-              icon: Icon(Icons.grid_view),
-              label: 'Categories',
+              icon: Icon(Icons.grid_view_outlined),
+              activeIcon: Icon(Icons.grid_view),
+              label: 'Products',
             ),
             BottomNavigationBarItem(
               icon: Stack(

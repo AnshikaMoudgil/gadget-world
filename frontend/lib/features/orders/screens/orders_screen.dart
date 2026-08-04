@@ -758,7 +758,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   // just change the tab index. We'll pop or push replacement for demo.
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (_) => const MainScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const MainScreen(initialIndex: 1),
+                    ),
                     (route) => false,
                   );
                 },

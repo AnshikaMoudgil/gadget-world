@@ -10,14 +10,46 @@ class AppTheme {
   static const Color error = Color(0xFFD32F2F);
   static const Color errorBackground = Color(0xFFFFEBEE);
 
+  static TextTheme _buildBoldTextTheme() {
+    final base = GoogleFonts.interTextTheme();
+    return base
+        .copyWith(
+          displayLarge: base.displayLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          displayMedium: base.displayMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          displaySmall: base.displaySmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          headlineLarge: base.headlineLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          headlineMedium: base.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          headlineSmall: base.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          titleLarge: base.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+          titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          titleSmall: base.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+          bodyLarge: base.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+          bodyMedium: base.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+          bodySmall: base.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+          labelLarge: base.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          labelMedium: base.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+          labelSmall: base.labelSmall?.copyWith(fontWeight: FontWeight.w600),
+        )
+        .apply(bodyColor: black, displayColor: black);
+  }
+
   static ThemeData get lightTheme {
     return ThemeData(
       primaryColor: black,
       scaffoldBackgroundColor: white,
-      textTheme: GoogleFonts.interTextTheme().apply(
-        bodyColor: black,
-        displayColor: black,
-      ),
+      textTheme: _buildBoldTextTheme(),
       colorScheme: const ColorScheme.light(
         primary: black,
         secondary: black,

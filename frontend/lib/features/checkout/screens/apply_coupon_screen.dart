@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
-
-enum CouponState { initial, error, success }
+import '../../cart/providers/cart_provider.dart';
 
 class ApplyCouponScreen extends StatefulWidget {
   const ApplyCouponScreen({super.key});
@@ -11,22 +11,33 @@ class ApplyCouponScreen extends StatefulWidget {
 }
 
 class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
-  CouponState _currentState = CouponState.initial;
   final TextEditingController _couponController = TextEditingController();
 
-  void _cycleState() {
-    setState(() {
-      if (_currentState == CouponState.initial) {
-        _currentState = CouponState.error;
-        _couponController.text = 'SAVE50';
-      } else if (_currentState == CouponState.error) {
-        _currentState = CouponState.success;
-        _couponController.text = ''; // usually disabled or empty
-      } else {
-        _currentState = CouponState.initial;
-        _couponController.text = '';
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      if (cartProvider.appliedCouponCode != null) {
+        _couponController.text = cartProvider.appliedCouponCode!;
       }
     });
+  }
+
+  void _applyCoupon() async {
+    final code = _couponController.text.trim();
+    if (code.isEmpty) return;
+
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    await cartProvider.applyCoupon(code);
+
+    // UI will update because of Consumer, but we can also handle success/error messages here if we wanted.
+  }
+
+  void _removeCoupon() {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    cartProvider.removeCoupon();
+    _couponController.text = '';
   }
 
   @override
@@ -44,85 +55,93 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
           icon: const Icon(Icons.arrow_back, color: AppTheme.black),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.change_circle_outlined,
-              color: AppTheme.greyText,
-            ),
-            onPressed: _cycleState,
-            tooltip: 'Cycle UI State',
-          ),
-        ],
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 24),
-                if (_currentState == CouponState.success) _buildSuccessBanner(),
-                if (_currentState == CouponState.success)
-                  const SizedBox(height: 16),
-                _buildInputArea(),
-                if (_currentState == CouponState.error) _buildErrorBanner(),
-                const SizedBox(height: 32),
-                const Text(
-                  'Available Offers',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.black,
-                  ),
+      body: Consumer<CartProvider>(
+        builder: (context, cartProvider, child) {
+          final isSuccess = cartProvider.appliedCouponCode != null;
+          final hasError =
+              cartProvider.error != null &&
+              cartProvider.appliedCouponCode == null;
+
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 24),
+                    if (isSuccess) _buildSuccessBanner(cartProvider),
+                    if (isSuccess) const SizedBox(height: 16),
+                    _buildInputArea(cartProvider),
+                    if (hasError) _buildErrorBanner(cartProvider.error!),
+                    const SizedBox(height: 32),
+                    const Text(
+                      'Available Offers',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.black,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Best offers for you, automatically applied at checkout',
+                      style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildOfferCard(
+                      code: 'SUMMER50',
+                      discount: '20% OFF',
+                      minOrder: 'Min. order ₹1,000',
+                      maxDiscount: 'Max. discount ₹500',
+                      icon: Icons.workspace_premium_outlined,
+                      isBestOffer: true,
+                      isApplied:
+                          isSuccess &&
+                          cartProvider.appliedCouponCode == 'SUMMER50',
+                    ),
+                    const SizedBox(height: 16),
+                    _buildOfferCard(
+                      code: 'FLAT200',
+                      discount: '₹200 OFF',
+                      minOrder: 'Min. order ₹1,500',
+                      maxDiscount: 'Flat amount off',
+                      icon: Icons.lock_outline,
+                      isApplied:
+                          isSuccess &&
+                          cartProvider.appliedCouponCode == 'FLAT200',
+                    ),
+                    const SizedBox(height: 16),
+                    _buildOfferCard(
+                      code: 'FREESHIP',
+                      discount: 'Free Shipping',
+                      minOrder: 'Min. order ₹500',
+                      maxDiscount: 'Saves shipping fee',
+                      icon: Icons.local_offer_outlined,
+                      isApplied:
+                          isSuccess &&
+                          cartProvider.appliedCouponCode == 'FREESHIP',
+                    ),
+                    const SizedBox(height: 32),
+                    _buildFooterInfo(),
+                    const SizedBox(
+                      height: 100,
+                    ), // spacing for bottom bar if needed
+                  ],
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Best offers for you, automatically applied at checkout',
-                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+              ),
+              if (isSuccess)
+                Positioned(
+                  left: 24,
+                  right: 24,
+                  bottom: 24,
+                  child: _buildTotalSavingsBox(cartProvider),
                 ),
-                const SizedBox(height: 16),
-                _buildOfferCard(
-                  code: 'SAVE20',
-                  discount: '20% OFF',
-                  minOrder: 'Min. order â‚¹1,999',
-                  maxDiscount: 'Max. discount â‚¹1,000',
-                  icon: Icons.workspace_premium_outlined,
-                  isBestOffer: true,
-                  isApplied: _currentState == CouponState.success,
-                ),
-                const SizedBox(height: 16),
-                _buildOfferCard(
-                  code: 'NEW10',
-                  discount: '10% OFF',
-                  minOrder: 'Min. order â‚¹999',
-                  maxDiscount: 'Max. discount â‚¹500',
-                  icon: Icons.lock_outline,
-                ),
-                const SizedBox(height: 16),
-                _buildOfferCard(
-                  code: 'WELCOME5',
-                  discount: '5% OFF',
-                  minOrder: 'No minimum order',
-                  maxDiscount: 'Max. discount â‚¹200',
-                  icon: Icons.local_offer_outlined,
-                ),
-                const SizedBox(height: 32),
-                _buildFooterInfo(),
-                const SizedBox(height: 100), // spacing for bottom bar if needed
-              ],
-            ),
-          ),
-          if (_currentState == CouponState.success)
-            Positioned(
-              left: 24,
-              right: 24,
-              bottom: 24,
-              child: _buildTotalSavingsBox(),
-            ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -148,8 +167,10 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
     );
   }
 
-  Widget _buildInputArea() {
-    final isDisabled = _currentState == CouponState.success;
+  Widget _buildInputArea(CartProvider cartProvider) {
+    final isDisabled = cartProvider.appliedCouponCode != null;
+    final hasError =
+        cartProvider.error != null && cartProvider.appliedCouponCode == null;
     return Row(
       children: [
         Expanded(
@@ -183,7 +204,7 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                     ),
                   ),
                 ),
-                if (_currentState == CouponState.error)
+                if (hasError)
                   Padding(
                     padding: const EdgeInsets.only(right: 12.0),
                     child: Icon(
@@ -197,21 +218,33 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
           ),
         ),
         const SizedBox(width: 12),
-        Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          decoration: BoxDecoration(
-            color: isDisabled ? Colors.grey.shade400 : AppTheme.black,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Center(
-            child: Text(
-              'Apply',
-              style: TextStyle(
-                color: AppTheme.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
+        GestureDetector(
+          onTap: isDisabled ? null : _applyCoupon,
+          child: Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              color: isDisabled ? Colors.grey.shade400 : AppTheme.black,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: cartProvider.isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: AppTheme.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      'Apply',
+                      style: TextStyle(
+                        color: AppTheme.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
             ),
           ),
         ),
@@ -219,7 +252,7 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
     );
   }
 
-  Widget _buildErrorBanner() {
+  Widget _buildErrorBanner(String errorMsg) {
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -231,12 +264,14 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
         children: [
           Icon(Icons.error_outline, color: Colors.red.shade400, size: 18),
           const SizedBox(width: 8),
-          Text(
-            'Invalid or expired coupon code.',
-            style: TextStyle(
-              color: Colors.red.shade400,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Text(
+              errorMsg,
+              style: TextStyle(
+                color: Colors.red.shade400,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -244,7 +279,7 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
     );
   }
 
-  Widget _buildSuccessBanner() {
+  Widget _buildSuccessBanner(CartProvider cartProvider) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
@@ -274,9 +309,9 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
               children: [
                 Row(
                   children: [
-                    const Text(
-                      'SAVE20',
-                      style: TextStyle(
+                    Text(
+                      cartProvider.appliedCouponCode ?? '',
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                         color: AppTheme.black,
@@ -292,9 +327,11 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                         color: Colors.green.shade100,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text(
-                        '20% OFF',
-                        style: TextStyle(
+                      child: Text(
+                        cartProvider.discountType == 'percentage'
+                            ? 'PERCENTAGE OFF'
+                            : 'FLAT OFF',
+                        style: const TextStyle(
                           color: Colors.green,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -304,20 +341,15 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'You saved â‚¹600',
-                  style: TextStyle(fontSize: 12, color: AppTheme.black),
+                Text(
+                  'You saved ₹${cartProvider.discount.toStringAsFixed(2)}',
+                  style: const TextStyle(fontSize: 12, color: AppTheme.black),
                 ),
               ],
             ),
           ),
           GestureDetector(
-            onTap: () {
-              setState(() {
-                _currentState = CouponState.initial;
-                _couponController.text = '';
-              });
-            },
+            onTap: _removeCoupon,
             child: const Icon(Icons.close, color: AppTheme.black, size: 20),
           ),
         ],
@@ -419,43 +451,6 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                     color: AppTheme.greyText,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: const [
-                    Icon(
-                      Icons.calendar_today_outlined,
-                      size: 12,
-                      color: AppTheme.greyText,
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Valid till 31 Jul 2026',
-                      style: TextStyle(fontSize: 10, color: AppTheme.greyText),
-                    ),
-                  ],
-                ),
-                if (isApplied)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Row(
-                      children: const [
-                        Icon(
-                          Icons.check_circle_outline,
-                          color: Colors.green,
-                          size: 16,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          'Applied',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
               ],
             ),
           ),
@@ -484,7 +479,7 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
     );
   }
 
-  Widget _buildTotalSavingsBox() {
+  Widget _buildTotalSavingsBox(CartProvider cartProvider) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
@@ -511,8 +506,8 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text(
+              children: [
+                const Text(
                   'Total Savings',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -520,17 +515,17 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                     color: AppTheme.black,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'You saved â‚¹600',
-                  style: TextStyle(fontSize: 12, color: AppTheme.black),
+                  'You saved ₹${cartProvider.discount.toStringAsFixed(2)}',
+                  style: const TextStyle(fontSize: 12, color: AppTheme.black),
                 ),
               ],
             ),
           ),
-          const Text(
-            '20% OFF',
-            style: TextStyle(
+          Text(
+            cartProvider.appliedCouponCode ?? '',
+            style: const TextStyle(
               color: Colors.green,
               fontWeight: FontWeight.bold,
               fontSize: 12,

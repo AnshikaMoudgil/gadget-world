@@ -3,15 +3,18 @@ import 'package:crypto/crypto.dart';
 import '../../../core/database/supabase_db.dart';
 import '../../../core/config/env.dart';
 import '../../cart/services/cart_service.dart';
+import '../../coupons/services/coupon_service.dart';
 import 'razorpay_service.dart';
 
 class PaymentService {
   final CartService _cartService = CartService();
   final RazorpayService _razorpayService = RazorpayService();
+  final CouponService _couponService = CouponService();
 
   Future<Map<String, dynamic>> createOrder(
     String userId, {
     String? addressId,
+    String? couponCode,
   }) async {
     // 1. Fetch user's cart
     final cartResult = await _cartService.getCart(userId);
@@ -41,6 +44,21 @@ class PaymentService {
     // Server-side calculation of shipping and discount
     double shippingFee = subtotal > 50000 ? 0.0 : 299.0;
     double discount = 0.0;
+    String? validCouponCode;
+    String? validCouponId;
+
+    if (couponCode != null && couponCode.isNotEmpty) {
+      final couponRes =
+          await _couponService.validateCoupon(couponCode, subtotal, userId);
+      if (couponRes['valid'] == true) {
+        discount = (couponRes['discount_amount'] as num).toDouble();
+        validCouponCode = couponCode;
+        if (couponRes['coupon'] != null) {
+          validCouponId = couponRes['coupon']['id'];
+        }
+      }
+    }
+
     double finalAmount = subtotal + shippingFee - discount;
 
     final int amountSubunits = (finalAmount * 100).round();
@@ -71,7 +89,8 @@ class PaymentService {
               'subtotal': subtotal,
               if (addressId != null) 'address_id': addressId,
               'shipping_fee': shippingFee,
-              'discount': discount,
+              'discount_amount': discount,
+              if (validCouponCode != null) 'coupon_code': validCouponCode,
             })
             .select()
             .single());
@@ -98,6 +117,12 @@ class PaymentService {
                 'unit_price': price,
                 'total_price': price * item.quantity,
               }));
+    }
+
+    // 5.5 Record coupon usage
+    if (validCouponId != null) {
+      await _couponService.recordCouponUsage(validCouponId, userId, orderId);
+      await _couponService.incrementUsage(validCouponId);
     }
 
     // 6. Insert payment row into public.payments

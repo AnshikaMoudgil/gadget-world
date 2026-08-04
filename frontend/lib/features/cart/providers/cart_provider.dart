@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import '../models/cart.dart';
 import '../services/cart_api_service.dart';
+import '../../checkout/models/coupon_response.dart';
+import '../../checkout/services/coupon_api_service.dart';
 
 class CartProvider extends ChangeNotifier {
   final CartApiService _apiService = CartApiService();
+  final CouponApiService _couponApiService = CouponApiService();
 
   Cart? _cart;
   bool _isLoading = false;
   String? _error;
 
+  String? _appliedCouponCode;
+  double _discountAmount = 0.0;
+  String? _discountType;
+
   Cart? get cart => _cart;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  String? get appliedCouponCode => _appliedCouponCode;
+  String? get discountType => _discountType;
 
   int get itemCount {
     if (_cart == null) return 0;
@@ -31,7 +41,7 @@ class CartProvider extends ChangeNotifier {
   }
 
   double get discount {
-    return 0.0; // Extendable for future discount logic
+    return _discountAmount;
   }
 
   double get shippingFee {
@@ -51,6 +61,45 @@ class CartProvider extends ChangeNotifier {
   void _setError(String? message) {
     _error = message;
     notifyListeners();
+  }
+
+  Future<void> applyCoupon(String code) async {
+    _setLoading(true);
+    _setError(null);
+    try {
+      final res = await _couponApiService.validateCoupon(code, subtotal);
+      if (res.valid) {
+        _appliedCouponCode = code;
+        _discountAmount = res.discountAmount;
+        _discountType = res.discountType;
+      } else {
+        _setError(res.message);
+      }
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  void removeCoupon() {
+    _appliedCouponCode = null;
+    _discountAmount = 0.0;
+    _discountType = null;
+    notifyListeners();
+  }
+
+  void _checkCouponValidity() {
+    if (_appliedCouponCode != null) {
+      // Re-validate silently or clear. For safety, clear if cart becomes empty or very small.
+      if (subtotal == 0) {
+        removeCoupon();
+      } else {
+        // Just clear to make them apply again, or re-apply silently.
+        // Let's clear to be safe.
+        removeCoupon();
+      }
+    }
   }
 
   Future<void> loadCart() async {
@@ -81,6 +130,7 @@ class CartProvider extends ChangeNotifier {
     } catch (e) {
       _setError(e.toString());
     } finally {
+      _checkCouponValidity();
       _setLoading(false);
     }
   }
@@ -93,6 +143,7 @@ class CartProvider extends ChangeNotifier {
     } catch (e) {
       _setError(e.toString());
     } finally {
+      _checkCouponValidity();
       _setLoading(false);
     }
   }
@@ -105,12 +156,16 @@ class CartProvider extends ChangeNotifier {
     } catch (e) {
       _setError(e.toString());
     } finally {
+      _checkCouponValidity();
       _setLoading(false);
     }
   }
 
   void clearCartLocal() {
     _cart = null;
+    _appliedCouponCode = null;
+    _discountAmount = 0.0;
+    _discountType = null;
     notifyListeners();
   }
 }

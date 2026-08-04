@@ -212,7 +212,9 @@ class _ReorderScreenState extends State<ReorderScreen> {
                 onPressed: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const MainScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const MainScreen(initialIndex: 1),
+                    ),
                     (route) => false,
                   );
                 },

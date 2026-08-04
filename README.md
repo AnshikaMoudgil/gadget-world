@@ -1,6 +1,6 @@
 # Tensorik GadgetWorld
 
-A B2B gadget wholesale marketplace built with Flutter (frontend) and Dart/Shelf (backend).
+A modern gadget e-commerce marketplace built with Flutter (frontend) and Dart/Shelf (backend).
 
 ## Tech Stack
 

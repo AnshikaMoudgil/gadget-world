@@ -207,6 +207,22 @@ export interface AppNotification {
   image_url: string | null;
   is_read: boolean;
   read_at: string | null;
-  created_at: string;
   user_email?: string;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discount_type: "percentage" | "fixed_amount" | "free_shipping";
+  discount_value: number;
+  min_order_value: number;
+  max_discount_amount: number | null;
+  valid_from: string | null;
+  valid_until: string | null;
+  usage_limit_per_user: number | null;
+  total_usage_limit: number | null;
+  times_used: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }

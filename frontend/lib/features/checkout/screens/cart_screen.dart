@@ -3,6 +3,7 @@ import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/core/widgets/primary_button.dart';
 import 'package:gadget_store/features/checkout/screens/apply_coupon_screen.dart';
 import 'package:gadget_store/features/checkout/screens/checkout_screen.dart';
+import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:gadget_store/features/cart/models/cart.dart';
@@ -47,9 +48,15 @@ class _CartScreenState extends State<CartScreen> {
           subtotal += price * item.quantity;
         }
 
-        double discount = 0; // Static for now, can implement coupons later
+        double discount = cartProvider.discount;
         double shipping = subtotal > 50000 ? 0 : 299;
         if (items.isEmpty) shipping = 0;
+
+        // If discount type is free_shipping, set shipping to 0
+        if (cartProvider.discountType == 'free_shipping') {
+          shipping = 0;
+        }
+
         double total = subtotal - discount + shipping;
 
         return Scaffold(
@@ -138,40 +145,66 @@ class _CartScreenState extends State<CartScreen> {
                             vertical: 12,
                           ),
                           decoration: BoxDecoration(
-                            border: Border.all(color: AppTheme.greyBorder),
+                            border: Border.all(
+                              color: cartProvider.appliedCouponCode != null
+                                  ? Colors.green
+                                  : AppTheme.greyBorder,
+                            ),
                             borderRadius: BorderRadius.circular(8),
+                            color: cartProvider.appliedCouponCode != null
+                                ? Colors.green.shade50
+                                : AppTheme.white,
                           ),
                           child: Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.local_offer_outlined,
-                                color: AppTheme.black,
+                                color: cartProvider.appliedCouponCode != null
+                                    ? Colors.green
+                                    : AppTheme.black,
                               ),
                               const SizedBox(width: 12),
-                              const Expanded(
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Have a coupon code?',
+                                      cartProvider.appliedCouponCode != null
+                                          ? '${cartProvider.appliedCouponCode} Applied!'
+                                          : 'Have a coupon code?',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 12,
+                                        color:
+                                            cartProvider.appliedCouponCode !=
+                                                null
+                                            ? Colors.green
+                                            : AppTheme.black,
                                       ),
                                     ),
                                     Text(
-                                      'Apply code to get instant discount',
+                                      cartProvider.appliedCouponCode != null
+                                          ? 'You saved ₹${formatCurrency.format(cartProvider.discount)}'
+                                          : 'Apply code to get instant discount',
                                       style: TextStyle(
-                                        color: AppTheme.greyText,
+                                        color:
+                                            cartProvider.appliedCouponCode !=
+                                                null
+                                            ? Colors.green.shade700
+                                            : AppTheme.greyText,
                                         fontSize: 10,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const Icon(
-                                Icons.arrow_forward_ios,
-                                color: AppTheme.black,
+                              Icon(
+                                cartProvider.appliedCouponCode != null
+                                    ? Icons.check_circle_outline
+                                    : Icons.arrow_forward_ios,
+                                color: cartProvider.appliedCouponCode != null
+                                    ? Colors.green
+                                    : AppTheme.black,
                                 size: 16,
                               ),
                             ],
@@ -286,19 +319,133 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildEmptyCart() {
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.shopping_cart_outlined,
-            size: 64,
-            color: AppTheme.greyBorder,
+          const SizedBox(height: 32),
+          Container(
+            padding: const EdgeInsets.all(40),
+            decoration: const BoxDecoration(
+              color: AppTheme.greyBackground,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.shopping_bag_outlined,
+              size: 80,
+              color: AppTheme.black,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 32),
           const Text(
             'Your cart is empty',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.black,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            "Looks like you haven't added\nanything to your cart yet.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: AppTheme.greyText,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (_) => const MainScreen(initialIndex: 1),
+                  ),
+                  (route) => false,
+                );
+              },
+              icon: const Icon(
+                Icons.shopping_bag_outlined,
+                color: AppTheme.white,
+                size: 18,
+              ),
+              label: const Text(
+                'Continue Shopping',
+                style: TextStyle(
+                  color: AppTheme.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.black,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 48),
+          Row(
+            children: const [
+              Expanded(child: Divider(color: AppTheme.greyBorder)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  'Why shop with us?',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
+              ),
+              Expanded(child: Divider(color: AppTheme.greyBorder)),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildFeatureItem(
+                Icons.verified_user_outlined,
+                '100% Secure\nCheckout',
+              ),
+              _buildFeatureItem(
+                Icons.local_shipping_outlined,
+                'Fast & Reliable\nDelivery',
+              ),
+              _buildFeatureItem(
+                Icons.assignment_return_outlined,
+                'Easy Returns &\nRefunds',
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem(IconData icon, String text) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, size: 28, color: AppTheme.black),
+          const SizedBox(height: 12),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 10,
+              color: AppTheme.greyText,
+              height: 1.4,
+            ),
           ),
         ],
       ),
