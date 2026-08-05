@@ -32,7 +32,8 @@ class PaymentApiService {
         'addressId': addressId,
         'shippingFee': shippingFee,
         'discount': discount,
-        ?'couponCode': couponCode,
+        // ignore: use_null_aware_elements
+        if (couponCode != null) 'couponCode': couponCode,
       }),
     );
 
