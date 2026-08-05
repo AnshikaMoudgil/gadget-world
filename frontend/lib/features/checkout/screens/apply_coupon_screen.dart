@@ -157,7 +157,8 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                             minOrder: minOrder,
                             maxDiscount: maxDiscountStr,
                             icon: iconData,
-                            isApplied: isSuccess &&
+                            isApplied:
+                                isSuccess &&
                                 cartProvider.appliedCouponCode == code,
                           ),
                         );
