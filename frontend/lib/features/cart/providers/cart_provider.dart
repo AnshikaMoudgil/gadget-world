@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/cart.dart';
 import '../services/cart_api_service.dart';
-import '../../checkout/models/coupon_response.dart';
 import '../../checkout/services/coupon_api_service.dart';
 
 class CartProvider extends ChangeNotifier {

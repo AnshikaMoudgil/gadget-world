@@ -62,7 +62,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   width: 32,
                   height: 32,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(
+                  errorBuilder: (context, error, stackTrace) => const Icon(
                     Icons.category_outlined,
                     size: 20,
                     color: AppTheme.white,
@@ -73,7 +73,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   width: 32,
                   height: 32,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(
+                  errorBuilder: (context, error, stackTrace) => const Icon(
                     Icons.category_outlined,
                     size: 20,
                     color: AppTheme.white,
@@ -94,7 +94,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.black : AppTheme.black.withOpacity(0.8),
+          color: isSelected ? AppTheme.black : AppTheme.black.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(12),
           border: isSelected
               ? Border.all(color: AppTheme.white, width: 1.5)
@@ -129,7 +129,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       subtitle,
                       style: TextStyle(
                         fontSize: 11,
-                        color: AppTheme.white.withOpacity(0.7),
+                        color: AppTheme.white.withValues(alpha: 0.7),
                       ),
                     ),
                 ],
