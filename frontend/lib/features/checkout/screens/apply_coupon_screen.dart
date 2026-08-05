@@ -162,7 +162,7 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                                 cartProvider.appliedCouponCode == code,
                           ),
                         );
-                      }).toList(),
+                      }),
                     const SizedBox(height: 32),
                     _buildFooterInfo(),
                     const SizedBox(

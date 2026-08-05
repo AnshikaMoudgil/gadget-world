@@ -32,7 +32,7 @@ class PaymentApiService {
         'addressId': addressId,
         'shippingFee': shippingFee,
         'discount': discount,
-        if (couponCode != null) 'couponCode': couponCode,
+        ?'couponCode': couponCode,
       }),
     );
 
