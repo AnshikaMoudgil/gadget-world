@@ -94,7 +94,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.black : AppTheme.black.withValues(alpha: 0.8),
+          color: isSelected
+              ? AppTheme.black
+              : AppTheme.black.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(12),
           border: isSelected
               ? Border.all(color: AppTheme.white, width: 1.5)
