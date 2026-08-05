@@ -42,6 +42,19 @@ ADD COLUMN IF NOT EXISTS discount_amount NUMERIC(10,2) NOT NULL DEFAULT 0;
 CREATE TRIGGER on_coupon_updated BEFORE UPDATE ON public.coupons
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
+-- RPC for incrementing usage
+CREATE OR REPLACE FUNCTION public.increment_coupon_usage(c_id UUID)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE public.coupons
+  SET times_used = times_used + 1
+  WHERE id = c_id;
+END;
+$$;
+
 -- RLS
 ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_coupons ENABLE ROW LEVEL SECURITY;
@@ -55,7 +68,11 @@ CREATE POLICY "Admins can do everything on user_coupons" ON public.user_coupons
 
 -- Users can read active coupons (for listing available coupons, if we want them to)
 CREATE POLICY "Users can read active coupons" ON public.coupons
-  FOR SELECT USING (is_active = true AND (valid_until IS NULL OR valid_until > NOW()));
+  FOR SELECT USING (
+    is_active = true 
+    AND (valid_until IS NULL OR valid_until > NOW())
+    AND (valid_from IS NULL OR valid_from <= NOW())
+  );
 
 -- Users can read their own usage history
 CREATE POLICY "Users can view own usage history" ON public.user_coupons

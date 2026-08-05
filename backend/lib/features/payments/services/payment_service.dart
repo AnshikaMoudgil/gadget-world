@@ -55,6 +55,9 @@ class PaymentService {
         validCouponCode = couponCode;
         if (couponRes['coupon'] != null) {
           validCouponId = couponRes['coupon']['id'];
+          if (couponRes['coupon']['discount_type'] == 'free_shipping') {
+            shippingFee = 0.0;
+          }
         }
       }
     }
@@ -122,7 +125,6 @@ class PaymentService {
     // 5.5 Record coupon usage
     if (validCouponId != null) {
       await _couponService.recordCouponUsage(validCouponId, userId, orderId);
-      await _couponService.incrementUsage(validCouponId);
     }
 
     // 6. Insert payment row into public.payments

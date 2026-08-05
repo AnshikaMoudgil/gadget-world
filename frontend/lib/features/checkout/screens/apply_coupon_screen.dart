@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
 import '../../cart/providers/cart_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApplyCouponScreen extends StatefulWidget {
   const ApplyCouponScreen({super.key});
@@ -12,16 +13,38 @@ class ApplyCouponScreen extends StatefulWidget {
 
 class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
   final TextEditingController _couponController = TextEditingController();
+  List<Map<String, dynamic>> _availableCoupons = [];
+  bool _isLoadingCoupons = true;
 
   @override
   void initState() {
     super.initState();
+    _fetchCoupons();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cartProvider = Provider.of<CartProvider>(context, listen: false);
       if (cartProvider.appliedCouponCode != null) {
         _couponController.text = cartProvider.appliedCouponCode!;
       }
     });
+  }
+
+  Future<void> _fetchCoupons() async {
+    try {
+      final res = await Supabase.instance.client
+          .from('coupons')
+          .select()
+          .order('created_at', ascending: false);
+      if (mounted) {
+        setState(() {
+          _availableCoupons = List<Map<String, dynamic>>.from(res as List);
+          _isLoadingCoupons = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingCoupons = false);
+      }
+    }
   }
 
   void _applyCoupon() async {
@@ -91,39 +114,54 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                       style: TextStyle(fontSize: 12, color: AppTheme.greyText),
                     ),
                     const SizedBox(height: 16),
-                    _buildOfferCard(
-                      code: 'SUMMER50',
-                      discount: '20% OFF',
-                      minOrder: 'Min. order ₹1,000',
-                      maxDiscount: 'Max. discount ₹500',
-                      icon: Icons.workspace_premium_outlined,
-                      isBestOffer: true,
-                      isApplied:
-                          isSuccess &&
-                          cartProvider.appliedCouponCode == 'SUMMER50',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildOfferCard(
-                      code: 'FLAT200',
-                      discount: '₹200 OFF',
-                      minOrder: 'Min. order ₹1,500',
-                      maxDiscount: 'Flat amount off',
-                      icon: Icons.lock_outline,
-                      isApplied:
-                          isSuccess &&
-                          cartProvider.appliedCouponCode == 'FLAT200',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildOfferCard(
-                      code: 'FREESHIP',
-                      discount: 'Free Shipping',
-                      minOrder: 'Min. order ₹500',
-                      maxDiscount: 'Saves shipping fee',
-                      icon: Icons.local_offer_outlined,
-                      isApplied:
-                          isSuccess &&
-                          cartProvider.appliedCouponCode == 'FREESHIP',
-                    ),
+                    if (_isLoadingCoupons)
+                      const Center(child: CircularProgressIndicator())
+                    else if (_availableCoupons.isEmpty)
+                      const Center(
+                        child: Text(
+                          'No available offers right now.',
+                          style: TextStyle(color: AppTheme.greyText),
+                        ),
+                      )
+                    else
+                      ..._availableCoupons.map((coupon) {
+                        final code = coupon['code'] as String;
+                        final minOrder = coupon['min_order_value'] != null
+                            ? 'Min. order ₹${coupon['min_order_value']}'
+                            : 'No min. order';
+                        String discountStr = '';
+                        String maxDiscountStr = '';
+                        IconData iconData = Icons.local_offer_outlined;
+
+                        if (coupon['discount_type'] == 'percentage') {
+                          discountStr = '${coupon['discount_value']}% OFF';
+                          maxDiscountStr = coupon['max_discount_amount'] != null
+                              ? 'Max. discount ₹${coupon['max_discount_amount']}'
+                              : 'Percentage off';
+                          iconData = Icons.workspace_premium_outlined;
+                        } else if (coupon['discount_type'] == 'fixed_amount') {
+                          discountStr = '₹${coupon['discount_value']} OFF';
+                          maxDiscountStr = 'Flat amount off';
+                          iconData = Icons.lock_outline;
+                        } else if (coupon['discount_type'] == 'free_shipping') {
+                          discountStr = 'Free Shipping';
+                          maxDiscountStr = 'Saves shipping fee';
+                          iconData = Icons.local_shipping_outlined;
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: _buildOfferCard(
+                            code: code,
+                            discount: discountStr,
+                            minOrder: minOrder,
+                            maxDiscount: maxDiscountStr,
+                            icon: iconData,
+                            isApplied: isSuccess &&
+                                cartProvider.appliedCouponCode == code,
+                          ),
+                        );
+                      }).toList(),
                     const SizedBox(height: 32),
                     _buildFooterInfo(),
                     const SizedBox(
