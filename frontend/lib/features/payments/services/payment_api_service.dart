@@ -20,6 +20,7 @@ class PaymentApiService {
     required String addressId,
     required double shippingFee,
     required double discount,
+    String? couponCode,
   }) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/payments/create-order'),
@@ -31,6 +32,8 @@ class PaymentApiService {
         'addressId': addressId,
         'shippingFee': shippingFee,
         'discount': discount,
+        // ignore: use_null_aware_elements
+        if (couponCode != null) 'couponCode': couponCode,
       }),
     );
 

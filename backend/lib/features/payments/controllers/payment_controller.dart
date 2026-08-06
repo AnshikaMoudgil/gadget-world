@@ -12,10 +12,12 @@ class PaymentController {
       final data = jsonDecode(body) as Map<String, dynamic>;
 
       final addressId = data['addressId'] as String?;
+      final couponCode = data['couponCode'] as String?;
 
       final result = await _paymentService.createOrder(
         userId,
         addressId: addressId,
+        couponCode: couponCode,
       );
       return Response.ok(jsonEncode(result),
           headers: {'Content-Type': 'application/json'});

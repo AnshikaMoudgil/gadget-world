@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/products/screens/best_sellers_screen.dart';
+import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart';
+import 'package:gadget_store/features/products/screens/categories_screen.dart';
 
 class PromoBannerPainter extends CustomPainter {
   @override
@@ -181,7 +183,7 @@ class CustomPromoBanner extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const BestSellersScreen(),
+                          builder: (_) => const NewArrivalsScreen(),
                         ),
                       );
                     },
@@ -377,7 +379,7 @@ class PromoBannerGreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const BestSellersScreen(),
+                          builder: (_) => const CategoriesScreen(),
                         ),
                       );
                     },

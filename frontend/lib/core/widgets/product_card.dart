@@ -31,7 +31,7 @@ class ProductCard extends StatelessWidget {
     required VoidCallback onAdd,
   }) {
     return ProductCard(
-      key: key,
+      key: key ?? ValueKey(product.id),
       productId: product.id,
       imageUrl: product.imageUrl ?? 'assets/images/laptop.png',
       title: product.name,

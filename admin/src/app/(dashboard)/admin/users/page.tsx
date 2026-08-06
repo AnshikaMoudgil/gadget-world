@@ -90,10 +90,10 @@ export default function UsersPage() {
     }
   };
 
-  const showToast = (type: string, message: string) => {
+  function showToast(type: string, message: string) {
     setToast({ type, message });
     setTimeout(() => setToast(null), 4000);
-  };
+  }
 
   // Stat summary calculations
   const stats = useMemo(() => {

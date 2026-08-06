@@ -7,6 +7,8 @@ import 'package:gadget_store/features/products/screens/search_results_screen.dar
 import 'package:gadget_store/features/products/screens/product_details_screen.dart';
 import 'package:gadget_store/features/products/screens/best_sellers_screen.dart';
 import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart';
+import 'package:gadget_store/features/products/screens/categories_screen.dart';
+import 'package:gadget_store/features/products/screens/products_by_category_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
@@ -211,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const PromoBannerSlider(),
             const SizedBox(height: 24),
-            _buildFeatureTabs(),
+            _buildCategories(),
             const SizedBox(height: 24),
             _buildSectionHeader(
               'Best Sellers',
@@ -341,83 +343,118 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildFeatureTabs() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildFeatureItem(
-            icon: Icons.verified_user_outlined,
-            title: 'Secure\nPayments',
-            subtitle: '100% secure',
-          ),
-          _buildFeatureDivider(),
-          _buildFeatureItem(
-            icon: Icons.local_shipping_outlined,
-            title: 'Free\nDelivery',
-            subtitle: 'Above ₹999',
-          ),
-          _buildFeatureDivider(),
-          _buildFeatureItem(
-            icon: Icons.replay,
-            title: 'Easy\nReturns',
-            subtitle: '7-day return',
-          ),
-          _buildFeatureDivider(),
-          _buildFeatureItem(
-            icon: Icons.support_agent,
-            title: '24/7\nSupport',
-            subtitle: "We're here to help",
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildCategories() {
+    return Consumer<CatalogProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoadingCategories) {
+          return const SizedBox(
+            height: 120,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-  Widget _buildFeatureItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return Expanded(
-      child: Column(
-        children: [
-          Icon(icon, color: const Color(0xFF5A5DF0), size: 24),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.black,
+        final categories = provider.categories.toList();
+
+        if (categories.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final colors = [
+          const Color(0xFFF3F0FF), // light purple
+          const Color(0xFFF0F5FF), // light blue
+          const Color(0xFFF0F7F4), // light green
+          const Color(0xFFFFF7ED), // light orange
+          const Color(0xFFFFF0F5), // light pink
+          const Color(0xFFF3EDFF), // light purple 2
+          const Color(0xFFF0F6FF), // light blue 2
+          const Color(0xFFFFF3ED), // light orange 2
+        ];
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader(
+              'Categories',
+              onViewAll: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CategoriesScreen()),
+                );
+              },
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            style: const TextStyle(fontSize: 9, color: AppTheme.greyText),
-          ),
-        ],
-      ),
-    );
-  }
+            SizedBox(
+              height: 100,
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                scrollDirection: Axis.horizontal,
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
+                  final category = categories[index];
+                  final bgColor = colors[index % colors.length];
 
-  Widget _buildFeatureDivider() {
-    return Container(
-      width: 1,
-      height: 40,
-      color: AppTheme.greyBorder.withValues(alpha: 0.3),
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              ProductsByCategoryScreen(category: category),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 72,
+                      margin: const EdgeInsets.only(right: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: bgColor,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: category.imageUrl != null
+                                  ? ClipOval(
+                                      child: Image.network(
+                                        category.imageUrl!,
+                                        width: 44,
+                                        height: 44,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.category_outlined,
+                                      size: 24,
+                                      color: AppTheme.black,
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            category.name,
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: AppTheme.black,
+                              height: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

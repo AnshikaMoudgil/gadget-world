@@ -6,6 +6,7 @@ import '../../features/products/routes/catalog_routes.dart';
 import '../../features/cart/routes/cart_routes.dart';
 import '../../features/payments/routes/payment_routes.dart';
 import '../../features/profile/routes/settings_routes.dart';
+import '../../features/coupons/routes/coupon_routes.dart';
 
 class AppRouter {
   Router get router {
@@ -24,6 +25,7 @@ class AppRouter {
     router.mount('/api/cart', CartRoutes().handler);
     router.mount('/api/payments', PaymentRoutes().router.call);
     router.mount('/api/settings', SettingsRoutes().handler);
+    router.mount('/api/coupons', CouponRoutes().handler);
 
     return router;
   }

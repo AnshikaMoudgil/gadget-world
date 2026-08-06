@@ -166,11 +166,14 @@ class _PaymentScreenState extends State<PaymentScreen>
       final token = Supabase.instance.client.auth.currentSession?.accessToken;
       if (token == null) throw Exception('User not authenticated');
 
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
       final orderData = await _paymentApiService.createOrder(
         token: token,
         addressId: widget.addressId,
         shippingFee: widget.shippingFee,
         discount: widget.discount,
+        couponCode: cartProvider.appliedCouponCode,
       );
 
       final keyId = orderData['keyId'] as String? ?? '';
