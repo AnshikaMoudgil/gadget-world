@@ -699,15 +699,10 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                               _buildFreeShippingBar(cartProvider.subtotal),
-                              ...items
-                                  .map(
-                                    (item) => _buildCartItem(
-                                      context,
-                                      item,
-                                      cartProvider,
-                                    ),
-                                  )
-                                  ,
+                              ...items.map(
+                                (item) =>
+                                    _buildCartItem(context, item, cartProvider),
+                              ),
                               _buildCouponSection(cartProvider),
                             ],
                           ),

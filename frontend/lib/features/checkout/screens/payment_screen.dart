@@ -415,7 +415,9 @@ class _PaymentScreenState extends State<PaymentScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: AppTheme.white,
-            border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
+            border: Border.all(
+              color: AppTheme.greyBorder.withValues(alpha: 0.5),
+            ),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(

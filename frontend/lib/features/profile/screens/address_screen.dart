@@ -444,9 +444,7 @@ class _AddressScreenState extends State<AddressScreen> {
                               ),
                             ),
                           ),
-                        ...provider.addresses
-                            .map((a) => _buildAddressCard(a))
-                            ,
+                        ...provider.addresses.map((a) => _buildAddressCard(a)),
                         const SizedBox(height: 16),
                         GestureDetector(
                           onTap: () {
