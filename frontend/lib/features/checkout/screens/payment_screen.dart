@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/checkout/screens/order_success_screen.dart';
-import 'package:gadget_store/features/checkout/screens/order_failed_screen.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/checkout/screens/order_success_screen.dart';
+import 'package:gadget_world/features/checkout/screens/order_failed_screen.dart';
 import 'package:razorpay_web/razorpay_web.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:gadget_store/features/payments/services/payment_api_service.dart';
-import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:gadget_world/features/payments/services/payment_api_service.dart';
+import 'package:gadget_world/features/orders/providers/order_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+import 'package:gadget_world/features/cart/providers/cart_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 enum PaymentState { initial, processing }
 
@@ -35,6 +36,7 @@ class _PaymentScreenState extends State<PaymentScreen>
   late Razorpay _razorpay;
   final PaymentApiService _paymentApiService = PaymentApiService();
   bool _isProcessing = false;
+  bool _showOrderDetails = false;
 
   @override
   void initState() {
@@ -182,9 +184,9 @@ class _PaymentScreenState extends State<PaymentScreen>
       var options = {
         'key': keyId,
         'amount': orderData['amount'],
-        'name': 'Gadget Store',
+        'name': 'Gadget World',
         'order_id': orderId,
-        'description': 'Purchase from Gadget Store',
+        'description': 'Purchase from Gadget World',
         'retry': {'enabled': true, 'max_count': 1},
         'prefill': {
           'email': Supabase.instance.client.auth.currentUser?.email ?? '',
@@ -241,6 +243,55 @@ class _PaymentScreenState extends State<PaymentScreen>
     return formatCurrency.format(total);
   }
 
+  Widget _buildOrderDetailsBox() {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var item in cartProvider.cart?.items ?? [])
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    '${item.quantity}x ${item.product?['name'] ?? 'Product'}',
+                    style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  '₹${(item.product?['price'] ?? 0) * item.quantity}',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Shipping', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
+            Text('₹${widget.shippingFee.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black)),
+          ],
+        ),
+        if (widget.discount > 0)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Discount', style: TextStyle(fontSize: 12, color: Colors.green)),
+                Text('-₹${widget.discount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -249,20 +300,19 @@ class _PaymentScreenState extends State<PaymentScreen>
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 150),
+            padding: const EdgeInsets.fromLTRB(24, 64, 24, 100),
             child: _currentState == PaymentState.initial
                 ? _buildInitialState()
                 : _buildProcessingState(),
           ),
-          if (_currentState == PaymentState.initial)
-            Positioned(left: 0, right: 0, bottom: 0, child: _buildBottomBar())
-          else
-            Positioned(
-              left: 24,
-              right: 24,
-              bottom: 24,
-              child: _buildWarningFooter(),
-            ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 24,
+            child: _currentState == PaymentState.initial
+                ? _buildFooter()
+                : _buildWarningFooter(),
+          ),
         ],
       ),
     );
@@ -271,7 +321,7 @@ class _PaymentScreenState extends State<PaymentScreen>
   AppBar _buildAppBar() {
     return AppBar(
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+        icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
         onPressed: () => Navigator.pop(context),
       ),
       title: Column(
@@ -304,10 +354,10 @@ class _PaymentScreenState extends State<PaymentScreen>
             child: Row(
               children: const [
                 Icon(
-                  Icons.flash_on,
+                  Icons.change_history,
                   size: 16,
                   color: AppTheme.black,
-                ), // Mock Razorpay logo
+                ),
                 Text(
                   'Razorpay',
                   style: TextStyle(
@@ -342,291 +392,229 @@ class _PaymentScreenState extends State<PaymentScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: AppTheme.white,
-            border: Border.all(color: AppTheme.greyBorder),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Amount to Pay',
-                    style: TextStyle(color: AppTheme.greyText, fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _getTotalAmountStr(),
-                    style: const TextStyle(
-                      color: AppTheme.black,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: const [
-                      Text(
-                        'View order details',
-                        style: TextStyle(color: AppTheme.black, fontSize: 12),
-                      ),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 16,
-                        color: AppTheme.black,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              // Graphic
-              SizedBox(
-                width: 80,
-                height: 80,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    const Icon(
-                      Icons.shield_outlined,
-                      size: 80,
-                      color: AppTheme.greyBorder,
-                    ),
-                    Positioned(
-                      bottom: 10,
-                      right: 10,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.black,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          children: const [
-                            Icon(
-                              Icons.credit_card,
-                              size: 12,
-                              color: AppTheme.white,
-                            ),
-                            SizedBox(width: 4),
-                            Icon(Icons.circle, size: 4, color: Colors.green),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const Positioned(
-                      top: 20,
-                      child: Icon(Icons.lock, size: 24, color: AppTheme.black),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 32),
-        const Text(
-          'Choose a payment method',
-          style: TextStyle(
-            color: AppTheme.black,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Methods List
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: AppTheme.greyBorder),
+            border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
             children: [
-              _buildPaymentMethodTile(
-                Icons.flash_on,
-                'UPI',
-                'Google Pay, PhonePe, Paytm & more',
-                onTap: _showRazorpayModal,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Amount to Pay',
+                        style: TextStyle(color: AppTheme.greyText, fontSize: 14),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _getTotalAmountStr(),
+                        style: const TextStyle(
+                          color: AppTheme.black,
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _showOrderDetails = !_showOrderDetails;
+                          });
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                'View order details',
+                                style: TextStyle(color: AppTheme.black, fontSize: 12),
+                              ),
+                              Icon(
+                                _showOrderDetails ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                size: 16,
+                                color: AppTheme.black,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Graphic
+                  SizedBox(
+                    width: 80,
+                    height: 80,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(
+                          Icons.shield,
+                          size: 80,
+                          color: Color(0xFFF0F0F0),
+                        ),
+                        const Positioned(
+                          top: 15,
+                          child: Icon(Icons.lock, size: 28, color: AppTheme.black),
+                        ),
+                        Positioned(
+                          bottom: 5,
+                          right: 0,
+                          child: Stack(
+                            children: [
+                              Transform.translate(
+                                offset: const Offset(8, -8),
+                                child: Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: 45,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  color: AppTheme.black,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                padding: const EdgeInsets.all(4),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(width: 6, height: 6, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                                        Container(width: 12, height: 2, color: Colors.grey),
+                                      ],
+                                    ),
+                                    Container(width: 20, height: 2, color: Colors.grey),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const Divider(color: AppTheme.greyBorder, height: 1),
-              _buildPaymentMethodTile(
-                Icons.credit_card,
-                'Cards',
-                'Visa, Mastercard, RuPay & more',
-              ),
-              const Divider(color: AppTheme.greyBorder, height: 1),
-              _buildPaymentMethodTile(
-                Icons.account_balance,
-                'Netbanking',
-                'All major banks supported',
-              ),
-              const Divider(color: AppTheme.greyBorder, height: 1),
-              _buildPaymentMethodTile(
-                Icons.account_balance_wallet_outlined,
-                'Wallet',
-                'Paytm, Mobikwik & more',
-              ),
-              const Divider(color: AppTheme.greyBorder, height: 1),
-              _buildPaymentMethodTile(
-                Icons.percent,
-                'EMI',
-                'Easy EMI options available',
-              ),
+              if (_showOrderDetails) ...[
+                const SizedBox(height: 16),
+                const Divider(color: AppTheme.greyBorder),
+                const SizedBox(height: 8),
+                _buildOrderDetailsBox(),
+              ],
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        // Secure Box
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(color: AppTheme.greyBorder),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.verified_user_outlined, color: AppTheme.black),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        
+        const SizedBox(height: 48),
+        
+        // Pay with Razorpay Section
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Pay with Razorpay',
+                  style: TextStyle(
+                    color: AppTheme.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
                   children: const [
+                    Icon(Icons.verified_user_outlined, size: 14, color: AppTheme.greyText),
+                    SizedBox(width: 4),
                     Text(
                       '100% Secure Payments',
-                      style: TextStyle(
-                        color: AppTheme.black,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Your payment information is safe with us',
                       style: TextStyle(color: AppTheme.greyText, fontSize: 12),
                     ),
                   ],
                 ),
+              ],
+            ),
+            Row(
+              children: const [
+                Icon(Icons.change_history, size: 16, color: Color(0xFF0C2444)),
+                SizedBox(width: 2),
+                Text(
+                  'Razorpay',
+                  style: TextStyle(
+                    color: Color(0xFF0C2444),
+                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        
+        // Pay Button
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton(
+            onPressed: _isProcessing ? null : _processPayment,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
-              const Icon(Icons.chevron_right, color: AppTheme.greyText),
-            ],
+            ),
+            child: Text(
+              'Pay ${_getTotalAmountStr()}',
+              style: const TextStyle(
+                color: AppTheme.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        
+        const Center(
+          child: Text(
+            'You will be redirected to Razorpay to complete your payment securely.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppTheme.greyText,
+              fontSize: 12,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPaymentMethodTile(
-    IconData icon,
-    String title,
-    String subtitle, {
-    VoidCallback? onTap,
-  }) {
-    return InkWell(
-      onTap: onTap ?? () {},
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(icon, color: AppTheme.black),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: AppTheme.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: AppTheme.greyText,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: AppTheme.greyText),
-          ],
+  Widget _buildFooter() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        Icon(Icons.shield_outlined, size: 14, color: AppTheme.greyText),
+        SizedBox(width: 6),
+        Text(
+          'Secured by Razorpay',
+          style: TextStyle(color: AppTheme.greyText, fontSize: 12),
         ),
-      ),
-    );
-  }
-
-  Widget _buildBottomBar() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-      decoration: const BoxDecoration(color: AppTheme.white),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: 54,
-            child: ElevatedButton(
-              onPressed: _isProcessing ? null : _processPayment,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.black,
-                foregroundColor: AppTheme.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.lock_outline, size: 20),
-                  const SizedBox(width: 8),
-                  _isProcessing
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: AppTheme.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text(
-                          'Pay Now',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                  const Spacer(),
-                  Text(
-                    _getTotalAmountStr(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.shield_outlined, size: 14, color: AppTheme.greyText),
-              SizedBox(width: 6),
-              Text(
-                'Secured by Razorpay',
-                style: TextStyle(color: AppTheme.greyText, fontSize: 12),
-              ),
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -678,7 +666,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text(
-                        'Gadget Store',
+                        'Gadget World',
                         style: TextStyle(
                           color: AppTheme.black,
                           fontSize: 16,
@@ -935,7 +923,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppTheme.greyText),
+            const Icon(PhosphorIcons.caretRight, color: AppTheme.greyText),
           ],
         ),
       ),

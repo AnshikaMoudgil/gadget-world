@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/profile/screens/edit_profile_screen.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/profile/screens/edit_profile_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/features/profile/providers/profile_provider.dart';
+import 'package:gadget_world/features/profile/providers/profile_provider.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class MyProfileScreen extends StatelessWidget {
   const MyProfileScreen({super.key});
@@ -44,7 +45,7 @@ class MyProfileScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+            icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 8),
@@ -74,7 +75,7 @@ class MyProfileScreen extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: AppTheme.black),
+            icon: const Icon(PhosphorIcons.pencilSimple, color: AppTheme.black),
             onPressed: () {
               Navigator.push(
                 context,
@@ -102,11 +103,19 @@ class MyProfileScreen extends StatelessWidget {
           Container(
             width: 70,
             height: 70,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppTheme.greyBackground,
               shape: BoxShape.circle,
+              image: profile?.avatarUrl != null
+                  ? DecorationImage(
+                      image: NetworkImage(profile!.avatarUrl!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
-            child: const Icon(Icons.person, size: 40, color: AppTheme.greyText),
+            child: profile?.avatarUrl == null
+                ? const Icon(PhosphorIcons.userFill, size: 40, color: AppTheme.greyText)
+                : null,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -135,8 +144,8 @@ class MyProfileScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: const [
                       Icon(
-                        Icons.check_circle_outline,
-                        size: 12,
+                        PhosphorIcons.checkCircle,
+                        size: 14,
                         color: Colors.green,
                       ),
                       SizedBox(width: 4),
@@ -169,7 +178,7 @@ class MyProfileScreen extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             ),
-            icon: const Icon(Icons.edit_outlined, size: 14),
+            icon: const Icon(PhosphorIcons.pencilSimple, size: 14),
             label: const Text(
               'Edit Profile',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
@@ -196,7 +205,7 @@ class MyProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: const [
-                Icon(Icons.person_outline, size: 20, color: AppTheme.black),
+                Icon(PhosphorIcons.user, size: 20, color: AppTheme.black),
                 SizedBox(width: 12),
                 Text(
                   'Personal Information',
@@ -216,7 +225,7 @@ class MyProfileScreen extends StatelessWidget {
             endIndent: 16,
           ),
           _buildInfoRow(
-            Icons.person_outline,
+            PhosphorIcons.user,
             'Full Name',
             profile?.fullName ?? 'Not provided',
           ),
@@ -227,7 +236,7 @@ class MyProfileScreen extends StatelessWidget {
             endIndent: 16,
           ),
           _buildInfoRow(
-            Icons.email_outlined,
+            PhosphorIcons.envelopeSimple,
             'Email Address',
             profile?.email ?? 'Not provided',
           ),
@@ -238,7 +247,7 @@ class MyProfileScreen extends StatelessWidget {
             endIndent: 16,
           ),
           _buildInfoRow(
-            Icons.phone_outlined,
+            PhosphorIcons.phone,
             'Phone Number',
             profile?.phoneNumber ?? 'Not provided',
           ),
@@ -301,7 +310,7 @@ class MyProfileScreen extends StatelessWidget {
               color: AppTheme.greyBackground.withValues(alpha: 0.5),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.security, color: AppTheme.black, size: 20),
+            child: const Icon(PhosphorIcons.shieldCheck, color: AppTheme.black, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(

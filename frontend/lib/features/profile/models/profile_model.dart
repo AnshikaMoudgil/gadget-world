@@ -5,6 +5,7 @@ class Profile {
   final String? phoneNumber;
   final DateTime? dateOfBirth;
   final DateTime? createdAt;
+  final String? avatarUrl;
 
   Profile({
     required this.id,
@@ -13,6 +14,7 @@ class Profile {
     this.phoneNumber,
     this.dateOfBirth,
     this.createdAt,
+    this.avatarUrl,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class Profile {
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
           : null,
+      avatarUrl: json['avatar_url'] as String?,
     );
   }
 
@@ -40,6 +43,7 @@ class Profile {
       if (phoneNumber != null) 'phone_number': phoneNumber,
       if (dateOfBirth != null)
         'date_of_birth': dateOfBirth!.toIso8601String().split('T').first,
+      if (avatarUrl != null) 'avatar_url': avatarUrl,
     };
   }
 
@@ -50,6 +54,7 @@ class Profile {
           ? null
           : phoneNumber,
       'date_of_birth': dateOfBirth?.toIso8601String().split('T').first,
+      'avatar_url': avatarUrl,
     };
   }
 
@@ -57,6 +62,8 @@ class Profile {
     String? fullName,
     String? phoneNumber,
     DateTime? dateOfBirth,
+    String? avatarUrl,
+    bool clearAvatarUrl = false,
   }) {
     return Profile(
       id: id,
@@ -65,6 +72,7 @@ class Profile {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       createdAt: createdAt,
+      avatarUrl: clearAvatarUrl ? null : (avatarUrl ?? this.avatarUrl),
     );
   }
 }

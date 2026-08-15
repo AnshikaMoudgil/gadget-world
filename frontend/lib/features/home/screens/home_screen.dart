@@ -1,18 +1,21 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/home/widgets/promo_banner.dart';
-import 'package:gadget_store/core/widgets/logo_widget.dart';
-import 'package:gadget_store/core/widgets/product_card.dart';
-import 'package:gadget_store/features/products/screens/search_results_screen.dart';
-import 'package:gadget_store/features/products/screens/product_details_screen.dart';
-import 'package:gadget_store/features/products/screens/best_sellers_screen.dart';
-import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart';
-import 'package:gadget_store/features/products/screens/categories_screen.dart';
-import 'package:gadget_store/features/products/screens/products_by_category_screen.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/home/widgets/promo_banner.dart';
+import 'package:gadget_world/core/widgets/logo_widget.dart';
+import 'package:gadget_world/core/widgets/product_card.dart';
+import 'package:gadget_world/features/products/screens/search_results_screen.dart';
+import 'package:gadget_world/features/products/screens/product_details_screen.dart';
+import 'package:gadget_world/features/products/screens/best_sellers_screen.dart';
+import 'package:gadget_world/features/products/screens/new_arrivals_screen.dart';
+import 'package:gadget_world/features/products/screens/featured_products_screen.dart';
+import 'package:gadget_world/features/products/screens/categories_screen.dart';
+import 'package:gadget_world/features/products/screens/products_by_category_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/features/products/providers/catalog_provider.dart';
-import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+import 'package:gadget_world/features/products/providers/catalog_provider.dart';
+import 'package:gadget_world/features/cart/providers/cart_provider.dart';
 import '../widgets/filter_bottom_sheet.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -102,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     border: InputBorder.none,
                     prefixIcon: const Icon(
-                      Icons.search,
+                      PhosphorIcons.magnifyingGlass,
                       color: AppTheme.greyText,
                     ),
                     prefixIconConstraints: const BoxConstraints(
@@ -214,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const PromoBannerSlider(),
             const SizedBox(height: 24),
             _buildCategories(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
             _buildSectionHeader(
               'Best Sellers',
               onViewAll: () {
@@ -224,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            _buildHorizontalProductList(),
+            _buildHorizontalProductList(badgeText: 'Bestseller'),
             const SizedBox(height: 24),
             _buildSectionHeader(
               'New Arrivals',
@@ -235,10 +238,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            _buildHorizontalProductList(),
+            _buildHorizontalProductList(badgeText: 'New'),
             const SizedBox(height: 24),
-            _buildSectionHeader('Featured Products'),
-            _buildHorizontalProductList(isFeatured: true),
+            _buildSectionHeader(
+              'Featured Products',
+              onViewAll: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FeaturedProductsScreen()),
+                );
+              },
+            ),
+            _buildHorizontalProductList(isFeatured: true, discountText: '2% OFF'),
             const SizedBox(height: 32),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -256,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.shopping_bag_outlined,
+                      PhosphorIcons.shoppingBag,
                       color: AppTheme.black,
                     ),
                   ),
@@ -299,7 +310,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: AppTheme.black,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -383,14 +398,25 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             SizedBox(
-              height: 100,
+              height: 90,
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 scrollDirection: Axis.horizontal,
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
                   final category = categories[index];
-                  final bgColor = colors[index % colors.length];
+                  
+                  IconData getCategoryIcon(String name) {
+                    final n = name.toLowerCase();
+                    if (n.contains('mobile') || n.contains('phone')) return CupertinoIcons.device_phone_portrait;
+                    if (n.contains('laptop') || n.contains('tablet') || n.contains('computer')) return CupertinoIcons.device_laptop;
+                    if (n.contains('audio') || n.contains('earphone') || n.contains('headphone')) return CupertinoIcons.headphones;
+                    if (n.contains('wearable') || n.contains('watch')) return CupertinoIcons.time;
+                    if (n.contains('cable') || n.contains('charger')) return CupertinoIcons.bolt_horizontal;
+                    if (n.contains('camera')) return CupertinoIcons.camera;
+                    if (n.contains('gaming') || n.contains('game')) return CupertinoIcons.game_controller;
+                    return CupertinoIcons.circle_grid_3x3;
+                  }
 
                   return GestureDetector(
                     onTap: () {
@@ -403,30 +429,35 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                     child: Container(
-                      width: 72,
+                      width: 64,
                       margin: const EdgeInsets.only(right: 16),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Container(
-                            width: 60,
-                            height: 60,
+                            width: 48,
+                            height: 48,
                             decoration: BoxDecoration(
-                              color: bgColor,
-                              shape: BoxShape.circle,
+                              color: AppTheme.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: AppTheme.greyBorder,
+                                width: 1.5,
+                              ),
                             ),
                             child: Center(
                               child: category.imageUrl != null
-                                  ? ClipOval(
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
                                       child: Image.network(
                                         category.imageUrl!,
-                                        width: 44,
-                                        height: 44,
+                                        width: 36,
+                                        height: 36,
                                         fit: BoxFit.cover,
                                       ),
                                     )
-                                  : const Icon(
-                                      Icons.category_outlined,
+                                  : Icon(
+                                      getCategoryIcon(category.name),
                                       size: 24,
                                       color: AppTheme.black,
                                     ),
@@ -436,11 +467,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(
                             category.name,
                             textAlign: TextAlign.center,
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
                               color: AppTheme.black,
                               height: 1.2,
                             ),
@@ -458,7 +489,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHorizontalProductList({bool isFeatured = false}) {
+  Widget _buildHorizontalProductList({
+    bool isFeatured = false,
+    String? badgeText,
+    String? discountText,
+  }) {
     return Consumer<CatalogProvider>(
       builder: (context, provider, child) {
         final isLoading = isFeatured
@@ -473,7 +508,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (isLoading) {
           return const SizedBox(
-            height: 260,
+            height: 220,
             child: Center(child: CircularProgressIndicator()),
           );
         }
@@ -510,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         return SizedBox(
-          height: 260,
+          height: 220,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -518,11 +553,13 @@ class _HomeScreenState extends State<HomeScreen> {
             itemBuilder: (context, index) {
               final product = products[index];
               return SizedBox(
-                width: 160,
+                width: 150,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: ProductCard.fromProduct(
                     product: product,
+                    badgeText: badgeText,
+                    discountText: discountText,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(

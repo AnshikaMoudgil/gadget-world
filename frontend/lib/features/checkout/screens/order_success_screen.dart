@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/home/screens/main_screen.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/home/screens/main_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 enum OrderSuccessState { collapsed, expanded, graphic }
 
@@ -262,7 +263,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           child: Column(
             children: [
               _buildSummaryRow(
-                Icons.shopping_bag_outlined,
+                PhosphorIcons.shoppingBag,
                 'Items',
                 '${widget.itemsCount} Items',
               ),
@@ -382,12 +383,12 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                     imageUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.shopping_bag_outlined,
+                      PhosphorIcons.shoppingBag,
                       color: AppTheme.greyText,
                     ),
                   )
                 : const Icon(
-                    Icons.shopping_bag_outlined,
+                    PhosphorIcons.shoppingBag,
                     color: AppTheme.greyText,
                   ),
           ),
@@ -524,7 +525,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 ),
                 child: const Center(
                   child: Icon(
-                    Icons.shopping_bag,
+                    PhosphorIcons.shoppingBagFill,
                     size: 40,
                     color: AppTheme.black,
                   ),
@@ -644,7 +645,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, size: 20),
+                  Icon(PhosphorIcons.arrowRight, size: 20),
                 ],
               ),
             ),

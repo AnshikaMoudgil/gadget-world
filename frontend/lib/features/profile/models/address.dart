@@ -148,9 +148,9 @@ class Address {
       addressLine1,
       if (addressLine2 != null && addressLine2!.isNotEmpty) addressLine2,
       if (landmark != null && landmark!.isNotEmpty) landmark,
-      '\$city, \$state - \$postalCode',
+      '$city, $state - $postalCode',
       country,
     ];
-    return components.whereType<String>().join('\\n');
+    return components.whereType<String>().join('\n');
   }
 }

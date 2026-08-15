@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/profile/providers/address_provider.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/profile/providers/address_provider.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class AddAddressScreen extends StatefulWidget {
   const AddAddressScreen({super.key});
@@ -68,7 +69,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Failed to save address: \$e')));
+        ).showSnackBar(SnackBar(content: Text('Failed to save address: $e')));
       }
     }
   }
@@ -142,9 +143,12 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                             controller: _pincodeController,
                             hintText: 'Enter pincode',
                             keyboardType: TextInputType.number,
-                            trailingIcon: Icons.search,
-                            validator: (val) =>
-                                val == null || val.isEmpty ? 'Required' : null,
+                            trailingIcon: PhosphorIcons.magnifyingGlass,
+                            validator: (val) {
+                              if (val == null || val.isEmpty) return 'Required';
+                              if (!RegExp(r'^[1-9][0-9]{5}$').hasMatch(val)) return 'Invalid PIN code';
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
                           _buildLabel('Address Line 1'),
@@ -279,7 +283,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+            icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 8),

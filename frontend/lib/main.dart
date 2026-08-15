@@ -1,29 +1,42 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/onboarding/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:gadget_store/features/auth/providers/auth_provider.dart';
-import 'package:gadget_store/features/auth/screens/login_screen.dart';
-import 'package:gadget_store/features/auth/services/google_auth_service.dart';
-import 'package:gadget_store/features/profile/providers/profile_provider.dart';
-import 'package:gadget_store/features/products/providers/catalog_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:gadget_world/features/auth/providers/auth_provider.dart';
+import 'package:gadget_world/features/auth/screens/login_screen.dart';
+import 'package:gadget_world/features/auth/services/google_auth_service.dart';
+import 'package:gadget_world/features/profile/providers/profile_provider.dart';
+import 'package:gadget_world/features/products/providers/catalog_provider.dart';
 
-import 'package:gadget_store/features/cart/providers/cart_provider.dart';
-import 'package:gadget_store/features/orders/providers/order_provider.dart';
-import 'package:gadget_store/features/profile/providers/address_provider.dart';
-import 'package:gadget_store/features/profile/providers/settings_provider.dart';
-import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
-import 'package:gadget_store/features/more/providers/support_provider.dart';
-import 'package:gadget_store/features/more/providers/notification_provider.dart';
+import 'package:gadget_world/features/cart/providers/cart_provider.dart';
+import 'package:gadget_world/features/orders/providers/order_provider.dart';
+import 'package:gadget_world/features/profile/providers/address_provider.dart';
+import 'package:gadget_world/features/profile/providers/settings_provider.dart';
+import 'package:gadget_world/features/more/providers/wishlist_provider.dart';
+import 'package:gadget_world/features/more/providers/support_provider.dart';
+import 'package:gadget_world/features/more/providers/notification_provider.dart';
+
+import 'package:gadget_world/firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables
   await dotenv.load(fileName: ".env");
+
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase initialization failed (mostly missing options on Web): $e');
+  }
 
   // Initialize Supabase
   await Supabase.initialize(
@@ -146,6 +159,7 @@ class _AuthGuardState extends State<AuthGuard> {
       wishlistProvider.fetchWishlist();
       supportProvider.fetchTickets();
       notificationProvider.fetchNotifications();
+      notificationProvider.initializePushNotifications();
     } else {
       // User is logged out, clear profile data and redirect to Login Screen
       profileProvider.clearProfile();

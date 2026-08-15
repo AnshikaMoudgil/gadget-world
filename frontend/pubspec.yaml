@@ -1,4 +1,4 @@
-name: gadget_store
+name: gadget_world
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -49,6 +49,10 @@ dependencies:
   timeago: ^3.7.1
   pdf: ^3.13.0
   printing: ^5.15.0
+  phosphoricons_flutter: ^1.0.0
+  image_picker: ^1.2.3
+  firebase_core: ^4.13.0
+  firebase_messaging: ^16.5.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

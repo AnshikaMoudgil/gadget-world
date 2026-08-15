@@ -1,4 +1,4 @@
-import 'package:gadget_store/features/profile/models/address.dart';
+import 'package:gadget_world/features/profile/models/address.dart';
 
 class OrderItem {
   final String id;

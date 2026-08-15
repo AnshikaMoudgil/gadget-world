@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/checkout/screens/payment_screen.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/checkout/screens/payment_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/features/cart/providers/cart_provider.dart';
-import 'package:gadget_store/features/profile/providers/address_provider.dart';
-import 'package:gadget_store/features/profile/screens/address_screen.dart';
+import 'package:gadget_world/features/cart/providers/cart_provider.dart';
+import 'package:gadget_world/features/profile/providers/address_provider.dart';
+import 'package:gadget_world/features/profile/screens/address_screen.dart';
+import 'package:gadget_world/features/profile/models/address.dart';
 import 'package:intl/intl.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 enum CheckoutState { normal, priceChange, processing }
 
@@ -46,8 +48,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         ),
         centerTitle: false,
+        elevation: 0,
+        backgroundColor: AppTheme.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+          icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -65,7 +69,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         children: [
           SingleChildScrollView(
             padding: const EdgeInsets.only(
-              bottom: 120,
+              bottom: 150,
             ), // Leave space for bottom bar
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,27 +80,35 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 _buildSectionTitle(
                   '1. Shipping Address',
                   true,
-                  onChange: () {
-                    Navigator.push(
+                  onChange: () async {
+                    final selected = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const AddressScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const AddressScreen(isCheckout: true),
+                      ),
                     );
+                    if (selected != null && mounted) {
+                      try {
+                        await Provider.of<AddressProvider>(context, listen: false)
+                            .setDefaultAddress((selected as Address).id!);
+                      } catch (_) {}
+                    }
                   },
                 ),
                 _buildShippingAddress(),
                 _buildSectionTitle('2. Order Summary', false),
                 _buildOrderSummary(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Divider(color: AppTheme.greyBorder, height: 32),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Divider(color: AppTheme.greyBorder.withValues(alpha: 0.5), height: 32),
                 ),
                 _buildCostSummary(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Divider(color: AppTheme.greyBorder, height: 32),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Divider(color: AppTheme.greyBorder.withValues(alpha: 0.5), height: 32),
                 ),
                 _buildTotalAmount(),
-                const SizedBox(height: 58),
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -119,7 +131,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Text(
                   'Review Your Order',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.black,
                   ),
@@ -127,7 +139,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 SizedBox(height: 8),
                 Text(
                   'Please review your order details before placing',
-                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                  style: TextStyle(fontSize: 14, color: AppTheme.greyText),
                 ),
               ],
             ),
@@ -138,14 +150,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             child: Stack(
               children: [
                 const Icon(
-                  Icons.assignment_outlined,
-                  size: 48,
+                  Icons.receipt_long_outlined,
+                  size: 54,
                   color: AppTheme.greyText,
                 ),
                 Positioned(
-                  bottom: 4,
-                  right: 4,
+                  bottom: 2,
+                  right: 2,
                   child: Container(
+                    padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
                       color: AppTheme.black,
                       shape: BoxShape.circle,
@@ -153,7 +166,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: const Icon(
                       Icons.check,
                       color: AppTheme.white,
-                      size: 16,
+                      size: 18,
                     ),
                   ),
                 ),
@@ -168,16 +181,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _buildPriceChangeWarning() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
+        border: Border.all(color: Colors.red.shade200),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.error_outline, color: Colors.red.shade400, size: 18),
-          const SizedBox(width: 8),
+          Icon(Icons.info_outline, color: Colors.red.shade400, size: 20),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,14 +200,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   'Price Change Detected',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                    fontSize: 14,
                     color: Colors.red.shade700,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Some prices have changed since you last reviewed your cart.',
-                  style: TextStyle(fontSize: 10, color: Colors.red.shade700),
+                  style: TextStyle(fontSize: 12, color: Colors.red.shade700),
                 ),
               ],
             ),
@@ -201,7 +215,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Text(
             'View details',
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
               color: Colors.red.shade700,
               decoration: TextDecoration.underline,
@@ -218,7 +232,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     VoidCallback? onChange,
   }) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -226,7 +240,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             title,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 14,
+              fontSize: 16,
               color: AppTheme.black,
             ),
           ),
@@ -237,7 +251,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 'Change',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontSize: 14,
                   decoration: TextDecoration.underline,
                   color: AppTheme.black,
                 ),
@@ -255,36 +269,36 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     if (address == null) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 24),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: AppTheme.white,
-          border: Border.all(color: AppTheme.greyBorder),
+          border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Text(
           'No address selected. Please add an address to proceed.',
-          style: TextStyle(color: AppTheme.greyText),
+          style: TextStyle(color: AppTheme.greyText, fontSize: 14),
         ),
       );
     }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(
-            Icons.location_on_outlined,
+            Icons.location_on,
             color: AppTheme.black,
-            size: 20,
+            size: 24,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,26 +309,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       address.recipientName,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 16,
                         color: AppTheme.black,
                       ),
                     ),
                     if (address.isDefault) ...[
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 12),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
+                          horizontal: 8,
+                          vertical: 4,
                         ),
                         decoration: BoxDecoration(
                           color: AppTheme.black,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: const Text(
                           'Default',
                           style: TextStyle(
                             color: AppTheme.white,
-                            fontSize: 8,
+                            fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -327,16 +341,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   '${address.addressLine1}, ${address.addressLine2 != null ? '${address.addressLine2}, ' : ''}\n${address.city}, ${address.state} - ${address.postalCode}',
                   style: const TextStyle(
                     color: AppTheme.greyText,
-                    fontSize: 12,
-                    height: 1.4,
+                    fontSize: 13,
+                    height: 1.5,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   address.phoneNumber,
                   style: const TextStyle(
-                    color: AppTheme.black,
-                    fontSize: 12,
+                    color: AppTheme.greyText,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -397,11 +411,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               );
             },
           ),
-          if (i < cart.items.length - 1)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0),
-              child: Divider(color: AppTheme.greyBorder, height: 1),
-            ),
         ],
       ],
     );
@@ -419,15 +428,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     String? imageUrl,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
-              color: AppTheme.greyBackground,
+              color: AppTheme.white, // No grey background in target
               borderRadius: BorderRadius.circular(8),
             ),
             clipBehavior: Clip.hardEdge,
@@ -436,16 +445,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     imageUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.shopping_bag_outlined,
+                      PhosphorIcons.shoppingBag,
                       color: AppTheme.greyText,
+                      size: 32,
                     ),
                   )
                 : const Icon(
-                    Icons.shopping_bag_outlined,
+                    PhosphorIcons.shoppingBag,
                     color: AppTheme.greyText,
-                  ), // placeholder icon
+                    size: 32,
+                  ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,22 +465,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                    fontSize: 14,
                     color: AppTheme.black,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   color,
                   style: const TextStyle(
                     color: AppTheme.greyText,
-                    fontSize: 10,
+                    fontSize: 12,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   'Qty: $qty',
-                  style: const TextStyle(color: AppTheme.black, fontSize: 10),
+                  style: const TextStyle(color: AppTheme.black, fontSize: 12),
                 ),
               ],
             ),
@@ -481,7 +492,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 hasPriceChange ? newPrice! : price,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: 16,
                   color: AppTheme.black,
                 ),
               ),
@@ -492,29 +503,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     subtitle,
                     style: const TextStyle(
                       color: AppTheme.greyText,
-                      fontSize: 10,
+                      fontSize: 12,
                     ),
                   ),
                 ),
               if (hasPriceChange)
                 Padding(
-                  padding: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsets.only(top: 6),
                   child: Row(
                     children: [
                       Text(
                         price,
                         style: const TextStyle(
                           color: AppTheme.greyText,
-                          fontSize: 10,
+                          fontSize: 12,
                           decoration: TextDecoration.lineThrough,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       Text(
                         priceDiff!,
                         style: TextStyle(
                           color: Colors.red.shade700,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -535,6 +546,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final subtotal = cartProvider.subtotal;
     final discount = cartProvider.discount;
     final shipping = cartProvider.shippingFee;
+    
+    // Attempting to pull coupon code if available
+    final String appliedCoupon = cartProvider.appliedCouponCode != null 
+        ? ' (${cartProvider.appliedCouponCode})' 
+        : '';
 
     final formatCurrency = NumberFormat.simpleCurrency(
       name: 'INR',
@@ -551,14 +567,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             formatCurrency.format(subtotal),
             isChange ? 'Was ${formatCurrency.format(subtotal * 0.9)}' : null,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           _buildCostRow(
-            'Coupon Discount',
+            'Coupon Discount$appliedCoupon',
             '-${formatCurrency.format(discount)}',
-            null,
+            isChange ? 'Was -${formatCurrency.format(discount * 0.9)}' : null,
             color: Colors.green,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           _buildCostRow(
             'Shipping Fee',
             shipping == 0 ? 'FREE' : formatCurrency.format(shipping),
@@ -585,15 +601,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: color == Colors.green ? Colors.green : AppTheme.greyText,
               ),
             ),
             if (showInfoIcon) ...[
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               const Icon(
                 Icons.info_outline,
-                size: 12,
+                size: 14,
                 color: AppTheme.greyText,
               ),
             ],
@@ -605,20 +621,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               value,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 12,
+                fontSize: 14,
                 color: color,
               ),
             ),
             if (oldVal != null) ...[
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               SizedBox(
-                width: 65,
+                width: 75,
                 child: Text(
                   oldVal,
                   textAlign: TextAlign.right,
                   style: const TextStyle(
                     color: AppTheme.greyText,
-                    fontSize: 10,
+                    fontSize: 12,
                   ),
                 ),
               ),
@@ -647,7 +663,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.all(isChange ? 12 : 0),
+            padding: EdgeInsets.all(isChange ? 16 : 0),
             decoration: isChange
                 ? BoxDecoration(
                     color: Colors.red.shade50,
@@ -664,13 +680,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       isChange ? 'New Total Amount' : 'Total Amount',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 16,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     const Text(
                       '(Inclusive of all taxes)',
-                      style: TextStyle(fontSize: 10, color: AppTheme.greyText),
+                      style: TextStyle(fontSize: 12, color: AppTheme.greyText),
                     ),
                   ],
                 ),
@@ -681,18 +697,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       formatCurrency.format(total),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                        fontSize: 24,
                         color: isChange ? Colors.red.shade700 : AppTheme.black,
                       ),
                     ),
                     if (isChange)
                       Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 6),
                         child: Text(
                           'Was ${formatCurrency.format(total * 0.9)}',
                           style: const TextStyle(
                             color: AppTheme.greyText,
-                            fontSize: 10,
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -702,20 +718,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
           ),
           if (!isChange && discount > 0) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Row(
               children: [
                 const Icon(
                   Icons.check_circle_outline,
                   color: Colors.green,
-                  size: 14,
+                  size: 16,
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Text(
                   'You saved ${formatCurrency.format(discount)} on this order',
                   style: const TextStyle(
                     color: Colors.green,
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -730,17 +746,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _buildBottomBar() {
     final isProcessing = _currentState == CheckoutState.processing;
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+      decoration: const BoxDecoration(
         color: AppTheme.white,
-        border: Border(top: BorderSide(color: AppTheme.greyBorder, width: 1)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
             width: double.infinity,
-            height: 54,
+            height: 56,
             child: ElevatedButton(
               onPressed: isProcessing
                   ? null
@@ -781,7 +796,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 foregroundColor: AppTheme.white,
                 disabledBackgroundColor: AppTheme.greyBackground,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               child: isProcessing
@@ -796,11 +811,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             strokeWidth: 2,
                           ),
                         ),
-                        SizedBox(width: 12),
+                        SizedBox(width: 16),
                         Text(
                           'Placing your order...',
                           style: TextStyle(
                             fontSize: 14,
+                            fontWeight: FontWeight.bold,
                             color: AppTheme.greyText,
                           ),
                         ),
@@ -809,39 +825,44 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        Icon(Icons.lock_outline, size: 16),
+                        Expanded(child: SizedBox()),
+                        Icon(Icons.lock_outline, size: 18),
                         SizedBox(width: 8),
                         Text(
                           'Place Order',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward, size: 16),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Icon(PhosphorIcons.arrowRight, size: 18),
+                          ),
+                        ),
                       ],
                     ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.shield_outlined, size: 12, color: AppTheme.greyText),
-              const SizedBox(width: 4),
+              Icon(Icons.shield_outlined, size: 14, color: AppTheme.greyText),
+              const SizedBox(width: 6),
               const Text(
                 'Secure Checkout',
-                style: TextStyle(color: AppTheme.greyText, fontSize: 10),
+                style: TextStyle(color: AppTheme.greyText, fontSize: 12),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             isProcessing
                 ? 'Please don\'t close this screen'
                 : 'Your details are safe with us',
-            style: const TextStyle(color: AppTheme.greyText, fontSize: 10),
+            style: const TextStyle(color: AppTheme.greyText, fontSize: 12),
           ),
         ],
       ),

@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final bool isLoading;
+  final IconData? icon;
 
   const PrimaryButton({
     super.key,
     required this.text,
     required this.onPressed,
     this.isLoading = false,
+    this.icon = PhosphorIcons.arrowRight,
   });
 
   @override
@@ -38,6 +41,10 @@ class PrimaryButton extends StatelessWidget {
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  if (icon == Icons.lock_outline) ...[
+                    Icon(icon, size: 18),
+                    const SizedBox(width: 8),
+                  ],
                   Text(
                     text,
                     style: const TextStyle(
@@ -45,8 +52,10 @@ class PrimaryButton extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward, size: 20),
+                  if (icon != null && icon != Icons.lock_outline) ...[
+                    const SizedBox(width: 8),
+                    Icon(icon, size: 20),
+                  ],
                 ],
               ),
       ),

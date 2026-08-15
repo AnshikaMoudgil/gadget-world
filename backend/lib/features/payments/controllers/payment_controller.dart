@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import '../services/payment_service.dart';
+import '../../notifications/services/notification_service.dart';
 
 class PaymentController {
   final PaymentService _paymentService = PaymentService();
@@ -19,6 +20,22 @@ class PaymentController {
         addressId: addressId,
         couponCode: couponCode,
       );
+
+      // Send Order Creation Notification
+      try {
+        final orderId = result['orderId'] ?? result['id'];
+        await NotificationService().notifyUser(
+          userId: userId,
+          title: 'Order Created successfully!',
+          body: 'Your order is created and pending payment. Please complete it to confirm your order.',
+          type: 'order_update',
+          referenceType: 'order',
+          referenceId: orderId,
+        );
+      } catch (e) {
+        print('Error sending order creation notification: $e');
+      }
+
       return Response.ok(jsonEncode(result),
           headers: {'Content-Type': 'application/json'});
     } catch (e, st) {
@@ -41,6 +58,18 @@ class PaymentController {
         razorpayPaymentId: data['razorpayPaymentId'] ?? '',
         razorpaySignature: data['razorpaySignature'] ?? '',
       );
+
+      // Send Payment Success Notification
+      try {
+        await NotificationService().notifyUser(
+          userId: userId,
+          title: 'Payment Successful!',
+          body: 'Your payment was received successfully. Your order is now confirmed.',
+          type: 'payment',
+        );
+      } catch (e) {
+        print('Error sending payment notification: $e');
+      }
 
       return Response.ok(jsonEncode({'status': 'success'}),
           headers: {'Content-Type': 'application/json'});

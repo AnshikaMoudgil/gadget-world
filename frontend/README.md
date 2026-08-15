@@ -1,6 +1,6 @@
 # Tensorik GadgetWorld
 
-A modern Flutter-based gadget store application. 
+A modern Flutter-based gadget world application. 
 
 ## Current Progress
 

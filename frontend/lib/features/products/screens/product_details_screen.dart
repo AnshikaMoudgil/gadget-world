@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_world/core/theme.dart';
 import '../models/product_model.dart';
 import '../providers/catalog_provider.dart';
 import '../../cart/providers/cart_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:gadget_store/features/checkout/screens/cart_screen.dart';
-import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
+import 'package:gadget_world/features/checkout/screens/cart_screen.dart';
+import 'package:gadget_world/features/more/providers/wishlist_provider.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final ProductModel product;
@@ -65,7 +66,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(PhosphorIcons.arrowLeft),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -87,7 +88,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               final isInWishlist = provider.isInWishlist(_product.id);
               return IconButton(
                 icon: Icon(
-                  isInWishlist ? Icons.favorite : Icons.favorite_border,
+                  isInWishlist ? PhosphorIcons.heartFill : PhosphorIcons.heart,
                   color: isInWishlist ? Colors.red : null,
                 ),
                 onPressed: () {
@@ -301,7 +302,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             ),
                           ),
                           child: const Icon(
-                            Icons.shopping_cart_outlined,
+                            PhosphorIcons.shoppingCart,
                             color: AppTheme.black,
                             size: 22,
                           ),
@@ -422,9 +423,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               _product.imageUrl!,
                               fit: BoxFit.cover,
                               errorBuilder: (_, _, _) =>
-                                  const Icon(Icons.image_outlined),
+                                  const Icon(PhosphorIcons.image),
                             )
-                          : const Icon(Icons.image_outlined),
+                          : const Icon(PhosphorIcons.image),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -612,7 +613,7 @@ class _ProductImage extends StatelessWidget {
       return Image.network(
         imageUrl,
         fit: BoxFit.contain,
-        errorBuilder: (_, _, _) => const Icon(Icons.image_outlined),
+        errorBuilder: (_, _, _) => const Icon(PhosphorIcons.image),
       );
     }
     return Image.asset(imageUrl, fit: BoxFit.contain);

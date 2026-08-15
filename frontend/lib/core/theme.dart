@@ -10,46 +10,28 @@ class AppTheme {
   static const Color error = Color(0xFFD32F2F);
   static const Color errorBackground = Color(0xFFFFEBEE);
 
-  static TextTheme _buildBoldTextTheme() {
-    final base = GoogleFonts.interTextTheme();
-    return base
-        .copyWith(
-          displayLarge: base.displayLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-          displayMedium: base.displayMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-          displaySmall: base.displaySmall?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-          headlineLarge: base.headlineLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-          headlineMedium: base.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-          headlineSmall: base.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-          titleLarge: base.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-          titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          titleSmall: base.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-          bodyLarge: base.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-          bodyMedium: base.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
-          bodySmall: base.bodySmall?.copyWith(fontWeight: FontWeight.w500),
-          labelLarge: base.labelLarge?.copyWith(fontWeight: FontWeight.w600),
-          labelMedium: base.labelMedium?.copyWith(fontWeight: FontWeight.w600),
-          labelSmall: base.labelSmall?.copyWith(fontWeight: FontWeight.w600),
-        )
-        .apply(bodyColor: black, displayColor: black);
+  static TextTheme _buildBoldTextTheme(TextTheme base) {
+    return base.copyWith(
+      displayLarge: base.displayLarge?.copyWith(fontWeight: FontWeight.bold),
+      displayMedium: base.displayMedium?.copyWith(fontWeight: FontWeight.bold),
+      displaySmall: base.displaySmall?.copyWith(fontWeight: FontWeight.bold),
+      headlineLarge: base.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
+      headlineMedium: base.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+      headlineSmall: base.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+      titleLarge: base.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+      titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+      titleSmall: base.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+    );
   }
 
   static ThemeData get lightTheme {
+    final boldTextTheme = _buildBoldTextTheme(Typography.material2021().black);
+    
     return ThemeData(
+      textTheme: GoogleFonts.robotoTextTheme(boldTextTheme),
+      primaryTextTheme: GoogleFonts.robotoTextTheme(boldTextTheme),
       primaryColor: black,
       scaffoldBackgroundColor: white,
-      textTheme: _buildBoldTextTheme(),
       colorScheme: const ColorScheme.light(
         primary: black,
         secondary: black,

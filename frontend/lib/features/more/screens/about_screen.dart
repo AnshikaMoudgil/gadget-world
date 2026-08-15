@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -56,7 +57,7 @@ class AboutScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+            icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 8),
@@ -225,7 +226,7 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
           if (hasTrailing)
-            const Icon(Icons.chevron_right, color: AppTheme.greyText, size: 20),
+            const Icon(PhosphorIcons.caretRight, color: AppTheme.greyText, size: 20),
         ],
       ),
     );
@@ -332,7 +333,7 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Icon(Icons.chevron_right, color: AppTheme.greyText, size: 20),
+          const Icon(PhosphorIcons.caretRight, color: AppTheme.greyText, size: 20),
         ],
       ),
     );

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/auth/providers/auth_provider.dart';
-import 'package:gadget_store/features/more/screens/about_screen.dart';
-import 'package:gadget_store/features/more/screens/contact_us_screen.dart';
-import 'package:gadget_store/features/auth/screens/login_screen.dart'; // For logout
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/auth/providers/auth_provider.dart';
+import 'package:gadget_world/features/more/screens/about_screen.dart';
+import 'package:gadget_world/features/more/screens/contact_us_screen.dart';
+import 'package:gadget_world/features/auth/screens/login_screen.dart'; // For logout
+import 'package:gadget_world/core/widgets/logo_widget.dart'; // Assuming this is where LogoWidget is
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class MoreMenuScreen extends StatelessWidget {
   const MoreMenuScreen({super.key});
@@ -46,7 +48,7 @@ class MoreMenuScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+            icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 8),
@@ -79,87 +81,60 @@ class MoreMenuScreen extends StatelessWidget {
   }
 
   Widget _buildMenuList(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          _buildMenuItem(
-            Icons.info_outline,
-            'About',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AboutScreen()),
-              );
-            },
-          ),
-          Divider(
-            height: 1,
-            color: AppTheme.greyBorder.withValues(alpha: 0.5),
-            indent: 56,
-          ),
-          _buildMenuItem(
-            Icons.support_agent_outlined,
-            'Contact Us',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ContactUsScreen()),
-              );
-            },
-          ),
-          Divider(
-            height: 1,
-            color: AppTheme.greyBorder.withValues(alpha: 0.5),
-            indent: 56,
-          ),
-          _buildMenuItem(Icons.shield_outlined, 'Privacy Policy', onTap: () {}),
-          Divider(
-            height: 1,
-            color: AppTheme.greyBorder.withValues(alpha: 0.5),
-            indent: 56,
-          ),
-          _buildMenuItem(
-            Icons.description_outlined,
-            'Terms & Conditions',
-            onTap: () {},
-          ),
-          Divider(
-            height: 1,
-            color: AppTheme.greyBorder.withValues(alpha: 0.5),
-            indent: 56,
-          ),
-          _buildMenuItem(
-            Icons.autorenew_outlined,
-            'Refund Policy',
-            onTap: () {},
-          ),
-          Divider(
-            height: 1,
-            color: AppTheme.greyBorder.withValues(alpha: 0.5),
-            indent: 56,
-          ),
-          _buildMenuItem(
-            Icons.logout_outlined,
-            'Logout',
-            subtitle: 'Sign out of your account',
-            onTap: () async {
-              // Sign out from Supabase first, then navigate
-              await Provider.of<AuthProvider>(context, listen: false).signOut();
-              if (!context.mounted) return;
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (route) => false,
-              );
-            },
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        _buildMenuItem(
+          Icons.info_outline,
+          'About',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AboutScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildMenuItem(
+          Icons.headset_mic_outlined, // Match the reference image headphone icon
+          'Contact Us',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ContactUsScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildMenuItem(Icons.shield_outlined, 'Privacy Policy', onTap: () {}),
+        const SizedBox(height: 12),
+        _buildMenuItem(
+          Icons.description_outlined,
+          'Terms & Conditions',
+          onTap: () {},
+        ),
+        const SizedBox(height: 12),
+        _buildMenuItem(
+          Icons.autorenew_outlined,
+          'Refund Policy',
+          onTap: () {},
+        ),
+        const SizedBox(height: 12),
+        _buildMenuItem(
+          Icons.logout_outlined,
+          'Logout',
+          subtitle: 'Sign out of your account',
+          onTap: () async {
+            // Sign out from Supabase first, then navigate
+            await Provider.of<AuthProvider>(context, listen: false).signOut();
+            if (!context.mounted) return;
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginScreen()),
+              (route) => false,
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -169,49 +144,56 @@ class MoreMenuScreen extends StatelessWidget {
     String? subtitle,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.greyBackground.withValues(alpha: 0.5),
-                shape: BoxShape.circle,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.white,
+        border: Border.all(color: const Color(0xFFF0F0F0)),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFEAEAEA)),
+                ),
+                child: Icon(icon, color: AppTheme.black, size: 20),
               ),
-              child: Icon(icon, color: AppTheme.black, size: 20),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.black,
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 2),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      subtitle,
+                      title,
                       style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.greyText,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.black,
                       ),
                     ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.greyText,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: AppTheme.greyText, size: 20),
-          ],
+              const Icon(PhosphorIcons.caretRight, color: AppTheme.black, size: 20),
+            ],
+          ),
         ),
       ),
     );
@@ -223,18 +205,7 @@ class MoreMenuScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.black,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.g_mobiledata,
-                color: AppTheme.white,
-                size: 32,
-              ),
-            ),
+            LogoWidget(size: 32),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,16 +221,22 @@ class MoreMenuScreen extends StatelessWidget {
                 SizedBox(height: 2),
                 Text(
                   'Upgrade Your World',
-                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.greyText,
+                  ),
                 ),
               ],
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         const Text(
           'Version 1.2.0 (Build 45)',
-          style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+          style: TextStyle(
+            fontSize: 12,
+            color: AppTheme.greyText,
+          ),
         ),
       ],
     );

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_world/core/theme.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/features/profile/providers/profile_provider.dart';
-import 'package:gadget_store/features/profile/models/profile_model.dart';
+import 'package:gadget_world/features/profile/providers/profile_provider.dart';
+import 'package:gadget_world/features/profile/models/profile_model.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -67,6 +69,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (image != null && mounted) {
+      final provider = Provider.of<ProfileProvider>(context, listen: false);
+      final success = await provider.uploadAvatar(image);
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile picture updated successfully')),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.errorMessage ?? 'Failed to update profile picture'),
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _saveChanges() async {
     final provider = Provider.of<ProfileProvider>(context, listen: false);
     final currentProfile = provider.profile;
@@ -113,31 +136,107 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Center(
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: AppTheme.greyBackground,
+                              shape: BoxShape.circle,
+                              image: profile?.avatarUrl != null
+                                  ? DecorationImage(
+                                      image: NetworkImage(profile!.avatarUrl!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
+                            ),
+                            child: profile?.avatarUrl == null
+                                ? const Icon(PhosphorIcons.userFill, size: 48, color: AppTheme.greyText)
+                                : null,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: provider.isLoading ? null : _pickImage,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.black,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: AppTheme.white, width: 2),
+                                ),
+                                child: provider.isLoading 
+                                    ? const SizedBox(
+                                        width: 16, 
+                                        height: 16, 
+                                        child: CircularProgressIndicator(color: AppTheme.white, strokeWidth: 2)
+                                      )
+                                    : const Icon(PhosphorIcons.camera, color: AppTheme.white, size: 16),
+                              ),
+                            ),
+                          ),
+                          if (profile?.avatarUrl != null)
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              child: GestureDetector(
+                                onTap: provider.isLoading ? null : () async {
+                                  final success = await provider.deleteAvatar();
+                                  if (success && mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Profile picture deleted successfully')),
+                                    );
+                                  } else if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(provider.errorMessage ?? 'Failed to delete profile picture'),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: AppTheme.white, width: 2),
+                                  ),
+                                  child: const Icon(PhosphorIcons.trash, color: AppTheme.white, size: 16),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                     _buildTopWarningBanner(),
                     const SizedBox(height: 32),
                     _buildSectionHeader(
-                      Icons.person_outline,
+                      PhosphorIcons.user,
                       'Personal Information',
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
                       label: 'Full Name',
                       controller: _nameController,
-                      leadingIcon: Icons.person_outline,
+                      leadingIcon: PhosphorIcons.user,
                       isRequired: true,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
                       label: 'Phone Number',
                       controller: _phoneController,
-                      leadingIcon: Icons.phone_outlined,
+                      leadingIcon: PhosphorIcons.phone,
                       isRequired: true,
                     ),
                     const SizedBox(height: 16),
                     _buildLockedFormField(
                       'Email Address',
                       profile?.email ?? 'Not provided',
-                      Icons.email_outlined,
+                      PhosphorIcons.envelopeSimple,
                     ),
                     const SizedBox(height: 16),
                     GestureDetector(
@@ -147,9 +246,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         value:
                             _selectedDate?.toIso8601String().split('T').first ??
                             'Not provided',
-                        leadingIcon: Icons.calendar_today_outlined,
+                        leadingIcon: PhosphorIcons.calendarBlank,
                         isRequired: true,
-                        trailingIcon: Icons.calendar_today_outlined,
+                        trailingIcon: PhosphorIcons.calendarBlank,
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -172,7 +271,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+            icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 8),
@@ -196,7 +295,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
           IconButton(
             icon: const Icon(
-              Icons.verified_user_outlined,
+              PhosphorIcons.shieldCheck,
               color: AppTheme.black,
             ),
             onPressed: () {},
@@ -223,7 +322,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.shield_outlined,
+              PhosphorIcons.shieldCheck,
               color: Colors.orange,
               size: 24,
             ),
@@ -425,7 +524,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ],
             ),
           ),
-          const Icon(Icons.lock_outline, color: AppTheme.greyText, size: 16),
+          const Icon(PhosphorIcons.lock, color: AppTheme.greyText, size: 16),
         ],
       ),
     );
@@ -458,7 +557,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      Icon(Icons.save_outlined, size: 18),
+                      Icon(PhosphorIcons.floppyDisk, size: 18),
                       SizedBox(width: 8),
                       Text(
                         'Save Changes',

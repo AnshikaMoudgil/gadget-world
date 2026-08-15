@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/core/widgets/logo_widget.dart';
-import 'package:gadget_store/features/onboarding/screens/onboarding_screen.dart';
-import 'package:gadget_store/features/auth/screens/login_screen.dart';
-import 'package:gadget_store/features/home/screens/main_screen.dart';
-import 'package:gadget_store/features/auth/services/session_service.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/core/widgets/logo_widget.dart';
+import 'package:gadget_world/features/onboarding/screens/onboarding_screen.dart';
+import 'package:gadget_world/features/auth/screens/login_screen.dart';
+import 'package:gadget_world/features/home/screens/main_screen.dart';
+import 'package:gadget_world/features/auth/services/session_service.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -108,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: const Column(
                 children: [
                   Icon(
-                    Icons.shopping_cart_outlined,
+                    PhosphorIcons.shoppingCart,
                     color: AppTheme.white,
                     size: 28,
                   ),

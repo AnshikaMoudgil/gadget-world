@@ -1,7 +1,7 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:gadget_store/features/orders/models/order.dart';
+import 'package:gadget_world/features/orders/models/order.dart';
 
 class InvoiceGenerator {
   static Future<void> generateAndPrintInvoice(Order order) async {
@@ -182,14 +182,14 @@ class InvoiceGenerator {
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
                           child: pw.Text(
-                            'Rs. ${(item.quantity > 0 ? item.amount / item.quantity : 0).toStringAsFixed(2)}',
+                            '₹${(item.quantity > 0 ? item.amount / item.quantity : 0).toStringAsFixed(2)}',
                             textAlign: pw.TextAlign.right,
                           ),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
                           child: pw.Text(
-                            'Rs. ${item.amount.toStringAsFixed(2)}',
+                            '₹${item.amount.toStringAsFixed(2)}',
                             textAlign: pw.TextAlign.right,
                           ),
                         ),
@@ -223,7 +223,7 @@ class InvoiceGenerator {
                               ),
                             ),
                             pw.Text(
-                              'Rs. ${order.amount.toStringAsFixed(2)}',
+                              '₹${order.amount.toStringAsFixed(2)}',
                               style: pw.TextStyle(
                                 fontWeight: pw.FontWeight.bold,
                                 fontSize: 14,
@@ -275,7 +275,7 @@ class InvoiceGenerator {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(label, style: const pw.TextStyle(color: PdfColors.grey700)),
-          pw.Text('Rs. ${amount.toStringAsFixed(2)}'),
+          pw.Text('₹${amount.toStringAsFixed(2)}'),
         ],
       ),
     );

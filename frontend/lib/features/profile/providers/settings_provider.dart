@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:gadget_store/features/profile/models/user_settings.dart';
-import 'package:gadget_store/features/profile/services/settings_api_service.dart';
+import 'package:gadget_world/features/profile/models/user_settings.dart';
+import 'package:gadget_world/features/profile/services/settings_api_service.dart';
 
 class SettingsProvider with ChangeNotifier {
   final SettingsApiService _apiService = SettingsApiService();
