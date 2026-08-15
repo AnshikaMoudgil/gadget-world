@@ -63,9 +63,15 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
                 alignment: Alignment.center,
                 children: [
                   IconButton(
-                    icon: const Icon(PhosphorIcons.shoppingCart, color: AppTheme.black),
+                    icon: const Icon(
+                      PhosphorIcons.shoppingCart,
+                      color: AppTheme.black,
+                    ),
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CartScreen()),
+                      );
                     },
                   ),
                   if (itemCount > 0)
@@ -103,7 +109,10 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 8.0,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -124,7 +133,8 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      if (!provider.isLoadingFeatured && provider.products.isNotEmpty)
+                      if (!provider.isLoadingFeatured &&
+                          provider.products.isNotEmpty)
                         _buildSortDropdown(),
                     ],
                   ),
@@ -139,48 +149,53 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
                 )
               else
                 SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 8.0,
+                  ),
                   sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.75,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final product = sortedProducts[index];
-                        return ProductCard.fromProduct(
-                          product: product,
-                          badgeText: 'New',
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ProductDetailsScreen(product: product),
-                            ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.75,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final product = sortedProducts[index];
+                      return ProductCard.fromProduct(
+                        product: product,
+                        badgeText: 'New',
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ProductDetailsScreen(product: product),
                           ),
-                          onAdd: () {
-                            if (product.stockQuantity > 0) {
-                              context.read<CartProvider>().addToCart(product.id, 1);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('${product.name} added to cart'),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Out of stock'),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            }
-                          },
-                        );
-                      },
-                      childCount: sortedProducts.length,
-                    ),
+                        ),
+                        onAdd: () {
+                          if (product.stockQuantity > 0) {
+                            context.read<CartProvider>().addToCart(
+                              product.id,
+                              1,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${product.name} added to cart'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Out of stock'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    }, childCount: sortedProducts.length),
                   ),
                 ),
             ],
@@ -202,23 +217,35 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
         children: [
           const Icon(Icons.tune_outlined, size: 20, color: AppTheme.black),
           const SizedBox(width: 8),
-          const Text('Sort by:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          const Text(
+            'Sort by:',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedSort,
                 isExpanded: true,
-                icon: const Icon(Icons.keyboard_arrow_down, color: AppTheme.black),
-                items: ['Popular', 'Price: Low to High', 'Price: High to Low'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(
-                      value,
-                      style: const TextStyle(fontSize: 14, color: AppTheme.black, fontWeight: FontWeight.bold),
-                    ),
-                  );
-                }).toList(),
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: AppTheme.black,
+                ),
+                items: ['Popular', 'Price: Low to High', 'Price: High to Low']
+                    .map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppTheme.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    })
+                    .toList(),
                 onChanged: (newValue) {
                   if (newValue != null) {
                     setState(() {
@@ -244,83 +271,88 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            return Container(
-              decoration: BoxDecoration(
-                color: AppTheme.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFEAEAEA)),
-              ),
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      margin: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.greyBackground.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          return Container(
+            decoration: BoxDecoration(
+              color: AppTheme.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFEAEAEA)),
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    margin: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.greyBackground.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  Expanded(
-                    flex: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 12,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: AppTheme.greyBackground.withValues(alpha: 0.5),
-                              borderRadius: BorderRadius.circular(4),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 12,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: AppTheme.greyBackground.withValues(
+                              alpha: 0.5,
                             ),
+                            borderRadius: BorderRadius.circular(4),
                           ),
-                          const SizedBox(height: 8),
-                          Container(
-                            height: 12,
-                            width: 60,
-                            decoration: BoxDecoration(
-                              color: AppTheme.greyBackground.withValues(alpha: 0.5),
-                              borderRadius: BorderRadius.circular(4),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          height: 12,
+                          width: 60,
+                          decoration: BoxDecoration(
+                            color: AppTheme.greyBackground.withValues(
+                              alpha: 0.5,
                             ),
+                            borderRadius: BorderRadius.circular(4),
                           ),
-                          const Spacer(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                height: 16,
-                                width: 50,
-                                decoration: BoxDecoration(
-                                  color: AppTheme.greyBackground.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(4),
+                        ),
+                        const Spacer(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              height: 16,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: AppTheme.greyBackground.withValues(
+                                  alpha: 0.5,
                                 ),
+                                borderRadius: BorderRadius.circular(4),
                               ),
-                              Container(
-                                height: 24,
-                                width: 24,
-                                decoration: BoxDecoration(
-                                  color: AppTheme.greyBackground.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(6),
+                            ),
+                            Container(
+                              height: 24,
+                              width: 24,
+                              decoration: BoxDecoration(
+                                color: AppTheme.greyBackground.withValues(
+                                  alpha: 0.5,
                                 ),
+                                borderRadius: BorderRadius.circular(6),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            );
-          },
-          childCount: 6,
-        ),
+                ),
+              ],
+            ),
+          );
+        }, childCount: 6),
       ),
     );
   }
@@ -344,11 +376,12 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
                   shape: BoxShape.circle,
                 ),
               ),
-              Icon(Icons.inventory_2_outlined, size: 80, color: AppTheme.greyBorder),
-              const Positioned(
-                top: 40,
-                child: LogoWidget(size: 32),
+              Icon(
+                Icons.inventory_2_outlined,
+                size: 80,
+                color: AppTheme.greyBorder,
               ),
+              const Positioned(top: 40, child: LogoWidget(size: 32)),
             ],
           ),
           const SizedBox(height: 32),
@@ -373,10 +406,7 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
           const SizedBox(height: 24),
           const Text(
             'Check back soon!',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.greyText,
-            ),
+            style: TextStyle(fontSize: 14, color: AppTheme.greyText),
           ),
           const SizedBox(height: 32),
           SizedBox(

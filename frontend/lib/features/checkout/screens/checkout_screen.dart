@@ -89,8 +89,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     );
                     if (selected != null && mounted) {
                       try {
-                        await Provider.of<AddressProvider>(context, listen: false)
-                            .setDefaultAddress((selected as Address).id!);
+                        await Provider.of<AddressProvider>(
+                          context,
+                          listen: false,
+                        ).setDefaultAddress((selected as Address).id!);
                       } catch (_) {}
                     }
                   },
@@ -100,12 +102,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 _buildOrderSummary(),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Divider(color: AppTheme.greyBorder.withValues(alpha: 0.5), height: 32),
+                  child: Divider(
+                    color: AppTheme.greyBorder.withValues(alpha: 0.5),
+                    height: 32,
+                  ),
                 ),
                 _buildCostSummary(),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Divider(color: AppTheme.greyBorder.withValues(alpha: 0.5), height: 32),
+                  child: Divider(
+                    color: AppTheme.greyBorder.withValues(alpha: 0.5),
+                    height: 32,
+                  ),
                 ),
                 _buildTotalAmount(),
                 const SizedBox(height: 24),
@@ -293,11 +301,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            Icons.location_on,
-            color: AppTheme.black,
-            size: 24,
-          ),
+          const Icon(Icons.location_on, color: AppTheme.black, size: 24),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -546,10 +550,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final subtotal = cartProvider.subtotal;
     final discount = cartProvider.discount;
     final shipping = cartProvider.shippingFee;
-    
+
     // Attempting to pull coupon code if available
-    final String appliedCoupon = cartProvider.appliedCouponCode != null 
-        ? ' (${cartProvider.appliedCouponCode})' 
+    final String appliedCoupon = cartProvider.appliedCouponCode != null
+        ? ' (${cartProvider.appliedCouponCode})'
         : '';
 
     final formatCurrency = NumberFormat.simpleCurrency(
@@ -747,9 +751,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final isProcessing = _currentState == CheckoutState.processing;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-      decoration: const BoxDecoration(
-        color: AppTheme.white,
-      ),
+      decoration: const BoxDecoration(color: AppTheme.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

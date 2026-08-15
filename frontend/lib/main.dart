@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:gadget_world/features/auth/providers/auth_provider.dart';
 import 'package:gadget_world/features/auth/screens/login_screen.dart';
 import 'package:gadget_world/features/auth/services/google_auth_service.dart';
@@ -35,7 +34,9 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
-    debugPrint('Firebase initialization failed (mostly missing options on Web): $e');
+    debugPrint(
+      'Firebase initialization failed (mostly missing options on Web): $e',
+    );
   }
 
   // Initialize Supabase

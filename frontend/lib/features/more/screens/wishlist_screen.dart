@@ -316,10 +316,10 @@ class _WishlistScreenState extends State<WishlistScreen> {
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
                                   const Icon(
-                                PhosphorIcons.imageBroken,
-                                size: 48,
-                                color: AppTheme.greyText,
-                              ),
+                                    PhosphorIcons.imageBroken,
+                                    size: 48,
+                                    color: AppTheme.greyText,
+                                  ),
                             )
                           : const Icon(
                               PhosphorIcons.image,

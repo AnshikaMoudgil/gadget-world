@@ -120,7 +120,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 onPressed: () {},
               ),
               IconButton(
-                icon: const Icon(PhosphorIcons.dotsThreeVertical, color: AppTheme.black),
+                icon: const Icon(
+                  PhosphorIcons.dotsThreeVertical,
+                  color: AppTheme.black,
+                ),
                 onPressed: () {},
               ),
             ],
@@ -131,7 +134,20 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   String _getMonth(int month) {
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 
@@ -238,12 +254,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       case 'delivered':
       case 'completed':
         statusColor = Colors.green;
-        statusTitle = 'Delivered on ${_formatDate(widget.order.createdAt.add(const Duration(days: 2)))}';
+        statusTitle =
+            'Delivered on ${_formatDate(widget.order.createdAt.add(const Duration(days: 2)))}';
         statusDesc = 'Your order has been delivered successfully.';
         break;
       case 'shipped':
         statusColor = Colors.blue;
-        statusTitle = 'Shipped on ${_formatDate(widget.order.createdAt.add(const Duration(days: 1)))}';
+        statusTitle =
+            'Shipped on ${_formatDate(widget.order.createdAt.add(const Duration(days: 1)))}';
         statusDesc = 'Your order is on the way.';
         break;
       case 'cancelled':
@@ -308,7 +326,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           color: statusColor,
                         ),
                       ),
-                      Icon(PhosphorIcons.caretRight, size: 16, color: statusColor),
+                      Icon(
+                        PhosphorIcons.caretRight,
+                        size: 16,
+                        color: statusColor,
+                      ),
                     ],
                   ),
                 ],
@@ -374,7 +396,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           final subtitle = details?['category'] ?? 'Category';
           String? imageUrl;
           if (details != null) {
-            if (details['images'] != null && (details['images'] as List).isNotEmpty) {
+            if (details['images'] != null &&
+                (details['images'] as List).isNotEmpty) {
               imageUrl = (details['images'] as List).first as String;
             } else {
               imageUrl = details['image_url'] as String?;
@@ -518,7 +541,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: AppTheme.white,
-                      border: Border.all(color: Colors.green.withValues(alpha: 0.5)),
+                      border: Border.all(
+                        color: Colors.green.withValues(alpha: 0.5),
+                      ),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -574,7 +599,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   _buildTimelineItem(
                     'Order Confirmed',
                     isConfirmed
-                        ? _formatDate(widget.order.createdAt.add(const Duration(minutes: 45)))
+                        ? _formatDate(
+                            widget.order.createdAt.add(
+                              const Duration(minutes: 45),
+                            ),
+                          )
                         : 'Processing...',
                     isConfirmed,
                     status == 'confirmed',
@@ -597,14 +626,24 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         : null,
                   ),
                   _buildTimelineItem(
-                    'Reached Delhi Hub', 
-                    isShipped ? _formatDate(widget.order.createdAt.add(const Duration(days: 2))) : 'Pending',
+                    'Reached Delhi Hub',
+                    isShipped
+                        ? _formatDate(
+                            widget.order.createdAt.add(const Duration(days: 2)),
+                          )
+                        : 'Pending',
                     isShipped,
                     false,
                   ),
                   _buildTimelineItem(
-                    'Out for Delivery', 
-                    isDelivered ? _formatDate(widget.order.createdAt.add(const Duration(days: 2, hours: 4))) : 'Pending',
+                    'Out for Delivery',
+                    isDelivered
+                        ? _formatDate(
+                            widget.order.createdAt.add(
+                              const Duration(days: 2, hours: 4),
+                            ),
+                          )
+                        : 'Pending',
                     isDelivered,
                     false,
                   ),
@@ -658,7 +697,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         width: 6,
                         height: 6,
                         decoration: BoxDecoration(
-                          color: isCompleted ? Colors.green : Colors.transparent,
+                          color: isCompleted
+                              ? Colors.green
+                              : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -677,9 +718,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         const SizedBox(width: 16),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.only(
-              bottom: isLast ? 0 : 24.0,
-            ),
+            padding: EdgeInsets.only(bottom: isLast ? 0 : 24.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -692,7 +731,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: isCompleted ? AppTheme.black : AppTheme.greyText,
+                          color: isCompleted
+                              ? AppTheme.black
+                              : AppTheme.greyText,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -740,7 +781,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppTheme.white,
-            border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: AppTheme.greyBorder.withValues(alpha: 0.3),
+            ),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -768,14 +811,20 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               ),
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.green.shade50,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: const Text(
                                   'Default',
-                                  style: TextStyle(fontSize: 10, color: Colors.green),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.green,
+                                  ),
                                 ),
                               ),
                             ],
@@ -813,7 +862,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     ] else
                       const Text(
                         'No shipping address available.',
-                        style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.greyText,
+                        ),
                       ),
                   ],
                 ),
@@ -856,7 +908,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   color: AppTheme.greyBackground,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Icon(Icons.payment, size: 12, color: AppTheme.black),
+                child: const Icon(
+                  Icons.payment,
+                  size: 12,
+                  color: AppTheme.black,
+                ),
               ),
               const SizedBox(width: 8),
               const Expanded(
@@ -874,7 +930,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 decoration: BoxDecoration(
                   color: isPaid ? Colors.green.shade50 : Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: isPaid ? Colors.green.shade100 : Colors.orange.shade100),
+                  border: Border.all(
+                    color: isPaid
+                        ? Colors.green.shade100
+                        : Colors.orange.shade100,
+                  ),
                 ),
                 child: Text(
                   isPaid ? 'Paid' : 'Pending',
@@ -944,10 +1004,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             children: [
               Text(
                 'Subtotal ($itemCount items)',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppTheme.greyText,
-                ),
+                style: const TextStyle(fontSize: 11, color: AppTheme.greyText),
               ),
               Text(
                 '₹${subtotal.toStringAsFixed(0)}',
@@ -1041,7 +1098,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 ),
               ),
             ),
-            const Icon(PhosphorIcons.caretRight, color: AppTheme.greyText, size: 20),
+            const Icon(
+              PhosphorIcons.caretRight,
+              color: AppTheme.greyText,
+              size: 20,
+            ),
           ],
         ),
       ),

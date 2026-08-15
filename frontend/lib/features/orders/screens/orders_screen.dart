@@ -66,7 +66,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         child: IconButton(
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
-                          icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
+                          icon: const Icon(
+                            PhosphorIcons.arrowLeft,
+                            color: AppTheme.black,
+                          ),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ),
@@ -91,7 +94,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(PhosphorIcons.magnifyingGlass, color: AppTheme.black),
+                icon: const Icon(
+                  PhosphorIcons.magnifyingGlass,
+                  color: AppTheme.black,
+                ),
                 onPressed: () {},
               ),
             ],
@@ -308,7 +314,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ),
             child: Row(
               children: [
-                const Icon(PhosphorIcons.package, color: Colors.brown, size: 28), // Package icon
+                const Icon(
+                  PhosphorIcons.package,
+                  color: Colors.brown,
+                  size: 28,
+                ), // Package icon
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -364,7 +374,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
         }
 
         String productName = 'Order';
-        if (order.items.isNotEmpty && order.items.first.productDetails != null) {
+        if (order.items.isNotEmpty &&
+            order.items.first.productDetails != null) {
           final details = order.items.first.productDetails!;
           if (details['name'] != null) {
             productName = details['name'].toString();
@@ -392,7 +403,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   String _formatTime(DateTime time) {
-    String hour = time.hour > 12 ? (time.hour - 12).toString().padLeft(2, '0') : time.hour.toString().padLeft(2, '0');
+    String hour = time.hour > 12
+        ? (time.hour - 12).toString().padLeft(2, '0')
+        : time.hour.toString().padLeft(2, '0');
     if (hour == '00') hour = '12';
     String minute = time.minute.toString().padLeft(2, '0');
     String ampm = time.hour >= 12 ? 'PM' : 'AM';
@@ -753,10 +766,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
-                          )
+                          ),
                         ],
                       ),
                       child: Stack(
@@ -768,12 +781,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
                               width: 30,
                               height: 20,
                               decoration: BoxDecoration(
-                                border: Border.all(color: const Color(0xFFE0E0E0), width: 3),
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                                border: Border.all(
+                                  color: const Color(0xFFE0E0E0),
+                                  width: 3,
+                                ),
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(15),
+                                ),
                               ),
                             ),
                           ),
-                          const Icon(Icons.flash_on, size: 30, color: AppTheme.black), // Gadget World Logo equivalent
+                          const Icon(
+                            Icons.flash_on,
+                            size: 30,
+                            color: AppTheme.black,
+                          ), // Gadget World Logo equivalent
                         ],
                       ),
                     ),

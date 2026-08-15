@@ -95,7 +95,8 @@ class MoreMenuScreen extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _buildMenuItem(
-          Icons.headset_mic_outlined, // Match the reference image headphone icon
+          Icons
+              .headset_mic_outlined, // Match the reference image headphone icon
           'Contact Us',
           onTap: () {
             Navigator.push(
@@ -113,11 +114,7 @@ class MoreMenuScreen extends StatelessWidget {
           onTap: () {},
         ),
         const SizedBox(height: 12),
-        _buildMenuItem(
-          Icons.autorenew_outlined,
-          'Refund Policy',
-          onTap: () {},
-        ),
+        _buildMenuItem(Icons.autorenew_outlined, 'Refund Policy', onTap: () {}),
         const SizedBox(height: 12),
         _buildMenuItem(
           Icons.logout_outlined,
@@ -191,7 +188,11 @@ class MoreMenuScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(PhosphorIcons.caretRight, color: AppTheme.black, size: 20),
+              const Icon(
+                PhosphorIcons.caretRight,
+                color: AppTheme.black,
+                size: 20,
+              ),
             ],
           ),
         ),
@@ -221,10 +222,7 @@ class MoreMenuScreen extends StatelessWidget {
                 SizedBox(height: 2),
                 Text(
                   'Upgrade Your World',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.greyText,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
                 ),
               ],
             ),
@@ -233,10 +231,7 @@ class MoreMenuScreen extends StatelessWidget {
         const SizedBox(height: 16),
         const Text(
           'Version 1.2.0 (Build 45)',
-          style: TextStyle(
-            fontSize: 12,
-            color: AppTheme.greyText,
-          ),
+          style: TextStyle(fontSize: 12, color: AppTheme.greyText),
         ),
       ],
     );

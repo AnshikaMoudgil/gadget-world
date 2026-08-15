@@ -33,7 +33,10 @@ class NotificationCronService {
 
   Future<void> _checkAbandonedCarts() async {
     // Find carts that were last updated more than 3 days ago
-    final threeDaysAgo = DateTime.now().subtract(const Duration(days: 3)).toUtc().toIso8601String();
+    final threeDaysAgo = DateTime.now()
+        .subtract(const Duration(days: 3))
+        .toUtc()
+        .toIso8601String();
 
     final carts = await SupabaseDb.client
         .from('carts')
@@ -47,23 +50,26 @@ class NotificationCronService {
         await _notificationService.notifyUser(
           userId: cart['user_id'],
           title: 'You left something behind!',
-          body: 'Your cart misses you. Complete your purchase before items run out of stock.',
+          body:
+              'Your cart misses you. Complete your purchase before items run out of stock.',
           type: 'promotion',
         );
 
         // To prevent spamming, we could update the cart's updated_at or keep track of sent reminders.
         // Here we just "touch" the cart to bump its updated_at so it doesn't trigger again for 3 days.
-        await SupabaseDb.client
-            .from('carts')
-            .update({'updated_at': DateTime.now().toUtc().toIso8601String()})
-            .eq('id', cart['id']);
+        await SupabaseDb.client.from('carts').update({
+          'updated_at': DateTime.now().toUtc().toIso8601String()
+        }).eq('id', cart['id']);
       }
     }
   }
 
   Future<void> _checkPendingPayments() async {
     // Find orders pending payment older than 1 day
-    final oneDayAgo = DateTime.now().subtract(const Duration(days: 1)).toUtc().toIso8601String();
+    final oneDayAgo = DateTime.now()
+        .subtract(const Duration(days: 1))
+        .toUtc()
+        .toIso8601String();
 
     final orders = await SupabaseDb.client
         .from('orders')
@@ -75,7 +81,8 @@ class NotificationCronService {
       await _notificationService.notifyUser(
         userId: order['user_id'],
         title: 'Pending Payment Reminder',
-        body: 'Your order ${order['order_number']} is awaiting payment. Complete it soon!',
+        body:
+            'Your order ${order['order_number']} is awaiting payment. Complete it soon!',
         type: 'payment',
         referenceType: 'order',
         referenceId: order['id'],
@@ -85,9 +92,9 @@ class NotificationCronService {
       // For simplicity, we just touch the updated_at or handle it gracefully.
       // We can update a note or similar to mark it reminded.
       await SupabaseDb.client
-            .from('orders')
-            .update({'updated_at': DateTime.now().toUtc().toIso8601String()})
-            .eq('id', order['id']);
+          .from('orders')
+          .update({'updated_at': DateTime.now().toUtc().toIso8601String()}).eq(
+              'id', order['id']);
     }
   }
 }

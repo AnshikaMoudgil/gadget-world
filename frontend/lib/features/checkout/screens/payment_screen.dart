@@ -257,14 +257,21 @@ class _PaymentScreenState extends State<PaymentScreen>
                 Expanded(
                   child: Text(
                     '${item.quantity}x ${item.product?['name'] ?? 'Product'}',
-                    style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.greyText,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Text(
                   '₹${(item.product?['price'] ?? 0) * item.quantity}',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
                 ),
               ],
             ),
@@ -273,8 +280,18 @@ class _PaymentScreenState extends State<PaymentScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Shipping', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
-            Text('₹${widget.shippingFee.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black)),
+            const Text(
+              'Shipping',
+              style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+            ),
+            Text(
+              '₹${widget.shippingFee.toStringAsFixed(0)}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black,
+              ),
+            ),
           ],
         ),
         if (widget.discount > 0)
@@ -283,8 +300,18 @@ class _PaymentScreenState extends State<PaymentScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Discount', style: TextStyle(fontSize: 12, color: Colors.green)),
-                Text('-₹${widget.discount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
+                const Text(
+                  'Discount',
+                  style: TextStyle(fontSize: 12, color: Colors.green),
+                ),
+                Text(
+                  '-₹${widget.discount.toStringAsFixed(0)}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
               ],
             ),
           ),
@@ -353,11 +380,7 @@ class _PaymentScreenState extends State<PaymentScreen>
             padding: const EdgeInsets.only(right: 16.0),
             child: Row(
               children: const [
-                Icon(
-                  Icons.change_history,
-                  size: 16,
-                  color: AppTheme.black,
-                ),
+                Icon(Icons.change_history, size: 16, color: AppTheme.black),
                 Text(
                   'Razorpay',
                   style: TextStyle(
@@ -392,7 +415,7 @@ class _PaymentScreenState extends State<PaymentScreen>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: AppTheme.white,
-            border: Border.all(color: AppTheme.greyBorder.withOpacity(0.5)),
+            border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -405,7 +428,10 @@ class _PaymentScreenState extends State<PaymentScreen>
                     children: [
                       const Text(
                         'Amount to Pay',
-                        style: TextStyle(color: AppTheme.greyText, fontSize: 14),
+                        style: TextStyle(
+                          color: AppTheme.greyText,
+                          fontSize: 14,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -431,10 +457,15 @@ class _PaymentScreenState extends State<PaymentScreen>
                             children: [
                               const Text(
                                 'View order details',
-                                style: TextStyle(color: AppTheme.black, fontSize: 12),
+                                style: TextStyle(
+                                  color: AppTheme.black,
+                                  fontSize: 12,
+                                ),
                               ),
                               Icon(
-                                _showOrderDetails ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                _showOrderDetails
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
                                 size: 16,
                                 color: AppTheme.black,
                               ),
@@ -458,7 +489,11 @@ class _PaymentScreenState extends State<PaymentScreen>
                         ),
                         const Positioned(
                           top: 15,
-                          child: Icon(Icons.lock, size: 28, color: AppTheme.black),
+                          child: Icon(
+                            Icons.lock,
+                            size: 28,
+                            color: AppTheme.black,
+                          ),
                         ),
                         Positioned(
                           bottom: 5,
@@ -486,16 +521,33 @@ class _PaymentScreenState extends State<PaymentScreen>
                                 padding: const EdgeInsets.all(4),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Container(width: 6, height: 6, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
-                                        Container(width: 12, height: 2, color: Colors.grey),
+                                        Container(
+                                          width: 6,
+                                          height: 6,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 12,
+                                          height: 2,
+                                          color: Colors.grey,
+                                        ),
                                       ],
                                     ),
-                                    Container(width: 20, height: 2, color: Colors.grey),
+                                    Container(
+                                      width: 20,
+                                      height: 2,
+                                      color: Colors.grey,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -516,9 +568,9 @@ class _PaymentScreenState extends State<PaymentScreen>
             ],
           ),
         ),
-        
+
         const SizedBox(height: 48),
-        
+
         // Pay with Razorpay Section
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -537,7 +589,11 @@ class _PaymentScreenState extends State<PaymentScreen>
                 const SizedBox(height: 4),
                 Row(
                   children: const [
-                    Icon(Icons.verified_user_outlined, size: 14, color: AppTheme.greyText),
+                    Icon(
+                      Icons.verified_user_outlined,
+                      size: 14,
+                      color: AppTheme.greyText,
+                    ),
                     SizedBox(width: 4),
                     Text(
                       '100% Secure Payments',
@@ -565,7 +621,7 @@ class _PaymentScreenState extends State<PaymentScreen>
           ],
         ),
         const SizedBox(height: 24),
-        
+
         // Pay Button
         SizedBox(
           width: double.infinity,
@@ -589,15 +645,12 @@ class _PaymentScreenState extends State<PaymentScreen>
           ),
         ),
         const SizedBox(height: 24),
-        
+
         const Center(
           child: Text(
             'You will be redirected to Razorpay to complete your payment securely.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppTheme.greyText,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: AppTheme.greyText, fontSize: 12),
           ),
         ),
       ],

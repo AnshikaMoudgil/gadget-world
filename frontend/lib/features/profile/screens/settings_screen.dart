@@ -352,9 +352,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             _updateSetting('order_updates_email', val);
                             _updateSetting('order_updates_sms', val);
                             if (val) {
-                              FirebaseMessaging.instance.subscribeToTopic('order_updates');
+                              FirebaseMessaging.instance.subscribeToTopic(
+                                'order_updates',
+                              );
                             } else {
-                              FirebaseMessaging.instance.unsubscribeFromTopic('order_updates');
+                              FirebaseMessaging.instance.unsubscribeFromTopic(
+                                'order_updates',
+                              );
                             }
                           },
                         ),
@@ -366,12 +370,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               'Receive offers, discounts and promotional updates.',
                           value: settings.promotionsEmail,
                           onChanged: (val) {
-                              _updateSetting('promotions_email', val);
-                              if (val) {
-                                FirebaseMessaging.instance.subscribeToTopic('promotions');
-                              } else {
-                                FirebaseMessaging.instance.unsubscribeFromTopic('promotions');
-                              }
+                            _updateSetting('promotions_email', val);
+                            if (val) {
+                              FirebaseMessaging.instance.subscribeToTopic(
+                                'promotions',
+                              );
+                            } else {
+                              FirebaseMessaging.instance.unsubscribeFromTopic(
+                                'promotions',
+                              );
+                            }
                           },
                         ),
                         const SizedBox(height: 16),
@@ -382,12 +390,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               'Important alerts about your account and security.',
                           value: settings.notificationsEnabled,
                           onChanged: (val) {
-                              _updateSetting('notifications_enabled', val);
-                              if (val) {
-                                FirebaseMessaging.instance.subscribeToTopic('account_alerts');
-                              } else {
-                                FirebaseMessaging.instance.unsubscribeFromTopic('account_alerts');
-                              }
+                            _updateSetting('notifications_enabled', val);
+                            if (val) {
+                              FirebaseMessaging.instance.subscribeToTopic(
+                                'account_alerts',
+                              );
+                            } else {
+                              FirebaseMessaging.instance.unsubscribeFromTopic(
+                                'account_alerts',
+                              );
+                            }
                           },
                         ),
                         const SizedBox(height: 32),
@@ -568,7 +580,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           CupertinoSwitch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppTheme.black,
+            activeTrackColor: AppTheme.black,
           ),
         ],
       ),

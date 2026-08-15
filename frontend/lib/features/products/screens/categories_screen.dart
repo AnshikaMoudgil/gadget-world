@@ -8,7 +8,6 @@ import 'package:gadget_world/features/cart/providers/cart_provider.dart';
 import '../models/category_model.dart';
 import '../providers/catalog_provider.dart';
 import 'search_results_screen.dart';
-import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -26,7 +25,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<CatalogProvider>(context, listen: false);
       provider.fetchCategories();
-      provider.fetchProducts(); // Default fetch all products for "Explore All" / "SALE"
+      provider
+          .fetchProducts(); // Default fetch all products for "Explore All" / "SALE"
     });
   }
 
@@ -56,11 +56,16 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const SearchResultsScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => const SearchResultsScreen(),
+                  ),
                 );
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF0F0F0),
                   borderRadius: BorderRadius.circular(8),
@@ -70,10 +75,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     const Expanded(
                       child: Text(
                         'Search products...',
-                        style: TextStyle(color: AppTheme.greyText, fontSize: 14),
+                        style: TextStyle(
+                          color: AppTheme.greyText,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
-                    const Icon(CupertinoIcons.search, color: AppTheme.black, size: 20),
+                    const Icon(
+                      CupertinoIcons.search,
+                      color: AppTheme.black,
+                      size: 20,
+                    ),
                   ],
                 ),
               ),
@@ -105,7 +117,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               title: 'Explore All', // First one as 'Explore All'
               isSelected: isSelected,
               onTap: () => _onCategorySelected(null),
-              isSpecial: false, 
+              isSpecial: false,
             );
           }
           final category = categories[index - 1];
@@ -143,8 +155,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSpecial 
-                      ? Colors.red 
+                  color: isSpecial
+                      ? Colors.red
                       : (isSelected ? AppTheme.black : AppTheme.greyText),
                 ),
               ),
@@ -157,8 +169,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   Widget _buildRightContent(CatalogProvider provider) {
     final isLoading = provider.isLoadingProducts;
-    final products = _selectedCategory == null ? provider.products : provider.currentCategoryProducts;
-    final title = _selectedCategory == null ? 'Explore All' : _selectedCategory!.name.toUpperCase();
+    final products = _selectedCategory == null
+        ? provider.products
+        : provider.currentCategoryProducts;
+    final title = _selectedCategory == null
+        ? 'Explore All'
+        : _selectedCategory!.name.toUpperCase();
 
     return Expanded(
       child: Container(
@@ -184,48 +200,59 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 ],
               ),
             ),
-            
+
             // Grid Content
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : products.isEmpty
-                      ? const Center(child: Text('No products found'))
-                      : GridView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  ? const Center(child: Text('No products found'))
+                  : GridView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            childAspectRatio: 0.65, // Adjust for product card ratio
+                            childAspectRatio:
+                                0.65, // Adjust for product card ratio
                             crossAxisSpacing: 12,
                             mainAxisSpacing: 12,
                           ),
-                          itemCount: products.length,
-                          itemBuilder: (context, index) {
-                            final product = products[index];
-                            return ProductCard.fromProduct(
-                              product: product,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => ProductDetailsScreen(product: product),
-                                  ),
-                                );
-                              },
-                              onAdd: () {
-                                if (product.stockQuantity > 0) {
-                                  context.read<CartProvider>().addToCart(product.id, 1);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('${product.name} added to cart'),
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                }
-                              },
+                      itemCount: products.length,
+                      itemBuilder: (context, index) {
+                        final product = products[index];
+                        return ProductCard.fromProduct(
+                          product: product,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ProductDetailsScreen(product: product),
+                              ),
                             );
                           },
-                        ),
+                          onAdd: () {
+                            if (product.stockQuantity > 0) {
+                              context.read<CartProvider>().addToCart(
+                                product.id,
+                                1,
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${product.name} added to cart',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          },
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -246,10 +273,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Consumer<CatalogProvider>(
-                    builder: (context, provider, child) => _buildLeftSidebar(provider),
+                    builder: (context, provider, child) =>
+                        _buildLeftSidebar(provider),
                   ),
                   Consumer<CatalogProvider>(
-                    builder: (context, provider, child) => _buildRightContent(provider),
+                    builder: (context, provider, child) =>
+                        _buildRightContent(provider),
                   ),
                 ],
               ),

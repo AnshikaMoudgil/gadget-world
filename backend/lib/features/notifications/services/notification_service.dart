@@ -11,12 +11,14 @@ class NotificationService {
   /// Fetch OAuth2 token using service account JSON
   Future<String?> _getAccessToken() async {
     try {
-      final jsonFile = File('gadget-world-a1a2c-firebase-adminsdk-fbsvc-f13400dda4.json');
+      final jsonFile =
+          File('gadget-world-a1a2c-firebase-adminsdk-fbsvc-f13400dda4.json');
       if (!await jsonFile.exists()) {
         print('Firebase service account JSON not found.');
         return null;
       }
-      final credentials = ServiceAccountCredentials.fromJson(await jsonFile.readAsString());
+      final credentials =
+          ServiceAccountCredentials.fromJson(await jsonFile.readAsString());
       final client = await clientViaServiceAccount(credentials, _scopes);
       final token = client.credentials.accessToken.data;
       client.close();
@@ -38,7 +40,8 @@ class NotificationService {
     final accessToken = await _getAccessToken();
     if (accessToken == null) return;
 
-    final url = Uri.parse('https://fcm.googleapis.com/v1/projects/$_projectId/messages:send');
+    final url = Uri.parse(
+        'https://fcm.googleapis.com/v1/projects/$_projectId/messages:send');
     final payload = {
       'message': {
         'token': fcmToken,

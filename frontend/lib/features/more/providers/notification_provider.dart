@@ -60,13 +60,15 @@ class NotificationProvider extends ChangeNotifier {
         }
 
         FirebaseMessaging.instance.onTokenRefresh.listen(_saveFcmToken);
-        
+
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
           fetchNotifications();
         });
       }
     } catch (e) {
-      debugPrint('Error initializing push notifications (likely Web without config): $e');
+      debugPrint(
+        'Error initializing push notifications (likely Web without config): $e',
+      );
     }
   }
 

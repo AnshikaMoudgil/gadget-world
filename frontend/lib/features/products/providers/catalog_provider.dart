@@ -94,7 +94,9 @@ class CatalogProvider with ChangeNotifier {
     notifyListeners();
     try {
       final fetched = await _service.getCategories();
-      _categories = fetched.where((c) => c.name.toLowerCase() != 'computer softwares').toList();
+      _categories = fetched
+          .where((c) => c.name.toLowerCase() != 'computer softwares')
+          .toList();
     } catch (error) {
       _categoriesError = error.toString();
     } finally {

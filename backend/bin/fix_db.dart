@@ -1,5 +1,4 @@
 import 'package:postgres/postgres.dart';
-import 'dart:io';
 
 void main() async {
   try {
@@ -15,8 +14,9 @@ void main() async {
     );
 
     print('Connected to Postgres!');
-    
-    await conn.execute('ALTER TABLE public.user_addresses ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN NOT NULL DEFAULT false;');
+
+    await conn.execute(
+        'ALTER TABLE public.user_addresses ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN NOT NULL DEFAULT false;');
     print('Added is_deleted column to user_addresses.');
 
     await conn.execute('''
@@ -27,7 +27,7 @@ void main() async {
       );
     ''');
     print('Created user_fcm_tokens table.');
-    
+
     await conn.close();
     print('Done.');
   } catch (e) {

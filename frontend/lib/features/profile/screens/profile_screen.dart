@@ -52,7 +52,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
           child: Consumer<OrderProvider>(
             builder: (context, orderProvider, _) {
-              final isTrulyEmpty = orderProvider.orders.isEmpty &&
+              final isTrulyEmpty =
+                  orderProvider.orders.isEmpty &&
                   !orderProvider.isLoading &&
                   orderProvider.error == null;
 
@@ -63,7 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 24),
                   _buildPromoBanners(!isTrulyEmpty),
                   const SizedBox(height: 32),
-                  
+
                   if (!isTrulyEmpty) ...[
                     _buildRecentOrdersSection(orderProvider),
                     const SizedBox(height: 32),
@@ -181,10 +182,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
                 IconButton(
-                  icon: const Icon(
-                    PhosphorIcons.gear,
-                    color: AppTheme.black,
-                  ),
+                  icon: const Icon(PhosphorIcons.gear, color: AppTheme.black),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -248,10 +246,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 16),
         Column(
           children: recentOrders.map((order) {
-            int itemCount = order.items.fold(0, (sum, item) => sum + item.quantity);
+            int itemCount = order.items.fold(
+              0,
+              (sum, item) => sum + item.quantity,
+            );
 
             String? firstImageUrl;
-            if (order.items.isNotEmpty && order.items.first.productDetails != null) {
+            if (order.items.isNotEmpty &&
+                order.items.first.productDetails != null) {
               final details = order.items.first.productDetails!;
               dynamic imagesData = details['images'];
               if (imagesData is List && imagesData.isNotEmpty) {
@@ -269,7 +271,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }
 
             String productName = 'Order';
-            if (order.items.isNotEmpty && order.items.first.productDetails != null) {
+            if (order.items.isNotEmpty &&
+                order.items.first.productDetails != null) {
               final details = order.items.first.productDetails!;
               if (details['name'] != null) {
                 productName = details['name'].toString();
@@ -279,15 +282,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
             }
 
-            final shortId = order.id.split('-').first.toUpperCase().substring(0, 6);
+            final shortId = order.id
+                .split('-')
+                .first
+                .toUpperCase()
+                .substring(0, 6);
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
               child: _buildCompactOrderCard(
                 title: productName,
                 shortId: '#$shortId',
-                status: order.status.substring(0, 1).toUpperCase() + order.status.substring(1).toLowerCase(),
-                date: '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
+                status:
+                    order.status.substring(0, 1).toUpperCase() +
+                    order.status.substring(1).toLowerCase(),
+                date:
+                    '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
                 price: '₹${order.amount.toStringAsFixed(0)}',
                 items: '$itemCount Items',
                 statusColor: _getStatusColor(order.status),
@@ -317,7 +327,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   String _getMonth(int month) {
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 
@@ -357,10 +380,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppTheme.black,
                     ),
                   )
-                : const Icon(
-                    PhosphorIcons.shoppingBag,
-                    color: AppTheme.black,
-                  ),
+                : const Icon(PhosphorIcons.shoppingBag, color: AppTheme.black),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -422,7 +442,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          const Icon(PhosphorIcons.caretRight, color: AppTheme.greyText, size: 20),
+          const Icon(
+            PhosphorIcons.caretRight,
+            color: AppTheme.greyText,
+            size: 20,
+          ),
         ],
       ),
     );
@@ -439,7 +463,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Column(
         children: [
-          Icon(PhosphorIcons.shoppingBag, size: 64, color: AppTheme.greyBorder.withValues(alpha: 0.5)),
+          Icon(
+            PhosphorIcons.shoppingBag,
+            size: 64,
+            color: AppTheme.greyBorder.withValues(alpha: 0.5),
+          ),
           const SizedBox(height: 24),
           const Text(
             'No orders yet',
@@ -733,10 +761,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: const TextStyle(
-                fontSize: 10,
-                color: Color(0xFF6B7280),
-              ),
+              style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
             ),
           ],
         ),
@@ -777,17 +802,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           ),
           const Divider(color: AppTheme.greyBorder, height: 1, indent: 56),
-          _buildMenuItem(
-            PhosphorIcons.gear,
-            'Settings',
-            'App preferences',
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              );
-            },
-          ),
+          _buildMenuItem(PhosphorIcons.gear, 'Settings', 'App preferences', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            );
+          }),
         ],
       ),
     );
@@ -830,7 +850,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const Icon(PhosphorIcons.caretRight, color: AppTheme.greyText, size: 20),
+            const Icon(
+              PhosphorIcons.caretRight,
+              color: AppTheme.greyText,
+              size: 20,
+            ),
           ],
         ),
       ),

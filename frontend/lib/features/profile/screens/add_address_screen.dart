@@ -146,7 +146,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                             trailingIcon: PhosphorIcons.magnifyingGlass,
                             validator: (val) {
                               if (val == null || val.isEmpty) return 'Required';
-                              if (!RegExp(r'^[1-9][0-9]{5}$').hasMatch(val)) return 'Invalid PIN code';
+                              if (!RegExp(r'^[1-9][0-9]{5}$').hasMatch(val)) {
+                                return 'Invalid PIN code';
+                              }
                               return null;
                             },
                           ),

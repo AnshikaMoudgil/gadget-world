@@ -505,7 +505,10 @@ class _ReorderScreenState extends State<ReorderScreen> {
                                 ),
                           ),
                         )
-                      : const Icon(PhosphorIcons.image, color: AppTheme.greyText),
+                      : const Icon(
+                          PhosphorIcons.image,
+                          color: AppTheme.greyText,
+                        ),
                 ),
                 const SizedBox(width: 16),
                 // Details

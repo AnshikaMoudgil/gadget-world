@@ -76,10 +76,18 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
             hintStyle: const TextStyle(fontSize: 14, color: AppTheme.greyText),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(vertical: 10),
-            prefixIcon: const Icon(PhosphorIcons.magnifyingGlass, color: AppTheme.greyText, size: 20),
+            prefixIcon: const Icon(
+              PhosphorIcons.magnifyingGlass,
+              color: AppTheme.greyText,
+              size: 20,
+            ),
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.cancel, color: AppTheme.greyText, size: 20),
+                    icon: const Icon(
+                      Icons.cancel,
+                      color: AppTheme.greyText,
+                      size: 20,
+                    ),
                     onPressed: () {
                       _searchController.clear();
                       setState(() {
@@ -102,9 +110,15 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               alignment: Alignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(PhosphorIcons.shoppingCart, color: AppTheme.black),
+                  icon: const Icon(
+                    PhosphorIcons.shoppingCart,
+                    color: AppTheme.black,
+                  ),
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CartScreen()),
+                    );
                   },
                 ),
                 if (itemCount > 0)
@@ -152,7 +166,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               children: const [
                 Icon(Icons.filter_list, size: 16),
                 SizedBox(width: 8),
-                Text('Filter', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                Text(
+                  'Filter',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           ),
@@ -164,8 +181,14 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
             ),
             child: Row(
               children: const [
-                Text('Sort by: ', style: TextStyle(fontSize: 12, color: AppTheme.greyText)),
-                Text('Relevance', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                Text(
+                  'Sort by: ',
+                  style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+                ),
+                Text(
+                  'Relevance',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
                 SizedBox(width: 4),
                 Icon(Icons.keyboard_arrow_down, size: 16),
               ],
@@ -178,7 +201,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
 
   Widget _buildRecentSearches(CatalogProvider provider) {
     if (provider.recentSearches.isEmpty) return const SizedBox.shrink();
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -187,7 +210,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Recent Searches', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text(
+                'Recent Searches',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
               TextButton(
                 onPressed: provider.clearRecentSearches,
                 style: TextButton.styleFrom(
@@ -214,7 +240,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               return GestureDetector(
                 onTap: () => _search(search),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: AppTheme.greyBorder),
                     borderRadius: BorderRadius.circular(20),
@@ -222,13 +251,21 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.access_time, size: 14, color: AppTheme.greyText),
+                      const Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: AppTheme.greyText,
+                      ),
                       const SizedBox(width: 6),
                       Text(search, style: const TextStyle(fontSize: 12)),
                       const SizedBox(width: 6),
                       GestureDetector(
                         onTap: () => provider.removeRecentSearch(search),
-                        child: const Icon(Icons.close, size: 14, color: AppTheme.greyText),
+                        child: const Icon(
+                          Icons.close,
+                          size: 14,
+                          color: AppTheme.greyText,
+                        ),
                       ),
                     ],
                   ),
@@ -251,13 +288,23 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
           Expanded(
             child: RichText(
               text: TextSpan(
-                style: const TextStyle(color: AppTheme.black, fontSize: 14, fontFamily: 'San Francisco'),
+                style: const TextStyle(
+                  color: AppTheme.black,
+                  fontSize: 14,
+                  fontFamily: 'San Francisco',
+                ),
                 children: [
                   const TextSpan(text: 'Results for '),
-                  TextSpan(text: '"$_query"', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  TextSpan(
+                    text: '"$_query"',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   TextSpan(
                     text: ' (${provider.searchResults.length} results)',
-                    style: const TextStyle(color: AppTheme.greyText, fontSize: 12),
+                    style: const TextStyle(
+                      color: AppTheme.greyText,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
@@ -272,9 +319,16 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   decoration: BoxDecoration(
                     color: _isGridView ? AppTheme.black : AppTheme.white,
                     border: Border.all(color: AppTheme.greyBorder),
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), bottomLeft: Radius.circular(8)),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      bottomLeft: Radius.circular(8),
+                    ),
                   ),
-                  child: Icon(Icons.grid_view, size: 18, color: _isGridView ? AppTheme.white : AppTheme.black),
+                  child: Icon(
+                    Icons.grid_view,
+                    size: 18,
+                    color: _isGridView ? AppTheme.white : AppTheme.black,
+                  ),
                 ),
               ),
               GestureDetector(
@@ -284,9 +338,16 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   decoration: BoxDecoration(
                     color: !_isGridView ? AppTheme.black : AppTheme.white,
                     border: Border.all(color: AppTheme.greyBorder),
-                    borderRadius: const BorderRadius.only(topRight: Radius.circular(8), bottomRight: Radius.circular(8)),
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(8),
+                      bottomRight: Radius.circular(8),
+                    ),
                   ),
-                  child: Icon(Icons.list, size: 18, color: !_isGridView ? AppTheme.white : AppTheme.black),
+                  child: Icon(
+                    Icons.list,
+                    size: 18,
+                    color: !_isGridView ? AppTheme.white : AppTheme.black,
+                  ),
                 ),
               ),
             ],
@@ -333,7 +394,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 ),
               );
             } else {
-               ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Out of stock'),
                   behavior: SnackBarBehavior.floating,
@@ -393,7 +454,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Suggestions:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+        const Text(
+          'Suggestions:',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -402,7 +466,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
             return GestureDetector(
               onTap: () => _search(s),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   border: Border.all(color: AppTheme.greyBorder),
                   borderRadius: BorderRadius.circular(20),
@@ -442,7 +509,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               Expanded(
                 child: Text(
                   'No results found for "$_query"',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ],
@@ -450,7 +520,11 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
           const SizedBox(height: 16),
           const Text(
             'We couldn\'t find any products matching your search.\nTry checking the spelling or use different keywords.',
-            style: TextStyle(color: AppTheme.greyText, fontSize: 13, height: 1.5),
+            style: TextStyle(
+              color: AppTheme.greyText,
+              fontSize: 13,
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: 24),
           _buildSuggestions(provider),
@@ -483,15 +557,19 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     child: Center(child: CircularProgressIndicator()),
                   ),
 
-                if (_query.isNotEmpty && !provider.isLoadingProducts && provider.searchResults.isEmpty)
+                if (_query.isNotEmpty &&
+                    !provider.isLoadingProducts &&
+                    provider.searchResults.isEmpty)
                   _buildEmptyState(provider),
 
-                if (_query.isNotEmpty && !provider.isLoadingProducts && provider.searchResults.isNotEmpty) ...[
+                if (_query.isNotEmpty &&
+                    !provider.isLoadingProducts &&
+                    provider.searchResults.isNotEmpty) ...[
                   _buildRecentSearches(provider),
                   _buildResultsHeader(provider),
-                  if (_isGridView) 
+                  if (_isGridView)
                     _buildProductGrid(provider.searchResults)
-                  else 
+                  else
                     _buildProductList(provider.searchResults),
                 ],
               ],

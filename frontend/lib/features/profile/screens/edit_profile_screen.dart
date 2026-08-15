@@ -72,7 +72,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    
+
     if (image != null && mounted) {
       final provider = Provider.of<ProfileProvider>(context, listen: false);
       final success = await provider.uploadAvatar(image);
@@ -83,7 +83,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(provider.errorMessage ?? 'Failed to update profile picture'),
+            content: Text(
+              provider.errorMessage ?? 'Failed to update profile picture',
+            ),
           ),
         );
       }
@@ -153,7 +155,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   : null,
                             ),
                             child: profile?.avatarUrl == null
-                                ? const Icon(PhosphorIcons.userFill, size: 48, color: AppTheme.greyText)
+                                ? const Icon(
+                                    PhosphorIcons.userFill,
+                                    size: 48,
+                                    color: AppTheme.greyText,
+                                  )
                                 : null,
                           ),
                           Positioned(
@@ -166,15 +172,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 decoration: BoxDecoration(
                                   color: AppTheme.black,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: AppTheme.white, width: 2),
+                                  border: Border.all(
+                                    color: AppTheme.white,
+                                    width: 2,
+                                  ),
                                 ),
-                                child: provider.isLoading 
+                                child: provider.isLoading
                                     ? const SizedBox(
-                                        width: 16, 
-                                        height: 16, 
-                                        child: CircularProgressIndicator(color: AppTheme.white, strokeWidth: 2)
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          color: AppTheme.white,
+                                          strokeWidth: 2,
+                                        ),
                                       )
-                                    : const Icon(PhosphorIcons.camera, color: AppTheme.white, size: 16),
+                                    : const Icon(
+                                        PhosphorIcons.camera,
+                                        color: AppTheme.white,
+                                        size: 16,
+                                      ),
                               ),
                             ),
                           ),
@@ -183,28 +199,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               bottom: 0,
                               left: 0,
                               child: GestureDetector(
-                                onTap: provider.isLoading ? null : () async {
-                                  final success = await provider.deleteAvatar();
-                                  if (success && mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Profile picture deleted successfully')),
-                                    );
-                                  } else if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(provider.errorMessage ?? 'Failed to delete profile picture'),
-                                      ),
-                                    );
-                                  }
-                                },
+                                onTap: provider.isLoading
+                                    ? null
+                                    : () async {
+                                        final success = await provider
+                                            .deleteAvatar();
+                                        if (success && mounted) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Profile picture deleted successfully',
+                                              ),
+                                            ),
+                                          );
+                                        } else if (mounted) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                provider.errorMessage ??
+                                                    'Failed to delete profile picture',
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     color: Colors.red,
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: AppTheme.white, width: 2),
+                                    border: Border.all(
+                                      color: AppTheme.white,
+                                      width: 2,
+                                    ),
                                   ),
-                                  child: const Icon(PhosphorIcons.trash, color: AppTheme.white, size: 16),
+                                  child: const Icon(
+                                    PhosphorIcons.trash,
+                                    color: AppTheme.white,
+                                    size: 16,
+                                  ),
                                 ),
                               ),
                             ),
@@ -294,10 +331,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           IconButton(
-            icon: const Icon(
-              PhosphorIcons.shieldCheck,
-              color: AppTheme.black,
-            ),
+            icon: const Icon(PhosphorIcons.shieldCheck, color: AppTheme.black),
             onPressed: () {},
           ),
         ],

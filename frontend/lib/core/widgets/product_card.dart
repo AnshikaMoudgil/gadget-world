@@ -105,9 +105,7 @@ class ProductCard extends StatelessWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Center(
-                        child: _ProductImage(imageUrl: imageUrl),
-                      ),
+                      child: Center(child: _ProductImage(imageUrl: imageUrl)),
                     ),
                   ),
 
@@ -159,7 +157,11 @@ class ProductCard extends StatelessWidget {
               title,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, height: 1.2),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                height: 1.2,
+              ),
             ),
             const SizedBox(height: 8),
             Row(
@@ -176,21 +178,30 @@ class ProductCard extends StatelessWidget {
                           Flexible(
                             child: Text(
                               price,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 2),
                           const Text(
                             '/ piece',
-                            style: TextStyle(fontSize: 9, color: AppTheme.greyText),
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: AppTheme.greyText,
+                            ),
                           ),
                         ],
                       ),
                       if (discountText != null) ...[
                         const SizedBox(height: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AppTheme.greyBackground,
                             borderRadius: BorderRadius.circular(4),
@@ -208,7 +219,10 @@ class ProductCard extends StatelessWidget {
                       if (moqText != null) ...[
                         const SizedBox(height: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AppTheme.greyBackground,
                             borderRadius: BorderRadius.circular(4),
@@ -233,11 +247,10 @@ class ProductCard extends StatelessWidget {
                             color: stockStatusColor ?? Colors.green,
                           ),
                         ),
-                      ]
+                      ],
                     ],
                   ),
                 ),
-
               ],
             ),
           ],

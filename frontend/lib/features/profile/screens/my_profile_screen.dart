@@ -114,7 +114,11 @@ class MyProfileScreen extends StatelessWidget {
                   : null,
             ),
             child: profile?.avatarUrl == null
-                ? const Icon(PhosphorIcons.userFill, size: 40, color: AppTheme.greyText)
+                ? const Icon(
+                    PhosphorIcons.userFill,
+                    size: 40,
+                    color: AppTheme.greyText,
+                  )
                 : null,
           ),
           const SizedBox(width: 16),
@@ -310,7 +314,11 @@ class MyProfileScreen extends StatelessWidget {
               color: AppTheme.greyBackground.withValues(alpha: 0.5),
               shape: BoxShape.circle,
             ),
-            child: const Icon(PhosphorIcons.shieldCheck, color: AppTheme.black, size: 20),
+            child: const Icon(
+              PhosphorIcons.shieldCheck,
+              color: AppTheme.black,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(

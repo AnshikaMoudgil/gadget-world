@@ -72,7 +72,8 @@ class ProfileProvider extends ChangeNotifier {
     _setError(null);
     try {
       final fileExt = imageFile.name.split('.').last;
-      final fileName = '${user.id}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+      final fileName =
+          '${user.id}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
       final imageBytes = await imageFile.readAsBytes();
 
       await Supabase.instance.client.storage
@@ -84,7 +85,7 @@ class ProfileProvider extends ChangeNotifier {
           .getPublicUrl(fileName);
 
       final updatedProfile = _profile!.copyWith(avatarUrl: imageUrl);
-      
+
       _profile = await _profileService.updateProfile(updatedProfile);
       return true;
     } catch (e) {

@@ -245,11 +245,16 @@ class _HomeScreenState extends State<HomeScreen> {
               onViewAll: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const FeaturedProductsScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => const FeaturedProductsScreen(),
+                  ),
                 );
               },
             ),
-            _buildHorizontalProductList(isFeatured: true, discountText: '2% OFF'),
+            _buildHorizontalProductList(
+              isFeatured: true,
+              discountText: '2% OFF',
+            ),
             const SizedBox(height: 32),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -405,16 +410,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
                   final category = categories[index];
-                  
+
                   IconData getCategoryIcon(String name) {
                     final n = name.toLowerCase();
-                    if (n.contains('mobile') || n.contains('phone')) return CupertinoIcons.device_phone_portrait;
-                    if (n.contains('laptop') || n.contains('tablet') || n.contains('computer')) return CupertinoIcons.device_laptop;
-                    if (n.contains('audio') || n.contains('earphone') || n.contains('headphone')) return CupertinoIcons.headphones;
-                    if (n.contains('wearable') || n.contains('watch')) return CupertinoIcons.time;
-                    if (n.contains('cable') || n.contains('charger')) return CupertinoIcons.bolt_horizontal;
+                    if (n.contains('mobile') || n.contains('phone')) {
+                      return CupertinoIcons.device_phone_portrait;
+                    }
+                    if (n.contains('laptop') ||
+                        n.contains('tablet') ||
+                        n.contains('computer')) {
+                      return CupertinoIcons.device_laptop;
+                    }
+                    if (n.contains('audio') ||
+                        n.contains('earphone') ||
+                        n.contains('headphone')) {
+                      return CupertinoIcons.headphones;
+                    }
+                    if (n.contains('wearable') || n.contains('watch')) {
+                      return CupertinoIcons.time;
+                    }
+                    if (n.contains('cable') || n.contains('charger')) {
+                      return CupertinoIcons.bolt_horizontal;
+                    }
                     if (n.contains('camera')) return CupertinoIcons.camera;
-                    if (n.contains('gaming') || n.contains('game')) return CupertinoIcons.game_controller;
+                    if (n.contains('gaming') || n.contains('game')) {
+                      return CupertinoIcons.game_controller;
+                    }
                     return CupertinoIcons.circle_grid_3x3;
                   }
 

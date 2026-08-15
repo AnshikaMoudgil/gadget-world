@@ -139,18 +139,19 @@ class CouponService {
   Future<List<Map<String, dynamic>>> getAvailableCoupons(String userId) async {
     // 1. Fetch all active and valid coupons
     final couponsResult = await SupabaseDb.query(() => SupabaseDb.adminClient
-        .from('coupons')
-        .select()
-        .eq('is_active', true)
-        .gte('valid_until', DateTime.now().toIso8601String()) // This alone isn't enough because valid_until can be null
+            .from('coupons')
+            .select()
+            .eq('is_active', true)
+            .gte(
+                'valid_until',
+                DateTime.now()
+                    .toIso8601String()) // This alone isn't enough because valid_until can be null
         // Supabase filters for nulls can be tricky in a single query with OR, so we fetch active ones and filter in Dart for simplicity.
         );
 
     // Let's just fetch all active and filter in memory since the list of coupons is small
-    final activeResult = await SupabaseDb.query(() => SupabaseDb.adminClient
-        .from('coupons')
-        .select()
-        .eq('is_active', true));
+    final activeResult = await SupabaseDb.query(() =>
+        SupabaseDb.adminClient.from('coupons').select().eq('is_active', true));
 
     if (activeResult.isError || activeResult.data == null) return [];
 
@@ -163,7 +164,8 @@ class CouponService {
     allActive = allActive.where((c) {
       if (c.validFrom != null && now.isBefore(c.validFrom!)) return false;
       if (c.validUntil != null && now.isAfter(c.validUntil!)) return false;
-      if (c.totalUsageLimit != null && c.timesUsed >= c.totalUsageLimit!) return false;
+      if (c.totalUsageLimit != null && c.timesUsed >= c.totalUsageLimit!)
+        return false;
       return true;
     }).toList();
 

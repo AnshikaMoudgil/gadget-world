@@ -123,10 +123,7 @@ class AddressService {
       final updateResult = await SupabaseDb.execute(() async {
         await SupabaseDb.adminClient
             .from('user_addresses')
-            .update({
-              'country': 'DELETED',
-              'is_default': false
-            })
+            .update({'country': 'DELETED', 'is_default': false})
             .eq('user_id', userId)
             .eq('id', addressId);
       });

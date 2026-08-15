@@ -16,7 +16,9 @@ class AppTheme {
       displayMedium: base.displayMedium?.copyWith(fontWeight: FontWeight.bold),
       displaySmall: base.displaySmall?.copyWith(fontWeight: FontWeight.bold),
       headlineLarge: base.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
-      headlineMedium: base.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontWeight: FontWeight.bold,
+      ),
       headlineSmall: base.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
       titleLarge: base.titleLarge?.copyWith(fontWeight: FontWeight.bold),
       titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -26,7 +28,7 @@ class AppTheme {
 
   static ThemeData get lightTheme {
     final boldTextTheme = _buildBoldTextTheme(Typography.material2021().black);
-    
+
     return ThemeData(
       textTheme: GoogleFonts.robotoTextTheme(boldTextTheme),
       primaryTextTheme: GoogleFonts.robotoTextTheme(boldTextTheme),

@@ -57,8 +57,9 @@ class _ContactUsScreenState extends State<ContactUsScreen>
     });
 
     final provider = Provider.of<SupportProvider>(context, listen: false);
-    
-    final messagePayload = '''
+
+    final messagePayload =
+        '''
 Name: ${_nameController.text.trim()}
 Email: ${_emailController.text.trim()}
 Phone: ${_phoneController.text.trim()}
@@ -592,7 +593,9 @@ ${_messageController.text.trim()}
           // Ticket ID Box
           Consumer<SupportProvider>(
             builder: (context, provider, child) {
-              final ticketId = provider.tickets.isNotEmpty ? provider.tickets.first.ticketNumber : '#TKT-UNKNOWN';
+              final ticketId = provider.tickets.isNotEmpty
+                  ? provider.tickets.first.ticketNumber
+                  : '#TKT-UNKNOWN';
               return Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -600,21 +603,36 @@ ${_messageController.text.trim()}
                   color: AppTheme.white,
                   borderRadius: BorderRadius.circular(12),
                   // Dotted border equivalent using Container for simplicity
-                  border: Border.all(color: const Color(0xFFEAEAEA), width: 1.5, style: BorderStyle.solid),
+                  border: Border.all(
+                    color: const Color(0xFFEAEAEA),
+                    width: 1.5,
+                    style: BorderStyle.solid,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Your Ticket ID', style: TextStyle(fontSize: 10, color: AppTheme.greyText)),
+                    const Text(
+                      'Your Ticket ID',
+                      style: TextStyle(fontSize: 10, color: AppTheme.greyText),
+                    ),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           ticketId,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
                         ),
-                        const Icon(Icons.copy_outlined, color: AppTheme.black, size: 16),
+                        const Icon(
+                          Icons.copy_outlined,
+                          color: AppTheme.black,
+                          size: 16,
+                        ),
                       ],
                     ),
                   ],
@@ -626,10 +644,7 @@ ${_messageController.text.trim()}
           const Text(
             'You will also receive a confirmation email\nshortly.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppTheme.greyText,
-            ),
+            style: TextStyle(fontSize: 12, color: AppTheme.greyText),
           ),
           const SizedBox(height: 32),
           SizedBox(

@@ -27,7 +27,8 @@ class PaymentController {
         await NotificationService().notifyUser(
           userId: userId,
           title: 'Order Created successfully!',
-          body: 'Your order is created and pending payment. Please complete it to confirm your order.',
+          body:
+              'Your order is created and pending payment. Please complete it to confirm your order.',
           type: 'order_update',
           referenceType: 'order',
           referenceId: orderId,
@@ -64,7 +65,8 @@ class PaymentController {
         await NotificationService().notifyUser(
           userId: userId,
           title: 'Payment Successful!',
-          body: 'Your payment was received successfully. Your order is now confirmed.',
+          body:
+              'Your payment was received successfully. Your order is now confirmed.',
           type: 'payment',
         );
       } catch (e) {

@@ -226,7 +226,11 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
           if (hasTrailing)
-            const Icon(PhosphorIcons.caretRight, color: AppTheme.greyText, size: 20),
+            const Icon(
+              PhosphorIcons.caretRight,
+              color: AppTheme.greyText,
+              size: 20,
+            ),
         ],
       ),
     );
@@ -333,7 +337,11 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Icon(PhosphorIcons.caretRight, color: AppTheme.greyText, size: 20),
+          const Icon(
+            PhosphorIcons.caretRight,
+            color: AppTheme.greyText,
+            size: 20,
+          ),
         ],
       ),
     );
