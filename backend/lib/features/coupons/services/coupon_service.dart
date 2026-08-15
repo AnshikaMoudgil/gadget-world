@@ -137,7 +137,6 @@ class CouponService {
 
   /// Fetches available coupons for a specific user, filtering out ones they have exhausted
   Future<List<Map<String, dynamic>>> getAvailableCoupons(String userId) async {
-
     // Let's just fetch all active and filter in memory since the list of coupons is small
     final activeResult = await SupabaseDb.query(() =>
         SupabaseDb.adminClient.from('coupons').select().eq('is_active', true));
