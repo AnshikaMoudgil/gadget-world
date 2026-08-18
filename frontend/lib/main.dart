@@ -38,7 +38,7 @@ Future<void> main() async {
   // Initialize Supabase
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL'] ?? 'https://xyzcompany.supabase.co',
-    publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? 'public-anon-key',
+    publishableKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY'] ?? 'public-anon-key',
   );
 
   runApp(

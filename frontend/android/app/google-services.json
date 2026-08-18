@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "31352192762",
+    "project_id": "gadget-world-a1a2c",
+    "storage_bucket": "gadget-world-a1a2c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31352192762:android:64395abc0e292cedb1d343",
+        "android_client_info": {
+          "package_name": "com.tensorik.gadgetstore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAI6Jo7OvV8CXSePhgA_bEPM7LEa3fea0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
