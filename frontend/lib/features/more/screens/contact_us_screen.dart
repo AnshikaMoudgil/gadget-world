@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/more/providers/support_provider.dart';
-import 'package:gadget_world/features/more/screens/ticket_chat_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/more/providers/support_provider.dart';
+import 'package:gadget_store/features/more/screens/ticket_chat_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 

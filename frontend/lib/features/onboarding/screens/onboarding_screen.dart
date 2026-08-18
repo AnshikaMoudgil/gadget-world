@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/core/widgets/primary_button.dart';
-import 'package:gadget_world/features/auth/screens/login_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/core/widgets/primary_button.dart';
+import 'package:gadget_store/features/auth/screens/login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -40,7 +40,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 style: TextStyle(fontSize: 18, color: AppTheme.black),
               ),
               const Text(
-                'Gadget World',
+                'Gadget Store',
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w900,

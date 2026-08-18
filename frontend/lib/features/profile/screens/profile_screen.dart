@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:gadget_world/features/home/screens/main_screen.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/profile/screens/address_screen.dart';
-import 'package:gadget_world/features/profile/screens/my_profile_screen.dart';
-import 'package:gadget_world/features/profile/screens/settings_screen.dart';
-import 'package:gadget_world/features/more/screens/wishlist_screen.dart';
-import 'package:gadget_world/features/more/screens/contact_us_screen.dart';
-import 'package:gadget_world/features/profile/providers/profile_provider.dart';
-import 'package:gadget_world/features/orders/providers/order_provider.dart';
-import 'package:gadget_world/features/orders/screens/orders_screen.dart';
+import 'package:gadget_store/features/home/screens/main_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/profile/screens/address_screen.dart';
+import 'package:gadget_store/features/profile/screens/my_profile_screen.dart';
+import 'package:gadget_store/features/profile/screens/settings_screen.dart';
+import 'package:gadget_store/features/more/screens/wishlist_screen.dart';
+import 'package:gadget_store/features/more/screens/contact_us_screen.dart';
+import 'package:gadget_store/features/profile/providers/profile_provider.dart';
+import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:gadget_store/features/orders/screens/orders_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/features/orders/screens/reorder_screen.dart';
-import 'package:gadget_world/features/more/providers/notification_provider.dart';
-import 'package:gadget_world/features/more/screens/notifications_screen.dart';
+import 'package:gadget_store/features/orders/screens/reorder_screen.dart';
+import 'package:gadget_store/features/more/providers/notification_provider.dart';
+import 'package:gadget_store/features/more/screens/notifications_screen.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -523,7 +523,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           if (!hasOrders)
             _buildBannerItem(
-              'Welcome to Gadget World!',
+              'Welcome to Gadget Store!',
               'Place your first order',
               'Explore our best products and enjoy a seamless shopping experience.',
               'assets/images/promo_banner_1.png',

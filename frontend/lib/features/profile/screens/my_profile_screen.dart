@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/profile/screens/edit_profile_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/profile/screens/edit_profile_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/features/profile/providers/profile_provider.dart';
+import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class MyProfileScreen extends StatelessWidget {

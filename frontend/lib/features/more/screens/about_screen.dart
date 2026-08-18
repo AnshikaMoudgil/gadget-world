@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_store/core/theme.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -32,7 +32,7 @@ class AboutScreen extends StatelessWidget {
                     const SizedBox(height: 32),
                     const Center(
                       child: Text(
-                        'Â© 2025 Gadget World. All rights reserved.',
+                        'Â© 2025 Gadget Store. All rights reserved.',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppTheme.greyText,
@@ -112,7 +112,7 @@ class AboutScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Text(
-                  'Gadget World',
+                  'Gadget Store',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -130,7 +130,7 @@ class AboutScreen extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         const Text(
-          'Gadget World is your one-stop destination for premium gadgets and accessories. We bring you the latest tech with unbeatable quality and trust.',
+          'Gadget Store is your one-stop destination for premium gadgets and accessories. We bring you the latest tech with unbeatable quality and trust.',
           style: TextStyle(fontSize: 14, color: AppTheme.greyText, height: 1.5),
         ),
       ],
@@ -159,7 +159,7 @@ class AboutScreen extends StatelessWidget {
           _buildInfoRow(
             Icons.email_outlined,
             'Email',
-            'support@gadgetworld.com',
+            'support@gadgetstore.com',
           ),
           Divider(
             height: 1,
@@ -175,7 +175,7 @@ class AboutScreen extends StatelessWidget {
           _buildInfoRow(
             Icons.language_outlined,
             'Website',
-            'www.gadgetworld.com',
+            'www.gadgetstore.com',
             hasTrailing: true,
           ),
         ],

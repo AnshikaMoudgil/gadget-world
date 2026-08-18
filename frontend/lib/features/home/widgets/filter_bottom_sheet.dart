@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/products/providers/catalog_provider.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 import 'package:provider/provider.dart';
 
 class FilterBottomSheet extends StatefulWidget {

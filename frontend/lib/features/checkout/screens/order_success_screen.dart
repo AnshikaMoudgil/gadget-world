@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/home/screens/main_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 

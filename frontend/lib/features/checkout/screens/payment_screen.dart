@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/checkout/screens/order_success_screen.dart';
-import 'package:gadget_world/features/checkout/screens/order_failed_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/checkout/screens/order_success_screen.dart';
+import 'package:gadget_store/features/checkout/screens/order_failed_screen.dart';
 import 'package:razorpay_web/razorpay_web.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:gadget_world/features/payments/services/payment_api_service.dart';
-import 'package:gadget_world/features/orders/providers/order_provider.dart';
+import 'package:gadget_store/features/payments/services/payment_api_service.dart';
+import 'package:gadget_store/features/orders/providers/order_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/features/cart/providers/cart_provider.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
@@ -184,9 +184,9 @@ class _PaymentScreenState extends State<PaymentScreen>
       var options = {
         'key': keyId,
         'amount': orderData['amount'],
-        'name': 'Gadget World',
+        'name': 'Gadget Store',
         'order_id': orderId,
-        'description': 'Purchase from Gadget World',
+        'description': 'Purchase from Gadget Store',
         'retry': {'enabled': true, 'max_count': 1},
         'prefill': {
           'email': Supabase.instance.client.auth.currentUser?.email ?? '',
@@ -722,7 +722,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text(
-                        'Gadget World',
+                        'Gadget Store',
                         style: TextStyle(
                           color: AppTheme.black,
                           fontSize: 16,

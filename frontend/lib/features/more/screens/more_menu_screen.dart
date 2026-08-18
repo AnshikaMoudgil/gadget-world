@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/auth/providers/auth_provider.dart';
-import 'package:gadget_world/features/more/screens/about_screen.dart';
-import 'package:gadget_world/features/more/screens/contact_us_screen.dart';
-import 'package:gadget_world/features/auth/screens/login_screen.dart'; // For logout
-import 'package:gadget_world/core/widgets/logo_widget.dart'; // Assuming this is where LogoWidget is
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
+import 'package:gadget_store/features/more/screens/about_screen.dart';
+import 'package:gadget_store/features/more/screens/contact_us_screen.dart';
+import 'package:gadget_store/features/auth/screens/login_screen.dart'; // For logout
+import 'package:gadget_store/core/widgets/logo_widget.dart'; // Assuming this is where LogoWidget is
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class MoreMenuScreen extends StatelessWidget {
@@ -212,7 +212,7 @@ class MoreMenuScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Text(
-                  'Gadget World',
+                  'Gadget Store',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

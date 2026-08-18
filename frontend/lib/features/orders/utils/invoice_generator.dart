@@ -1,7 +1,7 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:gadget_world/features/orders/models/order.dart';
+import 'package:gadget_store/features/orders/models/order.dart';
 
 class InvoiceGenerator {
   static Future<void> generateAndPrintInvoice(Order order) async {
@@ -243,13 +243,13 @@ class InvoiceGenerator {
               pw.SizedBox(height: 8),
               pw.Center(
                 child: pw.Text(
-                  'Thank you for shopping with Gadget World!',
+                  'Thank you for shopping with Gadget Store!',
                   style: const pw.TextStyle(color: PdfColors.grey600),
                 ),
               ),
               pw.Center(
                 child: pw.Text(
-                  'For support, visit www.gadgetworld.com',
+                  'For support, visit www.gadgetstore.com',
                   style: const pw.TextStyle(
                     color: PdfColors.grey600,
                     fontSize: 10,

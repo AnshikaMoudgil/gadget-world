@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/auth/providers/auth_provider.dart';
-import 'package:gadget_world/features/auth/screens/login_screen.dart'; // To navigate on logout
-import 'package:gadget_world/features/profile/providers/settings_provider.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
+import 'package:gadget_store/features/auth/screens/login_screen.dart'; // To navigate on logout
+import 'package:gadget_store/features/profile/providers/settings_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';

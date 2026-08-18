@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_store/core/theme.dart';
 import '../models/product_model.dart';
 import '../providers/catalog_provider.dart';
 import '../../cart/providers/cart_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:gadget_world/features/checkout/screens/cart_screen.dart';
-import 'package:gadget_world/features/more/providers/wishlist_provider.dart';
+import 'package:gadget_store/features/checkout/screens/cart_screen.dart';
+import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -79,7 +79,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               );
               // ignore: deprecated_member_use
               await Share.share(
-                'Check out ${_product.name} for ${formatCurrency.format(_product.price)} at Gadget World!',
+                'Check out ${_product.name} for ${formatCurrency.format(_product.price)} at Gadget Store!',
               );
             },
           ),

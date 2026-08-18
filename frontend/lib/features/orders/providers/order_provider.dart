@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:gadget_world/features/orders/models/order.dart';
-import 'package:gadget_world/features/payments/services/payment_api_service.dart';
+import 'package:gadget_store/features/orders/models/order.dart';
+import 'package:gadget_store/features/payments/services/payment_api_service.dart';
 
 class OrderProvider with ChangeNotifier {
   final SupabaseClient _supabase = Supabase.instance.client;

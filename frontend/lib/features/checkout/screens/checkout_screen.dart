@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/checkout/screens/payment_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/checkout/screens/payment_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/features/cart/providers/cart_provider.dart';
-import 'package:gadget_world/features/profile/providers/address_provider.dart';
-import 'package:gadget_world/features/profile/screens/address_screen.dart';
-import 'package:gadget_world/features/profile/models/address.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+import 'package:gadget_store/features/profile/providers/address_provider.dart';
+import 'package:gadget_store/features/profile/screens/address_screen.dart';
+import 'package:gadget_store/features/profile/models/address.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 

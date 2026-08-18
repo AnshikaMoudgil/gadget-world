@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:gadget_world/features/profile/models/address.dart';
-import 'package:gadget_world/features/profile/services/address_api_service.dart';
+import 'package:gadget_store/features/profile/models/address.dart';
+import 'package:gadget_store/features/profile/services/address_api_service.dart';
 
 class AddressProvider with ChangeNotifier {
   final SupabaseClient _supabase = Supabase.instance.client;

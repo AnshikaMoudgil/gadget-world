@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/home/screens/home_screen.dart';
-import 'package:gadget_world/features/checkout/screens/cart_screen.dart';
-import 'package:gadget_world/features/profile/screens/profile_screen.dart';
-import 'package:gadget_world/features/orders/screens/orders_screen.dart';
-import 'package:gadget_world/features/products/screens/categories_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/home/screens/home_screen.dart';
+import 'package:gadget_store/features/checkout/screens/cart_screen.dart';
+import 'package:gadget_store/features/profile/screens/profile_screen.dart';
+import 'package:gadget_store/features/orders/screens/orders_screen.dart';
+import 'package:gadget_store/features/products/screens/categories_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/features/cart/providers/cart_provider.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class MainScreen extends StatefulWidget {

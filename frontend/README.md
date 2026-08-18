@@ -1,6 +1,6 @@
-# Tensorik GadgetWorld
+# Tensorik GadgetStore
 
-A modern Flutter-based gadget world application. 
+A modern Flutter-based gadget store application. 
 
 ## Current Progress
 
@@ -18,11 +18,11 @@ To get this project up and running on your local machine, follow these steps:
 1. **Install Flutter**: Ensure you have the Flutter SDK installed. If not, follow the guide at [flutter.dev](https://docs.flutter.dev/get-started/install).
 2. **Clone the Repository**:
    ```bash
-   git clone https://github.com/AnshikaMoudgil/Tensorik-GadgetWorld.git
+   git clone https://github.com/AnshikaMoudgil/Tensorik-GadgetStore.git
    ```
 3. **Navigate to the Project Directory**:
    ```bash
-   cd Tensorik-GadgetWorld
+   cd Tensorik-GadgetStore
    ```
 4. **Environment Variables**:
    Create a `.env` file in the root of the `frontend` directory and add the following keys (including your production `BACKEND_URL` when deployed to Render):

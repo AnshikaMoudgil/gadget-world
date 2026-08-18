@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/more/providers/notification_provider.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/more/providers/notification_provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class NotificationsScreen extends StatelessWidget {

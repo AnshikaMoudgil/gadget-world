@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/home/screens/main_screen.dart';
-import 'package:gadget_world/features/orders/screens/order_detail_screen.dart';
-import 'package:gadget_world/features/orders/providers/order_provider.dart';
-import 'package:gadget_world/features/orders/models/order.dart';
-import 'package:gadget_world/features/auth/providers/auth_provider.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/home/screens/main_screen.dart';
+import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
+import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:gadget_store/features/orders/models/order.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
@@ -795,7 +795,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             Icons.flash_on,
                             size: 30,
                             color: AppTheme.black,
-                          ), // Gadget World Logo equivalent
+                          ), // Gadget Store Logo equivalent
                         ],
                       ),
                     ),

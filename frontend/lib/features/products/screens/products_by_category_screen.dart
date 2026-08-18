@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/core/widgets/product_card.dart';
-import 'package:gadget_world/features/products/screens/product_details_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/core/widgets/product_card.dart';
+import 'package:gadget_store/features/products/screens/product_details_screen.dart';
 import '../models/category_model.dart';
 import '../providers/catalog_provider.dart';
-import 'package:gadget_world/features/cart/providers/cart_provider.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class ProductsByCategoryScreen extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_store/core/theme.dart';
 import '../../cart/providers/cart_provider.dart';
 import '../services/coupon_api_service.dart';
 import 'package:intl/intl.dart';

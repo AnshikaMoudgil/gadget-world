@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_store/core/theme.dart';
 
 class OTPInput extends StatefulWidget {
   final int length;

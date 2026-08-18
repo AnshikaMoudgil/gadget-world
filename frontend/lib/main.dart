@@ -1,24 +1,24 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:gadget_world/core/theme.dart';
-import 'package:gadget_world/features/onboarding/screens/splash_screen.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:gadget_world/features/auth/providers/auth_provider.dart';
-import 'package:gadget_world/features/auth/screens/login_screen.dart';
-import 'package:gadget_world/features/auth/services/google_auth_service.dart';
-import 'package:gadget_world/features/profile/providers/profile_provider.dart';
-import 'package:gadget_world/features/products/providers/catalog_provider.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
+import 'package:gadget_store/features/auth/screens/login_screen.dart';
+import 'package:gadget_store/features/auth/services/google_auth_service.dart';
+import 'package:gadget_store/features/profile/providers/profile_provider.dart';
+import 'package:gadget_store/features/products/providers/catalog_provider.dart';
 
-import 'package:gadget_world/features/cart/providers/cart_provider.dart';
-import 'package:gadget_world/features/orders/providers/order_provider.dart';
-import 'package:gadget_world/features/profile/providers/address_provider.dart';
-import 'package:gadget_world/features/profile/providers/settings_provider.dart';
-import 'package:gadget_world/features/more/providers/wishlist_provider.dart';
-import 'package:gadget_world/features/more/providers/support_provider.dart';
-import 'package:gadget_world/features/more/providers/notification_provider.dart';
+import 'package:gadget_store/features/cart/providers/cart_provider.dart';
+import 'package:gadget_store/features/orders/providers/order_provider.dart';
+import 'package:gadget_store/features/profile/providers/address_provider.dart';
+import 'package:gadget_store/features/profile/providers/settings_provider.dart';
+import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
+import 'package:gadget_store/features/more/providers/support_provider.dart';
+import 'package:gadget_store/features/more/providers/notification_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: rootNavigatorKey,
-      title: 'Gadget World',
+      title: 'Gadget Store',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       builder: (context, child) {
