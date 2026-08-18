@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:gadget_store/features/profile/models/user_settings.dart';
+import 'package:gadget_world/features/profile/models/user_settings.dart';
 
 class SettingsApiService {
   static String get baseUrl {

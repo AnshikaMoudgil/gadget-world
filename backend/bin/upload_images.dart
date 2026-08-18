@@ -5,10 +5,10 @@ import 'package:dotenv/dotenv.dart';
 void main() async {
   var env = DotEnv(includePlatformEnvironment: true)..load();
   final supabaseUrl = env['SUPABASE_URL'];
-  final serviceRoleKey = env['SUPABASE_SERVICE_ROLE_KEY'];
+  final serviceRoleKey = env['SUPABASE_SECRET_KEY'];
 
   if (supabaseUrl == null || serviceRoleKey == null) {
-    print('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env');
+    print('Missing SUPABASE_URL or SUPABASE_SECRET_KEY in .env');
     exit(1);
   }
 

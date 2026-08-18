@@ -33,4 +33,18 @@ class CouponController {
           headers: {'Content-Type': 'application/json'});
     }
   }
+
+  Future<Response> getAvailableCoupons(Request request) async {
+    try {
+      final userId = request.context['userId'] as String;
+      final coupons = await _couponService.getAvailableCoupons(userId);
+      return Response.ok(jsonEncode(coupons),
+          headers: {'Content-Type': 'application/json'});
+    } catch (e, st) {
+      print('[CouponController.getAvailableCoupons ERROR] $e\n$st');
+      return Response.internalServerError(
+          body: jsonEncode({'error': 'Failed to fetch available coupons'}),
+          headers: {'Content-Type': 'application/json'});
+    }
+  }
 }

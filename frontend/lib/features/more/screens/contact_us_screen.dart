@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/more/providers/support_provider.dart';
-import 'package:gadget_store/features/more/screens/ticket_chat_screen.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/more/providers/support_provider.dart';
+import 'package:gadget_world/features/more/screens/ticket_chat_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 enum ContactState { form, submitting, success }
 
@@ -20,22 +21,10 @@ class _ContactUsScreenState extends State<ContactUsScreen>
 
   ContactState _currentState = ContactState.form;
   bool _hasMessageError = false;
-  bool _hasSubjectError = false;
-
-  final TextEditingController _subjectController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
-
-  String _selectedCategory = 'general';
-  final List<String> _categories = [
-    'general',
-    'order_issue',
-    'payment',
-    'delivery',
-    'return_refund',
-    'product',
-    'account',
-    'other',
-  ];
 
   @override
   void initState() {
@@ -49,32 +38,40 @@ class _ContactUsScreenState extends State<ContactUsScreen>
   @override
   void dispose() {
     _tabController.dispose();
-    _subjectController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
     _messageController.dispose();
     super.dispose();
   }
 
   Future<void> _handleSubmit() async {
-    if (_subjectController.text.trim().isEmpty) {
-      setState(() => _hasSubjectError = true);
-      return;
-    }
     if (_messageController.text.trim().isEmpty) {
       setState(() => _hasMessageError = true);
       return;
     }
 
     setState(() {
-      _hasSubjectError = false;
       _hasMessageError = false;
       _currentState = ContactState.submitting;
     });
 
     final provider = Provider.of<SupportProvider>(context, listen: false);
+
+    final messagePayload =
+        '''
+Name: ${_nameController.text.trim()}
+Email: ${_emailController.text.trim()}
+Phone: ${_phoneController.text.trim()}
+
+Message:
+${_messageController.text.trim()}
+''';
+
     final success = await provider.createTicket(
-      subject: _subjectController.text.trim(),
-      category: _selectedCategory,
-      message: _messageController.text.trim(),
+      subject: 'Contact Us Inquiry',
+      category: 'other',
+      message: messagePayload,
     );
 
     if (mounted) {
@@ -301,39 +298,25 @@ class _ContactUsScreenState extends State<ContactUsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildLabel('Category'),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: AppTheme.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.greyBorder),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: _selectedCategory,
-                isExpanded: true,
-                items: _categories
-                    .map(
-                      (c) => DropdownMenuItem(
-                        value: c,
-                        child: Text(c.replaceAll('_', ' ').toUpperCase()),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedCategory = val);
-                },
-              ),
-            ),
+          _buildLabel('Full Name'),
+          _buildTextField(
+            controller: _nameController,
+            hint: 'Rohit Sharma',
+            icon: PhosphorIcons.user,
           ),
           const SizedBox(height: 16),
-          _buildLabel('Subject'),
+          _buildLabel('Email Address'),
           _buildTextField(
-            controller: _subjectController,
-            hint: 'E.g. Issue with order #123',
-            icon: Icons.title,
-            hasError: _hasSubjectError,
+            controller: _emailController,
+            hint: 'rohit.sharma@example.com',
+            icon: Icons.mail_outline,
+          ),
+          const SizedBox(height: 16),
+          _buildLabel('Phone Number'),
+          _buildTextField(
+            controller: _phoneController,
+            hint: '+91 98765 43210',
+            icon: Icons.phone_outlined,
           ),
           const SizedBox(height: 16),
           _buildLabel('Message'),
@@ -421,7 +404,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                         const Padding(
                           padding: EdgeInsets.only(right: 16.0),
                           child: Icon(
-                            Icons.arrow_forward,
+                            PhosphorIcons.arrowRight,
                             size: 20,
                             color: AppTheme.white,
                           ),
@@ -589,7 +572,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           ),
           const SizedBox(height: 24),
           const Text(
-            'Ticket Created!',
+            'Thank You!',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -598,7 +581,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           ),
           const SizedBox(height: 12),
           const Text(
-            'Your ticket has been submitted successfully.\nWe\'ll get back to you soon.',
+            'Your message has been sent successfully.\nWe\'ll get back to you soon.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -607,16 +590,68 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             ),
           ),
           const SizedBox(height: 32),
+          // Ticket ID Box
+          Consumer<SupportProvider>(
+            builder: (context, provider, child) {
+              final ticketId = provider.tickets.isNotEmpty
+                  ? provider.tickets.first.ticketNumber
+                  : '#TKT-UNKNOWN';
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.white,
+                  borderRadius: BorderRadius.circular(12),
+                  // Dotted border equivalent using Container for simplicity
+                  border: Border.all(
+                    color: const Color(0xFFEAEAEA),
+                    width: 1.5,
+                    style: BorderStyle.solid,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Your Ticket ID',
+                      style: TextStyle(fontSize: 10, color: AppTheme.greyText),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          ticketId,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.copy_outlined,
+                          color: AppTheme.black,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'You will also receive a confirmation email\nshortly.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: AppTheme.greyText),
+          ),
+          const SizedBox(height: 32),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                setState(() {
-                  _subjectController.clear();
-                  _messageController.clear();
-                  _currentState = ContactState.form;
-                  _tabController.animateTo(0); // Go back to My Tickets
-                });
+                Navigator.pop(context); // Go back home
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.black,
@@ -630,11 +665,45 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   Text(
-                    'View My Tickets',
+                    'Back to Home',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, size: 20),
+                  Icon(PhosphorIcons.arrowRight, size: 20),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () {
+                setState(() {
+                  _nameController.clear();
+                  _emailController.clear();
+                  _phoneController.clear();
+                  _messageController.clear();
+                  _currentState = ContactState.form;
+                });
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTheme.black,
+                side: const BorderSide(color: AppTheme.black),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.mail_outline, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Email Us Again',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_world/core/theme.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
-import 'package:gadget_store/features/products/screens/product_details_screen.dart';
-import 'package:gadget_store/features/cart/providers/cart_provider.dart';
-import 'package:gadget_store/features/more/models/wishlist.dart';
+import 'package:gadget_world/features/more/providers/wishlist_provider.dart';
+import 'package:gadget_world/features/products/screens/product_details_screen.dart';
+import 'package:gadget_world/features/cart/providers/cart_provider.dart';
+import 'package:gadget_world/features/more/models/wishlist.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
@@ -46,7 +47,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.delete_outline,
+                  PhosphorIcons.trash,
                   color: Colors.red,
                   size: 28,
                 ),
@@ -189,7 +190,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+            icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 8),
@@ -221,7 +222,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
             children: [
               IconButton(
                 icon: const Icon(
-                  Icons.shopping_cart_outlined,
+                  PhosphorIcons.shoppingCart,
                   color: AppTheme.black,
                 ),
                 onPressed: () {},
@@ -264,7 +265,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.7, // Adjusted for typical product cards
+        childAspectRatio: 0.62, // Adjusted to prevent overflow
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -310,9 +311,18 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   children: [
                     Center(
                       child: product.imageUrl != null
-                          ? Image.network(product.imageUrl!, fit: BoxFit.cover)
+                          ? Image.network(
+                              product.imageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(
+                                    PhosphorIcons.imageBroken,
+                                    size: 48,
+                                    color: AppTheme.greyText,
+                                  ),
+                            )
                           : const Icon(
-                              Icons.image,
+                              PhosphorIcons.image,
                               size: 48,
                               color: AppTheme.greyText,
                             ),
@@ -324,14 +334,14 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         onTap: () => _showRemoveBottomSheet(item),
                         child: Container(
                           padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: AppTheme.black,
+                          decoration: BoxDecoration(
+                            color: AppTheme.white.withValues(alpha: 0.8),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
-                            Icons.favorite,
-                            color: AppTheme.white,
-                            size: 14,
+                            PhosphorIcons.trash,
+                            color: Colors.red,
+                            size: 16,
                           ),
                         ),
                       ),
@@ -420,7 +430,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
-                            Icon(Icons.shopping_cart_outlined, size: 14),
+                            Icon(PhosphorIcons.shoppingCart, size: 14),
                             SizedBox(width: 4),
                             Flexible(
                               child: Text(
@@ -467,10 +477,21 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const Icon(
-                    Icons.favorite_border,
-                    size: 64,
-                    color: AppTheme.greyText,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        PhosphorIcons.heart,
+                        size: 40,
+                        color: AppTheme.black,
+                      ),
+                      const SizedBox(height: 8),
+                      Icon(
+                        PhosphorIcons.package,
+                        size: 50,
+                        color: AppTheme.greyBorder.withValues(alpha: 0.5),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -521,7 +542,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       ),
                     ),
                     SizedBox(width: 8),
-                    Icon(Icons.arrow_forward, size: 20),
+                    Icon(PhosphorIcons.arrowRight, size: 20),
                   ],
                 ),
               ),

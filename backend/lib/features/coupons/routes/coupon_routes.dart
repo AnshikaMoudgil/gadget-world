@@ -12,6 +12,7 @@ class CouponRoutes {
     Handler withAuth(Handler inner) =>
         const Pipeline().addMiddleware(authMiddleware()).addHandler(inner);
 
+    router.get('/available', withAuth(_controller.getAvailableCoupons));
     router.post('/validate', withAuth(_controller.validateCoupon));
 
     return router.call;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/core/widgets/primary_button.dart';
-import 'package:gadget_store/features/auth/screens/login_screen.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/core/widgets/primary_button.dart';
+import 'package:gadget_world/features/auth/screens/login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -37,14 +37,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               const SizedBox(height: 24),
               const Text(
                 'Welcome to',
-                style: TextStyle(fontSize: 24, color: AppTheme.black),
+                style: TextStyle(fontSize: 18, color: AppTheme.black),
               ),
               const Text(
                 'Gadget World',
                 style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 36,
+                  fontWeight: FontWeight.w900,
                   color: AppTheme.black,
+                  letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 8),
@@ -66,19 +67,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       title: 'Bulk pricing that\nadjusts as you buy',
                       subtitle:
                           'Get more for less. Our tiered pricing\nensures better value on every order.',
-                      icon: Icons.percent,
+                      imagePath: 'assets/images/onboarding_2.png',
                     ),
                     _buildOnboardingCard(
-                      title: 'Secure & fast\ntransactions',
+                      title: 'Secure payments,\nworry-free',
                       subtitle:
-                          'Experience seamless payments with\nour trusted B2B payment gateway.',
-                      icon: Icons.security,
+                          'Safe, encrypted, and hassle-free\ntransactions every time.',
+                      imagePath: 'assets/images/onboarding_secure.png',
                     ),
                     _buildOnboardingCard(
-                      title: 'Direct delivery to\nyour warehouse',
+                      title: 'Quality you can trust,\nalways',
                       subtitle:
-                          'Track your orders in real-time and\nget them delivered fast.',
-                      icon: Icons.local_shipping,
+                          'Every product is curated for\nquality and performance.',
+                      imagePath: 'assets/images/onboarding_quality.png',
                     ),
                   ],
                 ),
@@ -119,7 +120,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _buildOnboardingCard({
     required String title,
     required String subtitle,
-    required IconData icon,
+    required String imagePath,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -138,17 +139,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Simplified illustration
           Expanded(
             child: Container(
+              width: double.infinity,
               decoration: BoxDecoration(
-                color: AppTheme.greyBackground,
-                shape: BoxShape.circle,
+                color: AppTheme.white,
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Center(child: Icon(icon, size: 80, color: AppTheme.black)),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(imagePath, fit: BoxFit.contain),
+              ),
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -166,7 +170,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           Text(
             title,
             textAlign: TextAlign.center,
@@ -176,7 +180,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               color: AppTheme.black,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Text(
             subtitle,
             textAlign: TextAlign.center,

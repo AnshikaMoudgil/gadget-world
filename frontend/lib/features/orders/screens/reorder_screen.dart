@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/orders/providers/order_provider.dart';
-import 'package:gadget_store/features/orders/models/order.dart';
-import 'package:gadget_store/features/cart/providers/cart_provider.dart';
-import 'package:gadget_store/features/checkout/screens/cart_screen.dart';
-import 'package:gadget_store/features/orders/screens/orders_screen.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/orders/providers/order_provider.dart';
+import 'package:gadget_world/features/orders/models/order.dart';
+import 'package:gadget_world/features/cart/providers/cart_provider.dart';
+import 'package:gadget_world/features/checkout/screens/cart_screen.dart';
+import 'package:gadget_world/features/orders/screens/orders_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:gadget_store/features/home/screens/main_screen.dart';
-import 'package:gadget_store/features/products/screens/categories_screen.dart';
+import 'package:gadget_world/features/home/screens/main_screen.dart';
+import 'package:gadget_world/features/products/screens/categories_screen.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class ReorderScreen extends StatefulWidget {
   const ReorderScreen({super.key});
@@ -65,7 +66,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
         backgroundColor: AppTheme.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+          icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -156,7 +157,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                   ),
                 ),
                 Icon(
-                  Icons.inventory_2,
+                  PhosphorIcons.package,
                   size: 100,
                   color: Colors.green.shade200,
                 ),
@@ -169,7 +170,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.autorenew,
+                      PhosphorIcons.arrowsClockwise,
                       color: Colors.green.shade700,
                       size: 24,
                     ),
@@ -249,7 +250,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.category,
+                      PhosphorIcons.squaresFour,
                       color: Colors.green.shade700,
                       size: 24,
                     ),
@@ -321,7 +322,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.autorenew,
+              PhosphorIcons.arrowsClockwise,
               color: Colors.green.shade700,
               size: 24,
             ),
@@ -367,7 +368,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                   ),
                 ),
                 Icon(
-                  Icons.shopping_bag,
+                  PhosphorIcons.shoppingBagFill,
                   color: Colors.green.shade700,
                   size: 36,
                 ),
@@ -381,7 +382,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: const Icon(
-                      Icons.inventory_2,
+                      PhosphorIcons.package,
                       color: Colors.brown,
                       size: 16,
                     ),
@@ -447,13 +448,15 @@ class _ReorderScreenState extends State<ReorderScreen> {
                 Row(
                   children: [
                     const Icon(
-                      Icons.calendar_today,
+                      PhosphorIcons.calendar,
                       size: 14,
                       color: AppTheme.greyText,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Delivered on $dateStr',
+                      order.status.toLowerCase() == 'delivered'
+                          ? 'Delivered on $dateStr'
+                          : 'Ordered on $dateStr',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -497,12 +500,15 @@ class _ReorderScreenState extends State<ReorderScreen> {
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
                                 const Icon(
-                                  Icons.image_not_supported,
+                                  PhosphorIcons.imageBroken,
                                   color: AppTheme.greyText,
                                 ),
                           ),
                         )
-                      : const Icon(Icons.image, color: AppTheme.greyText),
+                      : const Icon(
+                          PhosphorIcons.image,
+                          color: AppTheme.greyText,
+                        ),
                 ),
                 const SizedBox(width: 16),
                 // Details
@@ -545,7 +551,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                 OutlinedButton.icon(
                   onPressed: () => _reorderItem(item),
                   icon: const Icon(
-                    Icons.autorenew,
+                    PhosphorIcons.arrowsClockwise,
                     size: 16,
                     color: Colors.green,
                   ),

@@ -3,18 +3,18 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:gadget_store/features/auth/providers/auth_provider.dart';
-import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
-import 'package:gadget_store/features/cart/providers/cart_provider.dart';
-import 'package:gadget_store/features/products/providers/catalog_provider.dart';
-import 'package:gadget_store/features/profile/providers/profile_provider.dart';
-import 'package:gadget_store/features/orders/providers/order_provider.dart';
-import 'package:gadget_store/features/profile/providers/address_provider.dart';
-import 'package:gadget_store/features/profile/providers/settings_provider.dart';
-import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
-import 'package:gadget_store/features/more/providers/support_provider.dart';
-import 'package:gadget_store/features/more/providers/notification_provider.dart';
-import 'package:gadget_store/main.dart';
+import 'package:gadget_world/features/auth/providers/auth_provider.dart';
+import 'package:gadget_world/features/onboarding/screens/splash_screen.dart';
+import 'package:gadget_world/features/cart/providers/cart_provider.dart';
+import 'package:gadget_world/features/products/providers/catalog_provider.dart';
+import 'package:gadget_world/features/profile/providers/profile_provider.dart';
+import 'package:gadget_world/features/orders/providers/order_provider.dart';
+import 'package:gadget_world/features/profile/providers/address_provider.dart';
+import 'package:gadget_world/features/profile/providers/settings_provider.dart';
+import 'package:gadget_world/features/more/providers/wishlist_provider.dart';
+import 'package:gadget_world/features/more/providers/support_provider.dart';
+import 'package:gadget_world/features/more/providers/notification_provider.dart';
+import 'package:gadget_world/main.dart';
 
 void main() {
   setUpAll(() async {

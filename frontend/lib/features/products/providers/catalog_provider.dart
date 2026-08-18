@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/category_model.dart';
 import '../models/product_model.dart';
@@ -10,6 +11,7 @@ class CatalogProvider with ChangeNotifier {
   CatalogProvider({CatalogService? service})
     : _service = service ?? CatalogService();
 
+  List<String> _recentSearches = [];
   List<CategoryModel> _categories = [];
   List<ProductModel> _products = [];
   List<ProductModel> _featuredProducts = [];
@@ -23,6 +25,7 @@ class CatalogProvider with ChangeNotifier {
   String? _productsError;
   String? _productError;
 
+  List<String> get recentSearches => List.unmodifiable(_recentSearches);
   List<CategoryModel> get categories => List.unmodifiable(_categories);
   List<ProductModel> get products => List.unmodifiable(_products);
   List<ProductModel> get featuredProducts =>
@@ -90,7 +93,10 @@ class CatalogProvider with ChangeNotifier {
     _categoriesError = null;
     notifyListeners();
     try {
-      _categories = await _service.getCategories();
+      final fetched = await _service.getCategories();
+      _categories = fetched
+          .where((c) => c.name.toLowerCase() != 'computer softwares')
+          .toList();
     } catch (error) {
       _categoriesError = error.toString();
     } finally {
@@ -204,6 +210,36 @@ class CatalogProvider with ChangeNotifier {
       _isLoadingProduct = false;
       notifyListeners();
     }
+  }
+
+  Future<void> loadRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    _recentSearches = prefs.getStringList('recent_searches') ?? [];
+    notifyListeners();
+  }
+
+  Future<void> addRecentSearch(String query) async {
+    if (query.trim().isEmpty) return;
+    _recentSearches.remove(query);
+    _recentSearches.insert(0, query);
+    if (_recentSearches.length > 10) _recentSearches.removeLast();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('recent_searches', _recentSearches);
+    notifyListeners();
+  }
+
+  Future<void> removeRecentSearch(String query) async {
+    _recentSearches.remove(query);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('recent_searches', _recentSearches);
+    notifyListeners();
+  }
+
+  Future<void> clearRecentSearches() async {
+    _recentSearches.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('recent_searches', _recentSearches);
+    notifyListeners();
   }
 
   @override

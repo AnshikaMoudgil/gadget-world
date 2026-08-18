@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/notification_model.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NotificationProvider extends ChangeNotifier {
   final _supabase = Supabase.instance.client;
@@ -39,6 +40,48 @@ class NotificationProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> initializePushNotifications() async {
+    try {
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        String? token = await messaging.getToken();
+        if (token != null) {
+          _saveFcmToken(token);
+        }
+
+        FirebaseMessaging.instance.onTokenRefresh.listen(_saveFcmToken);
+
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          fetchNotifications();
+        });
+      }
+    } catch (e) {
+      debugPrint(
+        'Error initializing push notifications (likely Web without config): $e',
+      );
+    }
+  }
+
+  Future<void> _saveFcmToken(String token) async {
+    if (_supabase.auth.currentUser == null) return;
+    try {
+      await _supabase.from('user_fcm_tokens').upsert({
+        'user_id': _supabase.auth.currentUser!.id,
+        'token': token,
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+    } catch (e) {
+      debugPrint('Error saving FCM token: $e');
     }
   }
 

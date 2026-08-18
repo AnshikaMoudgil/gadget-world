@@ -37,8 +37,8 @@ class Env {
     // Validate required keys immediately so we fail fast.
     _requireAll([
       'SUPABASE_URL',
-      'SUPABASE_ANON_KEY',
-      'SUPABASE_SERVICE_ROLE_KEY',
+      'SUPABASE_PUBLISHABLE_KEY',
+      'SUPABASE_SECRET_KEY',
     ]);
   }
 
@@ -74,8 +74,8 @@ class Env {
   // ---------------------------------------------------------------------------
 
   static String get supabaseUrl => get('SUPABASE_URL');
-  static String get supabaseAnonKey => get('SUPABASE_ANON_KEY');
-  static String get supabaseServiceRoleKey => get('SUPABASE_SERVICE_ROLE_KEY');
+  static String get supabaseAnonKey => get('SUPABASE_PUBLISHABLE_KEY');
+  static String get supabaseServiceRoleKey => get('SUPABASE_SECRET_KEY');
   static String? get databaseUrl => getOrNull('DATABASE_URL');
   static int get port => int.parse(getOr('PORT', '8080'));
 

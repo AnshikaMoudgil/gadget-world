@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/home/screens/main_screen.dart';
-import 'package:gadget_store/features/orders/screens/order_detail_screen.dart';
-import 'package:gadget_store/features/orders/providers/order_provider.dart';
-import 'package:gadget_store/features/orders/models/order.dart';
-import 'package:gadget_store/features/auth/providers/auth_provider.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/home/screens/main_screen.dart';
+import 'package:gadget_world/features/orders/screens/order_detail_screen.dart';
+import 'package:gadget_world/features/orders/providers/order_provider.dart';
+import 'package:gadget_world/features/orders/models/order.dart';
+import 'package:gadget_world/features/auth/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 enum OrdersState { loaded, loading, empty }
 
@@ -53,30 +54,37 @@ class _OrdersScreenState extends State<OrdersScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (Navigator.canPop(context))
-            Padding(
-              padding: const EdgeInsets.only(right: 12.0, top: 0),
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: const Icon(Icons.arrow_back, color: AppTheme.black),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'My Orders',
-                  style: TextStyle(
-                    color: AppTheme.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    if (Navigator.canPop(context))
+                      Padding(
+                        padding: const EdgeInsets.only(right: 12.0),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          icon: const Icon(
+                            PhosphorIcons.arrowLeft,
+                            color: AppTheme.black,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+                    const Text(
+                      'My Orders',
+                      style: TextStyle(
+                        color: AppTheme.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 2),
-                Text(
+                const SizedBox(height: 8),
+                const Text(
                   'Track and manage all your orders',
                   style: TextStyle(color: AppTheme.greyText, fontSize: 12),
                 ),
@@ -86,12 +94,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.search, color: AppTheme.black),
-                onPressed: () {},
-              ),
-              IconButton(
                 icon: const Icon(
-                  Icons.filter_alt_outlined,
+                  PhosphorIcons.magnifyingGlass,
                   color: AppTheme.black,
                 ),
                 onPressed: () {},
@@ -242,7 +246,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
           _buildFilterChip('All', isLoading: isLoading),
           _buildFilterChip('Pending', isLoading: isLoading),
           _buildFilterChip('Confirmed', isLoading: isLoading),
-          _buildFilterChip('Completed', isLoading: isLoading),
           _buildFilterChip('Shipped', isLoading: isLoading),
           _buildFilterChip('Delivered', isLoading: isLoading),
           _buildFilterChip('Cancelled', isLoading: isLoading),
@@ -299,8 +302,52 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget _buildLoadedList(List<Order> orders) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-      itemCount: orders.length,
+      itemCount: orders.length + 1,
       itemBuilder: (context, index) {
+        if (index == orders.length) {
+          return Container(
+            margin: const EdgeInsets.only(top: 16, bottom: 24),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8F8F8), // Very light grey
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  PhosphorIcons.package,
+                  color: Colors.brown,
+                  size: 28,
+                ), // Package icon
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Can\'t find your order?',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.black,
+                          fontSize: 14,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Make sure you\'re using the email ID you placed the order with.',
+                        style: TextStyle(
+                          color: AppTheme.greyText,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
         final order = orders[index];
         final itemCount = order.items.fold<int>(
           0,
@@ -326,18 +373,43 @@ class _OrdersScreenState extends State<OrdersScreen> {
           }
         }
 
+        String productName = 'Order';
+        if (order.items.isNotEmpty &&
+            order.items.first.productDetails != null) {
+          final details = order.items.first.productDetails!;
+          if (details['name'] != null) {
+            productName = details['name'].toString();
+            if (order.items.length > 1) {
+              productName += ' +${order.items.length - 1} more';
+            }
+          }
+        }
+
+        final shortId = order.id.split('-').first.toUpperCase().substring(0, 6);
+
         return _buildOrderItemCard(
           order: order,
-          id: '#${order.razorpayOrderId.replaceFirst('order_', '').toUpperCase()}',
+          title: productName,
+          shortId: '#$shortId',
           status: order.status.toUpperCase(),
           date:
-              '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}',
+              '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}, ${_formatTime(order.createdAt)}',
           price: '₹${order.amount.toStringAsFixed(0)}',
-          items: '$itemCount Items',
+          items: itemCount == 1 ? '1 Item' : '$itemCount Items',
           imageUrl: firstImageUrl,
         );
       },
     );
+  }
+
+  String _formatTime(DateTime time) {
+    String hour = time.hour > 12
+        ? (time.hour - 12).toString().padLeft(2, '0')
+        : time.hour.toString().padLeft(2, '0');
+    if (hour == '00') hour = '12';
+    String minute = time.minute.toString().padLeft(2, '0');
+    String ampm = time.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute $ampm';
   }
 
   String _getMonth(int month) {
@@ -360,7 +432,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Widget _buildOrderItemCard({
     required Order order,
-    required String id,
+    required String title,
+    required String shortId,
     required String date,
     required String status,
     required String items,
@@ -413,17 +486,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppTheme.white,
-              border: Border.all(color: AppTheme.greyBorder),
+              border: Border.all(color: const Color(0xFFEEEEEE)),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: AppTheme.greyBackground,
+                    color: const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   clipBehavior: Clip.hardEdge,
@@ -433,14 +506,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
                               const Icon(
-                                Icons.shopping_bag_outlined,
-                                color: AppTheme.black,
+                                PhosphorIcons.shoppingBag,
+                                color: AppTheme.greyText,
                                 size: 30,
                               ),
                         )
                       : const Icon(
-                          Icons.shopping_bag_outlined,
-                          color: AppTheme.black,
+                          PhosphorIcons.shoppingBag,
+                          color: AppTheme.greyText,
                           size: 30,
                         ),
                 ),
@@ -450,26 +523,26 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Order $id',
+                        title,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: AppTheme.black,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        date,
+                        'Order $shortId • $date',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppTheme.greyText,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 8,
-                        runSpacing: 4,
+                      const SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -478,7 +551,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             ),
                             decoration: BoxDecoration(
                               color: statusBgColor,
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               status,
@@ -489,6 +562,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                               ),
                             ),
                           ),
+                          const SizedBox(width: 12),
                           Text(
                             items,
                             style: const TextStyle(
@@ -503,13 +577,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Icon(
-                      Icons.chevron_right,
-                      color: AppTheme.black,
+                      PhosphorIcons.caretRight,
+                      color: AppTheme.greyText,
                       size: 20,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24), // Push price down
                     Text(
                       price,
                       style: const TextStyle(
@@ -537,20 +612,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(
-              color: AppTheme.greyBorder.withValues(alpha: 0.5),
-            ),
+            color: AppTheme.white,
+            border: Border.all(color: const Color(0xFFEEEEEE)),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image shimmer
               Container(
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: AppTheme.greyBackground,
+                  color: const Color(0xFFF0F0F0),
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
@@ -561,18 +635,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   children: [
                     // Title shimmer
                     Container(
-                      width: 150,
+                      width: 180,
                       height: 14,
-                      color: AppTheme.greyBackground,
-                    ),
-                    const SizedBox(height: 8),
-                    // Date shimmer
-                    Container(
-                      width: 120,
-                      height: 12,
-                      color: AppTheme.greyBackground,
+                      color: const Color(0xFFF0F0F0),
                     ),
                     const SizedBox(height: 12),
+                    // Date shimmer
+                    Container(
+                      width: 130,
+                      height: 12,
+                      color: const Color(0xFFF0F0F0),
+                    ),
+                    const SizedBox(height: 16),
                     // Status and items shimmer
                     Row(
                       children: [
@@ -580,15 +654,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           width: 60,
                           height: 20,
                           decoration: BoxDecoration(
-                            color: AppTheme.greyBackground,
-                            borderRadius: BorderRadius.circular(4),
+                            color: const Color(0xFFF0F0F0),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 12),
                         Container(
                           width: 40,
                           height: 12,
-                          color: AppTheme.greyBackground,
+                          color: const Color(0xFFF0F0F0),
                         ),
                       ],
                     ),
@@ -598,17 +672,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
               // Price chevron shimmer
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Icon(
-                    Icons.chevron_right,
-                    color: AppTheme.greyBorder,
+                    PhosphorIcons.caretRight,
+                    color: Color(0xFFEEEEEE),
                     size: 20,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   Container(
                     width: 50,
                     height: 14,
-                    color: AppTheme.greyBackground,
+                    color: const Color(0xFFF0F0F0),
                   ),
                 ],
               ),
@@ -629,100 +704,99 @@ class _OrdersScreenState extends State<OrdersScreen> {
             // Graphic
             SizedBox(
               height: 180,
+              width: 180,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   // Decorative stars
-                  Positioned(
+                  const Positioned(
                     top: 20,
                     left: 20,
-                    child: Icon(
-                      Icons.star,
-                      size: 12,
-                      color: AppTheme.greyBorder,
-                    ),
+                    child: Icon(Icons.star, size: 12, color: Color(0xFFE0E0E0)),
                   ),
-                  Positioned(
+                  const Positioned(
                     top: 50,
                     right: 30,
-                    child: Icon(
-                      Icons.star,
-                      size: 16,
-                      color: AppTheme.greyBorder,
-                    ),
+                    child: Icon(Icons.star, size: 16, color: Color(0xFFE0E0E0)),
                   ),
-                  Positioned(
+                  const Positioned(
                     bottom: 40,
                     left: 10,
-                    child: Icon(
-                      Icons.star,
-                      size: 14,
-                      color: AppTheme.greyBorder,
-                    ),
+                    child: Icon(Icons.star, size: 14, color: Color(0xFFE0E0E0)),
                   ),
-
                   // Clipboard
                   Container(
                     width: 100,
                     height: 130,
                     decoration: BoxDecoration(
-                      color: AppTheme.white,
-                      border: Border.all(color: AppTheme.greyBorder, width: 4),
+                      color: const Color(0xFFF8F8F8), // Light grey
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 12),
-                        Container(
-                          width: 40,
-                          height: 8,
-                          color: AppTheme.greyBorder,
-                          margin: const EdgeInsets.only(bottom: 12),
-                        ),
-                        Container(
-                          width: 60,
-                          height: 8,
-                          color: AppTheme.greyBorder,
-                          margin: const EdgeInsets.only(bottom: 12),
-                        ),
-                        Container(
-                          width: 50,
-                          height: 8,
-                          color: AppTheme.greyBorder,
-                        ),
+                        const SizedBox(height: 30),
+                        _buildCheckListItem(),
+                        _buildCheckListItem(),
+                        _buildCheckListItem(),
                       ],
                     ),
                   ),
+                  // Top clip of clipboard
                   Positioned(
                     top: 15,
                     child: Container(
                       width: 40,
-                      height: 16,
+                      height: 12,
                       decoration: BoxDecoration(
-                        color: AppTheme.greyBorder,
-                        borderRadius: BorderRadius.circular(8),
+                        color: const Color(0xFFE0E0E0),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                     ),
                   ),
-
                   // Shopping Bag
                   Positioned(
                     bottom: 0,
-                    right: -20,
+                    right: 10,
                     child: Container(
-                      width: 80,
-                      height: 90,
+                      width: 70,
+                      height: 80,
                       decoration: BoxDecoration(
-                        color: AppTheme.greyBackground,
+                        color: AppTheme.white,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppTheme.greyBorder),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.shopping_bag,
-                          size: 40,
-                          color: AppTheme.black,
-                        ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned(
+                            top: -10,
+                            child: Container(
+                              width: 30,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xFFE0E0E0),
+                                  width: 3,
+                                ),
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(15),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Icon(
+                            Icons.flash_on,
+                            size: 30,
+                            color: AppTheme.black,
+                          ), // Gadget World Logo equivalent
+                        ],
                       ),
                     ),
                   ),
@@ -754,8 +828,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
               height: 54,
               child: ElevatedButton(
                 onPressed: () {
-                  // If running in main bottom nav, this should theoretically
-                  // just change the tab index. We'll pop or push replacement for demo.
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
@@ -774,7 +846,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Icon(Icons.shopping_bag_outlined, size: 20),
+                    Icon(Icons.lock_outline, size: 18),
                     SizedBox(width: 8),
                     Text(
                       'Start Shopping',
@@ -789,6 +861,33 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCheckListItem() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0, bottom: 12.0),
+      child: Row(
+        children: [
+          Container(
+            width: 12,
+            height: 12,
+            decoration: const BoxDecoration(
+              color: Color(0xFFE0E0E0),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            width: 40,
+            height: 8,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE0E0E0),
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
       ),
     );
   }

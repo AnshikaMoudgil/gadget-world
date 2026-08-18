@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/core/theme.dart';
-import 'package:gadget_store/features/auth/providers/auth_provider.dart';
-import 'package:gadget_store/features/auth/screens/login_screen.dart'; // To navigate on logout
-import 'package:gadget_store/features/profile/providers/settings_provider.dart';
+import 'package:gadget_world/core/theme.dart';
+import 'package:gadget_world/features/auth/providers/auth_provider.dart';
+import 'package:gadget_world/features/auth/screens/login_screen.dart'; // To navigate on logout
+import 'package:gadget_world/features/profile/providers/settings_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -184,7 +187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.red.shade50,
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.logout, color: Colors.red, size: 28),
               ),
@@ -339,7 +342,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 16),
                         _buildSwitchItem(
-                          icon: Icons.local_shipping_outlined,
+                          icon: Icons.inventory_2_outlined,
                           title: 'Order Updates',
                           subtitle:
                               'Get notified about your order status and delivery updates.',
@@ -348,6 +351,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           onChanged: (val) {
                             _updateSetting('order_updates_email', val);
                             _updateSetting('order_updates_sms', val);
+                            if (val) {
+                              FirebaseMessaging.instance.subscribeToTopic(
+                                'order_updates',
+                              );
+                            } else {
+                              FirebaseMessaging.instance.unsubscribeFromTopic(
+                                'order_updates',
+                              );
+                            }
                           },
                         ),
                         const SizedBox(height: 16),
@@ -357,18 +369,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           subtitle:
                               'Receive offers, discounts and promotional updates.',
                           value: settings.promotionsEmail,
-                          onChanged: (val) =>
-                              _updateSetting('promotions_email', val),
+                          onChanged: (val) {
+                            _updateSetting('promotions_email', val);
+                            if (val) {
+                              FirebaseMessaging.instance.subscribeToTopic(
+                                'promotions',
+                              );
+                            } else {
+                              FirebaseMessaging.instance.unsubscribeFromTopic(
+                                'promotions',
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(height: 16),
                         _buildSwitchItem(
-                          icon: Icons.person_outline,
+                          icon: PhosphorIcons.user,
                           title: 'Account Alerts',
                           subtitle:
                               'Important alerts about your account and security.',
                           value: settings.notificationsEnabled,
-                          onChanged: (val) =>
-                              _updateSetting('notifications_enabled', val),
+                          onChanged: (val) {
+                            _updateSetting('notifications_enabled', val);
+                            if (val) {
+                              FirebaseMessaging.instance.subscribeToTopic(
+                                'account_alerts',
+                              );
+                            } else {
+                              FirebaseMessaging.instance.unsubscribeFromTopic(
+                                'account_alerts',
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(height: 32),
                         const Text(
@@ -399,6 +431,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   settings.preferredLanguage,
                                 ),
                               ),
+
                               Divider(
                                 height: 1,
                                 color: AppTheme.greyBorder.withValues(
@@ -461,7 +494,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppTheme.black),
+            icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 8),
@@ -544,12 +577,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(width: 16),
-          Switch(
+          CupertinoSwitch(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: AppTheme.black,
-            activeTrackColor: AppTheme
-                .greyBorder, // The mockup shows black thumb, greyish track for active
+            activeTrackColor: AppTheme.black,
           ),
         ],
       ),

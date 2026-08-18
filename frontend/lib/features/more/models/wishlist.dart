@@ -1,4 +1,4 @@
-import 'package:gadget_store/features/products/models/product_model.dart';
+import 'package:gadget_world/features/products/models/product_model.dart';
 
 class WishlistItem {
   final String id;

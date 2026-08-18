@@ -38,4 +38,18 @@ class CouponApiService {
       throw Exception('Failed to validate coupon: ${response.body}');
     }
   }
+
+  Future<List<Map<String, dynamic>>> getAvailableCoupons() async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/coupons/available'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final List data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load available coupons: ${response.body}');
+    }
+  }
 }

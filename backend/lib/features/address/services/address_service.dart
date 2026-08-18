@@ -5,13 +5,14 @@ import '../models/update_address_request.dart';
 
 /// Service layer for CRUD operations on the `user_addresses` table.
 class AddressService {
-  /// Fetch all addresses belonging to [userId].
+  /// Get all addresses for a user.
   Future<List<Address>> listAddresses(String userId) async {
     final result = await SupabaseDb.query<List<Map<String, dynamic>>>(() async {
       return await SupabaseDb.adminClient
           .from('user_addresses')
           .select()
           .eq('user_id', userId)
+          .neq('country', 'DELETED')
           .order('is_default', ascending: false)
           .order('created_at', ascending: false);
     });
@@ -31,6 +32,7 @@ class AddressService {
           .select()
           .eq('user_id', userId)
           .eq('id', addressId)
+          .neq('country', 'DELETED')
           .maybeSingle();
     });
 
@@ -107,7 +109,8 @@ class AddressService {
 
   /// Delete an address by [addressId], scoped to [userId].
   Future<void> deleteAddress(String userId, String addressId) async {
-    final result = await SupabaseDb.execute(() async {
+    // Attempt to hard-delete first
+    final deleteResult = await SupabaseDb.execute(() async {
       await SupabaseDb.adminClient
           .from('user_addresses')
           .delete()
@@ -115,8 +118,18 @@ class AddressService {
           .eq('id', addressId);
     });
 
-    if (result.isError) {
-      throw Exception('Failed to delete address: ${result.message}');
+    if (deleteResult.isError) {
+      // If hard delete fails (e.g., due to foreign key constraint from orders), soft delete
+      final updateResult = await SupabaseDb.execute(() async {
+        await SupabaseDb.adminClient
+            .from('user_addresses')
+            .update({'country': 'DELETED', 'is_default': false})
+            .eq('user_id', userId)
+            .eq('id', addressId);
+      });
+      if (updateResult.isError) {
+        throw Exception('Failed to delete address: ${deleteResult.message}');
+      }
     }
   }
 

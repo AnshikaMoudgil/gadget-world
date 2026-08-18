@@ -134,4 +134,50 @@ class CouponService {
           .update({'times_used': current + 1}).eq('id', couponId));
     }
   }
+
+  /// Fetches available coupons for a specific user, filtering out ones they have exhausted
+  Future<List<Map<String, dynamic>>> getAvailableCoupons(String userId) async {
+    // Let's just fetch all active and filter in memory since the list of coupons is small
+    final activeResult = await SupabaseDb.query(() =>
+        SupabaseDb.adminClient.from('coupons').select().eq('is_active', true));
+
+    if (activeResult.isError || activeResult.data == null) return [];
+
+    List<Coupon> allActive = (activeResult.data as List)
+        .map((e) => Coupon.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    // 2. Filter by date and global usage limit
+    final now = DateTime.now();
+    allActive = allActive.where((c) {
+      if (c.validFrom != null && now.isBefore(c.validFrom!)) return false;
+      if (c.validUntil != null && now.isAfter(c.validUntil!)) return false;
+      if (c.totalUsageLimit != null && c.timesUsed >= c.totalUsageLimit!)
+        return false;
+      return true;
+    }).toList();
+
+    // 3. Fetch user's usage history
+    final usageResult = await SupabaseDb.query(() => SupabaseDb.adminClient
+        .from('user_coupons')
+        .select('coupon_id')
+        .eq('user_id', userId));
+
+    Map<String, int> userUsages = {};
+    if (!usageResult.isError && usageResult.data != null) {
+      for (var row in (usageResult.data as List)) {
+        final cid = row['coupon_id'] as String;
+        userUsages[cid] = (userUsages[cid] ?? 0) + 1;
+      }
+    }
+
+    // 4. Filter out exhausted coupons for this user
+    final available = allActive.where((c) {
+      if (c.usageLimitPerUser == null) return true;
+      final usedCount = userUsages[c.id] ?? 0;
+      return usedCount < c.usageLimitPerUser!;
+    }).toList();
+
+    return available.map((c) => c.toJson()).toList();
+  }
 }

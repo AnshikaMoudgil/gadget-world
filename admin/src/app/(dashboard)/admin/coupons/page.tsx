@@ -222,11 +222,12 @@ export default function CouponsPage() {
         isOpen={!!deleteCouponTarget}
         title="Delete Coupon"
         message={`Are you sure you want to delete coupon "${deleteCouponTarget?.code}"? This action cannot be undone.`}
-        confirmText={isDeleting ? "Deleting..." : "Delete"}
-        cancelText="Cancel"
+        confirmLabel={isDeleting ? "Deleting..." : "Delete"}
+        cancelLabel="Cancel"
         onConfirm={handleDeleteCoupon}
         onCancel={() => !isDeleting && setDeleteCouponTarget(null)}
-        isDestructive={true}
+        variant="danger"
+        isLoading={isDeleting}
       />
     </div>
   );

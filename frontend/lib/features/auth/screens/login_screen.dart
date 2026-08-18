@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
-import 'package:gadget_store/core/widgets/custom_text_field.dart';
-import 'package:gadget_store/core/widgets/logo_widget.dart';
-import 'package:gadget_store/features/auth/providers/auth_provider.dart';
-import 'package:gadget_store/features/home/screens/main_screen.dart';
-import 'package:gadget_store/features/auth/widgets/google_button.dart';
-import 'package:gadget_store/features/auth/widgets/loading_button.dart';
-import 'package:gadget_store/features/auth/widgets/otp_input.dart';
-import 'package:gadget_store/features/auth/services/google_auth_service.dart';
+import 'package:gadget_world/core/widgets/custom_text_field.dart';
+import 'package:gadget_world/core/widgets/logo_widget.dart';
+import 'package:gadget_world/features/auth/providers/auth_provider.dart';
+import 'package:gadget_world/features/home/screens/main_screen.dart';
+import 'package:gadget_world/features/auth/widgets/google_button.dart';
+import 'package:gadget_world/features/auth/widgets/loading_button.dart';
+import 'package:gadget_world/features/auth/widgets/otp_input.dart';
+import 'package:gadget_world/features/auth/services/google_auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -207,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         TextSpan(
-                          text: 'Store',
+                          text: 'World',
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
                             color: Color(0xFF64748B),
