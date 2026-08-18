@@ -20,8 +20,6 @@ import 'package:gadget_world/features/more/providers/wishlist_provider.dart';
 import 'package:gadget_world/features/more/providers/support_provider.dart';
 import 'package:gadget_world/features/more/providers/notification_provider.dart';
 
-
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
