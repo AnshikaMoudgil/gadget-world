@@ -204,7 +204,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     : () async {
                                         final success = await provider
                                             .deleteAvatar();
-                                        if (success && mounted) {
+                                        if (success && context.mounted) {
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
@@ -214,7 +214,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                               ),
                                             ),
                                           );
-                                        } else if (mounted) {
+                                        } else if (context.mounted) {
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(

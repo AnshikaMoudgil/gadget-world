@@ -150,6 +150,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildFilterSortRow() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

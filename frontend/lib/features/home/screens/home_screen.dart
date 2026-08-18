@@ -379,16 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return const SizedBox.shrink();
         }
 
-        final colors = [
-          const Color(0xFFF3F0FF), // light purple
-          const Color(0xFFF0F5FF), // light blue
-          const Color(0xFFF0F7F4), // light green
-          const Color(0xFFFFF7ED), // light orange
-          const Color(0xFFFFF0F5), // light pink
-          const Color(0xFFF3EDFF), // light purple 2
-          const Color(0xFFF0F6FF), // light blue 2
-          const Color(0xFFFFF3ED), // light orange 2
-        ];
+
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

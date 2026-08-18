@@ -223,6 +223,7 @@ class _PaymentScreenState extends State<PaymentScreen>
     });
   }
 
+  // ignore: unused_element
   void _showRazorpayModal() {
     showModalBottomSheet(
       context: context,

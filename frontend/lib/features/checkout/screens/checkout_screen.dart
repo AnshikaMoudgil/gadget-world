@@ -87,7 +87,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         builder: (_) => const AddressScreen(isCheckout: true),
                       ),
                     );
-                    if (selected != null && mounted) {
+                    if (selected != null && context.mounted) {
                       try {
                         await Provider.of<AddressProvider>(
                           context,

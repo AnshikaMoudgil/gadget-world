@@ -78,4 +78,3 @@ windows/flutter/generated_plugins.cmake
 
 # Secrets
 google-services.json
-firebase_options.dart

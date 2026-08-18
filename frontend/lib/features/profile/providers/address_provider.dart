@@ -115,7 +115,7 @@ class AddressProvider with ChangeNotifier {
       } catch (e) {
         // Backend deletion might fail due to foreign key constraints.
         // We swallow the error and remove it locally so the UI updates cleanly.
-        print('Warning: Backend failed to delete address: $e');
+        debugPrint('Warning: Backend failed to delete address: $e');
       }
       _addresses.removeWhere((a) => a.id == addressId);
       notifyListeners();

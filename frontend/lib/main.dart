@@ -20,7 +20,7 @@ import 'package:gadget_world/features/more/providers/wishlist_provider.dart';
 import 'package:gadget_world/features/more/providers/support_provider.dart';
 import 'package:gadget_world/features/more/providers/notification_provider.dart';
 
-import 'package:gadget_world/firebase_options.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,9 +30,7 @@ Future<void> main() async {
 
   // Initialize Firebase
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp();
   } catch (e) {
     debugPrint(
       'Firebase initialization failed (mostly missing options on Web): $e',
