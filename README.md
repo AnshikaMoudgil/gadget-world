@@ -1,41 +1,54 @@
 # Tensorik GadgetWorld
 
-A modern Flutter-based gadget store application. 
+A modern gadget e-commerce marketplace built with Flutter (frontend) and Dart/Shelf (backend).
 
-## Current Progress
+## Tech Stack
 
-The UI implementation is well underway, featuring a comprehensive set of screens including:
-- **Authentication**: Login and Signup screens
-- **Onboarding**: Splash and Onboarding flows
-- **Main Navigation**: Home screen, Main screen with bottom navigation, and Profile screen
-- **Shopping**: Product Details, Cart, Category specific screens (Mobiles, Laptops)
-- **Search**: Search Results screen for finding gadgets
+- **Frontend**: Flutter (Dart) — 32+ screens covering onboarding, auth, product browsing, cart, checkout, orders, profile, and more
+- **Backend**: Dart with Shelf framework — REST API scaffolding
 
-## Setup Instructions
+## Getting Started
 
-To get this project up and running on your local machine, follow these steps:
+### Prerequisites
 
-1. **Install Flutter**: Ensure you have the Flutter SDK installed. If not, follow the guide at [flutter.dev](https://docs.flutter.dev/get-started/install).
-2. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/AnshikaMoudgil/Tensorik-GadgetWorld.git
-   ```
-3. **Navigate to the Project Directory**:
-   ```bash
-   cd Tensorik-GadgetWorld
-   ```
-4. **Install Dependencies**:
-   ```bash
-   flutter pub get
-   ```
+- Flutter SDK (stable channel)
+- Dart SDK
 
-## Run Instructions
+### Frontend
 
-1. **Start an Emulator or Connect a Device**: Ensure you have a device connected or an emulator running. You can check connected devices with:
-   ```bash
-   flutter devices
-   ```
-2. **Run the App**:
-   ```bash
-   flutter run
-   ```
+```bash
+cd frontend
+flutter pub get
+
+# To run on desktop or mobile device
+flutter run
+
+# To run on web using the provided script (Windows)
+.\start.ps1
+
+# Or manually run on web
+flutter run -d chrome --web-port 3000
+```
+
+### Backend
+
+```bash
+cd backend
+dart pub get
+dart run bin/server.dart
+```
+
+## Project Structure
+
+```
+gadget-world/
+├── backend/          # Dart Shelf API server
+│   └── bin/server.dart
+├── frontend/         # Flutter mobile/web app
+│   ├── lib/
+│   │   ├── core/     # Theme, shared widgets
+│   │   ├── screens/  # 32 screens
+│   │   └── main.dart
+│   └── test/
+└── README.md
+```

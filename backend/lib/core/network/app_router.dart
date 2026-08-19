@@ -1,0 +1,32 @@
+import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
+import '../../features/auth/routes/auth_routes.dart';
+import '../../features/address/routes/address_routes.dart';
+import '../../features/products/routes/catalog_routes.dart';
+import '../../features/cart/routes/cart_routes.dart';
+import '../../features/payments/routes/payment_routes.dart';
+import '../../features/profile/routes/settings_routes.dart';
+import '../../features/coupons/routes/coupon_routes.dart';
+
+class AppRouter {
+  Router get router {
+    final router = Router();
+
+    // Health check route
+    router.get('/health', (Request request) {
+      return Response.ok('{"status": "ok", "message": "Backend is running!"}',
+          headers: {'Content-Type': 'application/json'});
+    });
+
+    // Mount Feature Routes
+    router.mount('/api/auth', AuthRoutes().router.call);
+    router.mount('/api/addresses', AddressRoutes().handler);
+    router.mount('/api/catalog', CatalogRoutes().router.call);
+    router.mount('/api/cart', CartRoutes().handler);
+    router.mount('/api/payments', PaymentRoutes().router.call);
+    router.mount('/api/settings', SettingsRoutes().handler);
+    router.mount('/api/coupons', CouponRoutes().handler);
+
+    return router;
+  }
+}

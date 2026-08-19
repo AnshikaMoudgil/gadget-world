@@ -1,0 +1,281 @@
+@import "tailwindcss";
+
+/* ================================================================== */
+/*  GadgetWorld Admin — Light Theme                                   */
+/* ================================================================== */
+
+@theme {
+  /* Brand — crisp dark accent */
+  --color-accent: #0f172a;
+  --color-accent-light: #334155;
+  --color-accent-glow: rgba(15, 23, 42, 0.06);
+
+  /* Backgrounds — clean white & soft light grays */
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f1f5f9;
+  --color-bg-elevated: #ffffff;
+
+  /* Glass / Cards */
+  --color-glass: #ffffff;
+  --color-glass-border: #e2e8f0;
+  --color-glass-hover: #f1f5f9;
+  --color-glass-active: #e2e8f0;
+
+  /* Semantic */
+  --color-success: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-warning: #d97706;
+  --color-warning-bg: #fffbeb;
+  --color-danger: #dc2626;
+  --color-danger-bg: #fef2f2;
+  --color-info: #0284c7;
+  --color-info-bg: #f0f9ff;
+
+  /* Text — crisp black & slate */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #64748b;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 72px;
+
+  /* Fonts */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Animations */
+  --animate-fade-in: fade-in 0.25s ease-out;
+  --animate-slide-up: slide-up 0.25s ease-out;
+  --animate-slide-in-right: slide-in-right 0.25s ease-out;
+  --animate-shimmer: shimmer 1.5s infinite;
+  --animate-pulse-slow: pulse-slow 3s ease-in-out infinite;
+  --animate-float: float 15s ease-in-out infinite;
+  --animate-spin: spin 0.6s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slide-in-right {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -40px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+}
+
+/* ================================================================== */
+/*  Base Styles                                                        */
+/* ================================================================== */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+}
+
+/* ================================================================== */
+/*  Component Layer                                                    */
+/* ================================================================== */
+@layer components {
+  /* Cards */
+  .glass-card {
+    @apply bg-white border border-slate-200 rounded-2xl shadow-sm
+           transition-all duration-200;
+  }
+  .glass-card:hover {
+    @apply border-slate-300 shadow-md;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+           rounded-lg font-medium text-sm whitespace-nowrap leading-snug
+           transition-all duration-150 cursor-pointer;
+  }
+  .btn-primary {
+    @apply bg-slate-900 text-white shadow-sm font-semibold;
+  }
+  .btn-primary:hover {
+    @apply bg-slate-800 shadow-md -translate-y-0.5;
+  }
+  .btn-secondary {
+    @apply bg-white border border-slate-200 text-slate-800 shadow-2xs;
+  }
+  .btn-secondary:hover {
+    @apply bg-slate-50 border-slate-300 text-slate-900;
+  }
+  .btn-danger {
+    @apply bg-red-50 text-red-600 border border-red-200;
+  }
+  .btn-danger:hover {
+    @apply bg-red-100 text-red-700;
+  }
+  .btn-ghost {
+    @apply text-slate-600 px-3 py-2;
+  }
+  .btn-ghost:hover {
+    @apply text-slate-900 bg-slate-100;
+  }
+  .btn-sm {
+    @apply px-3.5 py-1.5 text-[0.8125rem];
+  }
+
+  /* Form Controls */
+  .form-label {
+    @apply text-[0.8125rem] font-semibold text-slate-700 tracking-wide;
+  }
+  .form-input, .form-select, .form-textarea {
+    @apply w-full px-3.5 py-2.5 bg-white border border-slate-200
+           rounded-lg text-slate-900 text-sm outline-none
+           transition-all duration-150 shadow-2xs;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    @apply border-slate-900 ring-2 ring-slate-900/10;
+  }
+  .form-input::placeholder, .form-textarea::placeholder {
+    @apply text-slate-400;
+  }
+  .form-textarea {
+    @apply resize-y min-h-[100px];
+  }
+  select, .form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 2.5rem !important;
+    cursor: pointer;
+    border-radius: 0.75rem;
+  }
+  select option {
+    background-color: #ffffff;
+    color: #0f172a;
+    padding: 10px 14px;
+    font-weight: 500;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full
+           text-xs font-semibold tracking-wide border;
+  }
+  .badge-success { @apply bg-green-50 text-green-700 border-green-200; }
+  .badge-warning { @apply bg-amber-50 text-amber-700 border-amber-200; }
+  .badge-danger { @apply bg-red-50 text-red-700 border-red-200; }
+  .badge-info { @apply bg-sky-50 text-sky-700 border-sky-200; }
+  .badge-neutral { @apply bg-slate-100 text-slate-700 border-slate-200; }
+
+  /* Data Table */
+  .data-table { @apply w-full border-collapse; }
+  .data-table th {
+    @apply text-left px-4 py-3 text-xs font-bold text-slate-500
+           uppercase tracking-wider border-b border-slate-200 bg-slate-50/80;
+  }
+  .data-table td {
+    @apply px-4 py-3.5 text-sm text-slate-900 border-b border-slate-100
+           align-middle;
+  }
+  .data-table tbody tr {
+    @apply transition-colors duration-150;
+  }
+  .data-table tbody tr:hover {
+    @apply bg-slate-50/80;
+  }
+  .data-table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  /* Toggle Switch */
+  .toggle {
+    @apply relative w-11 h-6 cursor-pointer;
+  }
+  .toggle input { @apply opacity-0 w-0 h-0; }
+  .toggle .slider {
+    @apply absolute inset-0 bg-slate-200 border border-slate-300
+           rounded-full transition-all duration-150;
+  }
+  .toggle .slider::before {
+    content: '';
+    @apply absolute top-0.5 left-0.5 w-[18px] h-[18px] bg-white
+           rounded-full transition-all duration-150 shadow-xs;
+  }
+  .toggle input:checked + .slider {
+    @apply bg-slate-900 border-slate-900;
+  }
+  .toggle input:checked + .slider::before {
+    @apply translate-x-5 bg-white;
+  }
+
+  /* Spinner */
+  .spinner {
+    @apply w-5 h-5 border-2 border-slate-200 border-t-slate-900
+           rounded-full animate-spin;
+  }
+  .spinner-lg {
+    @apply w-9 h-9 border-[3px];
+  }
+
+  /* Toast */
+  .toast {
+    @apply fixed bottom-6 right-6 px-5 py-3.5 rounded-xl text-sm
+           font-medium shadow-xl z-[2000] animate-slide-in-right border;
+  }
+  .toast-success { @apply bg-slate-900 text-white border-slate-800; }
+  .toast-error { @apply bg-red-600 text-white border-red-700; }
+
+  /* Modal */
+  .modal-overlay {
+    @apply fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center
+           justify-center z-[1000] animate-fade-in;
+  }
+  .modal-content {
+    @apply bg-white border border-slate-200 rounded-2xl
+           p-8 max-w-lg w-[90%] shadow-2xl animate-slide-up;
+  }
+}

@@ -1,0 +1,624 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/features/auth/providers/auth_provider.dart';
+import 'package:gadget_store/features/auth/screens/login_screen.dart'; // To navigate on logout
+import 'package:gadget_store/features/profile/providers/settings_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSettings();
+    });
+  }
+
+  Future<void> _loadSettings() async {
+    final token = Supabase.instance.client.auth.currentSession?.accessToken;
+    if (token != null) {
+      await context.read<SettingsProvider>().fetchSettings(token);
+    }
+  }
+
+  Future<void> _updateSetting(String key, dynamic value) async {
+    final token = Supabase.instance.client.auth.currentSession?.accessToken;
+    if (token != null) {
+      try {
+        await context.read<SettingsProvider>().updateSettings(token, {
+          key: value,
+        });
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update setting: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  void _showLanguageBottomSheet(String currentLanguage) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: AppTheme.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppTheme.greyBorder,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Select Language',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.black,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildLanguageOption(
+                    'en',
+                    'English',
+                    currentLanguage,
+                    setModalState,
+                  ),
+                  _buildLanguageOption(
+                    'hi',
+                    'हिन्दी (Hindi)',
+                    currentLanguage,
+                    setModalState,
+                  ),
+                  _buildLanguageOption(
+                    'bn',
+                    'বাংলা (Bengali)',
+                    currentLanguage,
+                    setModalState,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildLanguageOption(
+    String langCode,
+    String language,
+    String currentLanguage,
+    StateSetter setModalState,
+  ) {
+    final isSelected = currentLanguage == langCode;
+    return InkWell(
+      onTap: () {
+        setModalState(() {});
+        _updateSetting('preferred_language', langCode);
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (!mounted) return;
+          Navigator.pop(context);
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: AppTheme.greyBorder, width: 0.5),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              language,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppTheme.black,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check, color: AppTheme.black, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLogoutConfirmation() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: AppTheme.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.greyBorder,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.logout, color: Colors.red, size: 28),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Logout?',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Are you sure you want to logout from your account?\nYou will need to login again to continue.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.greyText,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.black,
+                        side: const BorderSide(color: AppTheme.greyBorder),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Clear settings
+                        Provider.of<SettingsProvider>(
+                          context,
+                          listen: false,
+                        ).clear();
+
+                        // Sign out from Supabase first, then navigate
+                        await Provider.of<AuthProvider>(
+                          context,
+                          listen: false,
+                        ).signOut();
+                        if (!context.mounted) return;
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.black,
+                        foregroundColor: AppTheme.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Logout',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _getLanguageName(String code) {
+    switch (code) {
+      case 'hi':
+        return 'हिन्दी (Hindi)';
+      case 'bn':
+        return 'বাংলা (Bengali)';
+      case 'en':
+      default:
+        return 'English';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: Consumer<SettingsProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading && provider.settings == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (provider.error != null && provider.settings == null) {
+                    return Center(
+                      child: Text(
+                        'Error loading settings',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+
+                  final settings = provider.settings;
+                  if (settings == null) {
+                    return const SizedBox();
+                  }
+
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Notifications',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.black,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSwitchItem(
+                          icon: Icons.inventory_2_outlined,
+                          title: 'Order Updates',
+                          subtitle:
+                              'Get notified about your order status and delivery updates.',
+                          value: settings
+                              .orderUpdatesEmail, // Mapping to order updates
+                          onChanged: (val) {
+                            _updateSetting('order_updates_email', val);
+                            _updateSetting('order_updates_sms', val);
+                            if (val) {
+                              FirebaseMessaging.instance.subscribeToTopic(
+                                'order_updates',
+                              );
+                            } else {
+                              FirebaseMessaging.instance.unsubscribeFromTopic(
+                                'order_updates',
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSwitchItem(
+                          icon: Icons.local_offer_outlined,
+                          title: 'Promotions',
+                          subtitle:
+                              'Receive offers, discounts and promotional updates.',
+                          value: settings.promotionsEmail,
+                          onChanged: (val) {
+                            _updateSetting('promotions_email', val);
+                            if (val) {
+                              FirebaseMessaging.instance.subscribeToTopic(
+                                'promotions',
+                              );
+                            } else {
+                              FirebaseMessaging.instance.unsubscribeFromTopic(
+                                'promotions',
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSwitchItem(
+                          icon: PhosphorIcons.user,
+                          title: 'Account Alerts',
+                          subtitle:
+                              'Important alerts about your account and security.',
+                          value: settings.notificationsEnabled,
+                          onChanged: (val) {
+                            _updateSetting('notifications_enabled', val);
+                            if (val) {
+                              FirebaseMessaging.instance.subscribeToTopic(
+                                'account_alerts',
+                              );
+                            } else {
+                              FirebaseMessaging.instance.unsubscribeFromTopic(
+                                'account_alerts',
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 32),
+                        const Text(
+                          'Preferences',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.black,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppTheme.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: AppTheme.greyBorder.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildPreferenceItem(
+                                icon: Icons.language_outlined,
+                                title: 'Language',
+                                trailingText:
+                                    '${_getLanguageName(settings.preferredLanguage)}  >',
+                                onTap: () => _showLanguageBottomSheet(
+                                  settings.preferredLanguage,
+                                ),
+                              ),
+
+                              Divider(
+                                height: 1,
+                                color: AppTheme.greyBorder.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              _buildPreferenceItem(
+                                icon: Icons.info_outline,
+                                title: 'About App',
+                                trailingText: 'Version 1.0.0  >',
+                                onTap: () {},
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: _showLogoutConfirmation,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                              side: BorderSide(
+                                color: AppTheme.greyBorder.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            icon: const Icon(Icons.logout, size: 20),
+                            label: const Text(
+                              'Logout',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IconButton(
+            icon: const Icon(PhosphorIcons.arrowLeft, color: AppTheme.black),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'Settings',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Manage your preferences and account',
+                    style: TextStyle(color: AppTheme.greyText, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSwitchItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.greyBorder.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.greyBackground.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 20, color: AppTheme.black),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.greyText,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          CupertinoSwitch(
+            value: value,
+            onChanged: onChanged,
+            activeTrackColor: AppTheme.black,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreferenceItem({
+    required IconData icon,
+    required String title,
+    required String trailingText,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16), // To respect container borders
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: AppTheme.black),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.black,
+                ),
+              ),
+            ),
+            Text(
+              trailingText,
+              style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
