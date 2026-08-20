@@ -198,6 +198,7 @@ class PaymentService {
             'p_razorpay_order_id': razorpayOrderId,
             'p_razorpay_signature': razorpaySignature,
             'p_amount': amount,
+            'p_user_id': userId,
           },
         ));
 
@@ -260,29 +261,50 @@ class PaymentService {
 
     if (event == 'payment.captured') {
       final paymentEntity = payload['payload']?['payment']?['entity'];
-      if (paymentEntity != null) {
-        final razorpayOrderId = paymentEntity['order_id'] as String?;
-        final razorpayPaymentId = paymentEntity['id'] as String?;
-        if (razorpayOrderId != null) {
-          final paymentResult = await SupabaseDb.querySingle(() => SupabaseDb
-              .adminClient
-              .from('payments')
-              .select()
-              .eq('razorpay_order_id', razorpayOrderId)
-              .maybeSingle());
+      if (paymentEntity is! Map<String, dynamic>) {
+        throw Exception('Captured webhook is missing payment details');
+      }
 
-          if (!paymentResult.isError && paymentResult.data != null) {
-            final orderId = paymentResult.data!['order_id'];
-            final amount = (paymentResult.data!['amount'] as num).toDouble();
-            await SupabaseDb.adminClient.rpc('confirm_order_payment', params: {
-              'p_order_id': orderId,
-              'p_razorpay_payment_id': razorpayPaymentId ?? '',
-              'p_razorpay_order_id': razorpayOrderId,
-              'p_razorpay_signature': 'webhook',
-              'p_amount': amount,
-            });
-          }
-        }
+      final razorpayOrderId = paymentEntity['order_id'] as String?;
+      final razorpayPaymentId = paymentEntity['id'] as String?;
+      final razorpayAmount = paymentEntity['amount'] as num?;
+      if (razorpayOrderId == null ||
+          razorpayOrderId.isEmpty ||
+          razorpayPaymentId == null ||
+          razorpayPaymentId.isEmpty ||
+          razorpayAmount == null) {
+        throw Exception('Captured webhook has invalid payment details');
+      }
+
+      final paymentResult = await SupabaseDb.querySingle(() => SupabaseDb
+          .adminClient
+          .from('payments')
+          .select()
+          .eq('razorpay_order_id', razorpayOrderId)
+          .maybeSingle());
+
+      if (paymentResult.isError || paymentResult.data == null) {
+        throw Exception('Webhook payment does not match a known order');
+      }
+
+      final orderId = paymentResult.data!['order_id'];
+      final amount = (paymentResult.data!['amount'] as num).toDouble();
+      if (razorpayAmount.toInt() != (amount * 100).round()) {
+        throw Exception('Webhook payment amount mismatch');
+      }
+
+      final rpcResult = await SupabaseDb.execute(
+          () => SupabaseDb.adminClient.rpc('confirm_order_payment', params: {
+                'p_order_id': orderId,
+                'p_razorpay_payment_id': razorpayPaymentId,
+                'p_razorpay_order_id': razorpayOrderId,
+                'p_razorpay_signature': 'webhook',
+                'p_amount': amount,
+              }));
+
+      if (rpcResult.isError) {
+        throw Exception(
+            'Webhook payment confirmation failed: ${rpcResult.message}');
       }
     }
   }
