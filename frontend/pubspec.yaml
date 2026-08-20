@@ -50,6 +50,7 @@ dependencies:
   phosphoricons_flutter: ^1.0.0
   image_picker: ^1.2.3
   google_sign_in_web: ^1.1.3
+  google_sign_in: ^7.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
