@@ -1,10 +1,12 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
   // Sign out
   Future<void> signOut() async {
+    await GoogleSignIn().signOut();
     await _supabase.auth.signOut();
   }
 
