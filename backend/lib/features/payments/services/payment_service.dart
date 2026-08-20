@@ -90,7 +90,7 @@ class PaymentService {
               'payment_method': 'razorpay',
               'total_amount': finalAmount,
               'subtotal': subtotal,
-              if (addressId != null) 'address_id': addressId,
+              if (addressId != null) 'shipping_address_id': addressId,
               'shipping_fee': shippingFee,
               'discount_amount': discount,
               if (validCouponCode != null) 'coupon_code': validCouponCode,
@@ -230,9 +230,9 @@ class PaymentService {
     final result = await SupabaseDb.query(
         () => SupabaseDb.adminClient.from('orders').select('''
           *,
-          order_items (*, products(*)),
+          order_items (*, products (*)),
           payments (*),
-          user_addresses!orders_address_id_fkey (*)
+          user_addresses!orders_shipping_address_id_fkey (*)
         ''').eq('user_id', userId).order('created_at', ascending: false));
 
     if (result.isError) {

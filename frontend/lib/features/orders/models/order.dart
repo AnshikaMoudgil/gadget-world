@@ -81,8 +81,8 @@ class Order {
       shippingFee: json['shipping_fee'] != null
           ? (double.tryParse(json['shipping_fee'].toString()) ?? 0.0)
           : 0.0,
-      discount: json['discount'] != null
-          ? (double.tryParse(json['discount'].toString()) ?? 0.0)
+      discount: json['discount_amount'] != null
+          ? (double.tryParse(json['discount_amount'].toString()) ?? 0.0)
           : 0.0,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
