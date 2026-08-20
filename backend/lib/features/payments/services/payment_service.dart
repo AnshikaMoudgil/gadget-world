@@ -174,11 +174,12 @@ class PaymentService {
       throw Exception('Invalid payment signature');
     }
 
-    // 2. Fetch payment record to find order_id
+    // 2. Fetch payment record to find order_id and ensure ownership
     final paymentRes = await SupabaseDb.querySingle(() => SupabaseDb.adminClient
         .from('payments')
-        .select()
+        .select('*, orders!inner(user_id)')
         .eq('razorpay_order_id', razorpayOrderId)
+        .eq('orders.user_id', userId)
         .maybeSingle());
 
     if (paymentRes.isError || paymentRes.data == null) {
@@ -201,14 +202,8 @@ class PaymentService {
         ));
 
     if (rpcResult.isError) {
-      await SupabaseDb.adminClient.from('payments').update({
-        'status': 'captured',
-        'razorpay_payment_id': razorpayPaymentId,
-        'razorpay_signature': razorpaySignature,
-      }).eq('razorpay_order_id', razorpayOrderId);
-
-      await SupabaseDb.adminClient.from('orders').update(
-          {'status': 'confirmed', 'payment_status': 'paid'}).eq('id', orderId);
+      throw Exception(
+          'Payment confirmation failed securely: ${rpcResult.message}');
     }
 
     // 4. Clear cart for user
@@ -243,16 +238,17 @@ class PaymentService {
   }
 
   Future<void> processWebhook(String signature, String body) async {
-    final webhookSecret = Env.getOr('RAZORPAY_WEBHOOK_SECRET', 'mock_secret');
+    final webhookSecret = Env.getOrNull('RAZORPAY_WEBHOOK_SECRET');
 
-    if (webhookSecret != 'mock_secret') {
-      final hmac = Hmac(sha256, utf8.encode(webhookSecret));
-      final digest = hmac.convert(utf8.encode(body));
-      if (digest.toString() != signature) {
-        throw Exception('Invalid webhook signature');
-      }
+    if (webhookSecret == null) {
+      throw Exception('RAZORPAY_WEBHOOK_SECRET is missing. Webhooks disabled.');
     }
 
+    final hmac = Hmac(sha256, utf8.encode(webhookSecret));
+    final digest = hmac.convert(utf8.encode(body));
+    if (digest.toString() != signature) {
+      throw Exception('Invalid webhook signature');
+    }
     final payload = jsonDecode(body) as Map<String, dynamic>;
     final event = payload['event'] as String?;
 
