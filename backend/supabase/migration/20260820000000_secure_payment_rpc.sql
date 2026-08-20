@@ -1,8 +1,7 @@
--- Payment confirmation is a server-only operation. Drop the previous overload so
--- callers cannot bypass the ownership-aware version below.
-REVOKE EXECUTE ON FUNCTION public.confirm_order_payment(UUID, TEXT, TEXT, TEXT, NUMERIC)
-  FROM PUBLIC, anon, authenticated;
-DROP FUNCTION public.confirm_order_payment(UUID, TEXT, TEXT, TEXT, NUMERIC);
+-- Remove either prior overload. IF EXISTS makes this migration safe on fresh
+-- databases and on databases where an earlier version was partially deployed.
+DROP FUNCTION IF EXISTS public.confirm_order_payment(UUID, TEXT, TEXT, TEXT, NUMERIC);
+DROP FUNCTION IF EXISTS public.confirm_order_payment(UUID, TEXT, TEXT, TEXT, NUMERIC, UUID);
 
 CREATE FUNCTION public.confirm_order_payment(
   p_order_id UUID,
