@@ -19,15 +19,6 @@ void main() async {
         'ALTER TABLE public.user_addresses ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN NOT NULL DEFAULT false;');
     print('Added is_deleted column to user_addresses.');
 
-    await conn.execute('''
-      CREATE TABLE IF NOT EXISTS public.user_fcm_tokens (
-        user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-        token TEXT NOT NULL,
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      );
-    ''');
-    print('Created user_fcm_tokens table.');
-
     await conn.close();
     print('Done.');
   } catch (e) {
