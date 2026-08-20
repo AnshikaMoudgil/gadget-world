@@ -12,8 +12,6 @@ import 'package:gadget_store/features/orders/providers/order_provider.dart';
 import 'package:gadget_store/features/orders/screens/orders_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/orders/screens/reorder_screen.dart';
-import 'package:gadget_store/features/more/providers/notification_provider.dart';
-import 'package:gadget_store/features/more/screens/notifications_screen.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -132,55 +130,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Row(
               children: [
-                Consumer<NotificationProvider>(
-                  builder: (context, notificationProvider, child) {
-                    final unreadCount = notificationProvider.unreadCount;
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            PhosphorIcons.bell,
-                            color: AppTheme.black,
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const NotificationsScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        if (unreadCount > 0)
-                          Positioned(
-                            right: 10,
-                            top: 10,
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 14,
-                                minHeight: 14,
-                              ),
-                              child: Text(
-                                unreadCount > 9 ? '9+' : unreadCount.toString(),
-                                style: const TextStyle(
-                                  color: AppTheme.white,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                ),
                 IconButton(
                   icon: const Icon(PhosphorIcons.gear, color: AppTheme.black),
                   onPressed: () {

@@ -7,7 +7,6 @@ import '../lib/core/config/env.dart';
 import '../lib/core/database/supabase_db.dart';
 import '../lib/core/network/app_router.dart';
 import '../lib/core/network/cors_middleware.dart';
-import '../lib/features/notifications/services/cron_service.dart';
 
 void main(List<String> args) async {
   // ── 1. Load environment variables & validate required keys ──
@@ -29,15 +28,7 @@ void main(List<String> args) async {
     return;
   }
 
-  // ── 2.5 Initialize Notification Cron ──
-  try {
-    final cronService = NotificationCronService();
-    cronService.start();
-  } catch (e) {
-    stderr.writeln('Failed to start cron service: $e');
-  }
-
-  // ── 3. Resolve port ──
+// ── 3. Resolve port ──
   var parser = ArgParser()..addOption('port', abbr: 'p');
   var result = parser.parse(args);
 

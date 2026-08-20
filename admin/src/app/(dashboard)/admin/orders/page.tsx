@@ -126,15 +126,7 @@ export default function OrdersPage() {
         if (deliveryStatus === "return_requested") statusTitle = `Return Requested for ${selectedOrder.order_number}`;
         if (deliveryStatus === "returned") statusTitle = `Order ${selectedOrder.order_number} Returned`;
 
-        await supabase.from("notifications").insert({
-          user_id: selectedOrder.user_id,
-          title: statusTitle,
-          body: updatedNotes || `Your order status has been updated to ${deliveryStatus.replace("_", " ")}.`,
-          type: "delivery",
-          reference_type: "order",
-          reference_id: selectedOrder.id,
-          is_read: false,
-        });
+
       }
 
       showToast("success", `Delivery status updated to "${deliveryStatus.replace("_", " ")}" successfully!`);

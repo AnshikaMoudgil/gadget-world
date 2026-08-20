@@ -196,19 +196,6 @@ export interface SupportMessage {
   sender?: Profile;
 }
 
-export interface AppNotification {
-  id: string;
-  user_id: string;
-  title: string;
-  body: string;
-  type: "order_update" | "payment" | "promotion" | "support" | "system" | "delivery";
-  reference_type: string | null;
-  reference_id: string | null;
-  image_url: string | null;
-  is_read: boolean;
-  read_at: string | null;
-  user_email?: string;
-}
 
 export interface Coupon {
   id: string;

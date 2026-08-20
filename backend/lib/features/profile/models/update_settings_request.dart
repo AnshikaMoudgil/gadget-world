@@ -1,5 +1,4 @@
 class UpdateSettingsRequest {
-  final bool? notificationsEnabled;
   final bool? orderUpdatesSms;
   final bool? orderUpdatesEmail;
   final bool? promotionsEmail;
@@ -7,7 +6,6 @@ class UpdateSettingsRequest {
   final String? preferredLanguage;
 
   UpdateSettingsRequest({
-    this.notificationsEnabled,
     this.orderUpdatesSms,
     this.orderUpdatesEmail,
     this.promotionsEmail,
@@ -17,7 +15,6 @@ class UpdateSettingsRequest {
 
   factory UpdateSettingsRequest.fromJson(Map<String, dynamic> json) {
     return UpdateSettingsRequest(
-      notificationsEnabled: json['notifications_enabled'] as bool?,
       orderUpdatesSms: json['order_updates_sms'] as bool?,
       orderUpdatesEmail: json['order_updates_email'] as bool?,
       promotionsEmail: json['promotions_email'] as bool?,
@@ -28,9 +25,6 @@ class UpdateSettingsRequest {
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    if (notificationsEnabled != null) {
-      data['notifications_enabled'] = notificationsEnabled;
-    }
     if (orderUpdatesSms != null) {
       data['order_updates_sms'] = orderUpdatesSms;
     }
