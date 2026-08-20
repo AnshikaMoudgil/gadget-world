@@ -5,7 +5,6 @@ import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:gadget_store/features/auth/providers/auth_provider.dart';
 import 'package:gadget_store/features/auth/screens/login_screen.dart';
 import 'package:gadget_store/features/auth/services/google_auth_service.dart';
@@ -18,22 +17,12 @@ import 'package:gadget_store/features/profile/providers/address_provider.dart';
 import 'package:gadget_store/features/profile/providers/settings_provider.dart';
 import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
 import 'package:gadget_store/features/more/providers/support_provider.dart';
-import 'package:gadget_store/features/more/providers/notification_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables
   await dotenv.load(fileName: ".env");
-
-  // Initialize Firebase
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint(
-      'Firebase initialization failed (mostly missing options on Web): $e',
-    );
-  }
 
   // Initialize Supabase
   await Supabase.initialize(
@@ -53,7 +42,6 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => SupportProvider()),
-        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: const MyApp(),
     ),
@@ -143,10 +131,6 @@ class _AuthGuardState extends State<AuthGuard> {
       context,
       listen: false,
     );
-    final notificationProvider = Provider.of<NotificationProvider>(
-      context,
-      listen: false,
-    );
 
     if (authProvider.isAuthenticated) {
       // User is logged in, fetch their profile data
@@ -155,8 +139,6 @@ class _AuthGuardState extends State<AuthGuard> {
       orderProvider.fetchOrders();
       wishlistProvider.fetchWishlist();
       supportProvider.fetchTickets();
-      notificationProvider.fetchNotifications();
-      notificationProvider.initializePushNotifications();
     } else {
       // User is logged out, clear profile data and redirect to Login Screen
       profileProvider.clearProfile();
@@ -164,7 +146,6 @@ class _AuthGuardState extends State<AuthGuard> {
       orderProvider.clearOrders();
       wishlistProvider.clearWishlistLocal();
       supportProvider.clearTicketsLocal();
-      notificationProvider.clearNotificationsLocal();
       String? currentRoute;
       rootNavigatorKey.currentState?.popUntil((route) {
         currentRoute = route.settings.name;

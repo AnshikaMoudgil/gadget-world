@@ -13,7 +13,6 @@ import 'package:gadget_store/features/profile/providers/address_provider.dart';
 import 'package:gadget_store/features/profile/providers/settings_provider.dart';
 import 'package:gadget_store/features/more/providers/wishlist_provider.dart';
 import 'package:gadget_store/features/more/providers/support_provider.dart';
-import 'package:gadget_store/features/more/providers/notification_provider.dart';
 import 'package:gadget_store/main.dart';
 
 void main() {
@@ -38,7 +37,6 @@ void main() {
           ChangeNotifierProvider(create: (_) => SettingsProvider()),
           ChangeNotifierProvider(create: (_) => WishlistProvider()),
           ChangeNotifierProvider(create: (_) => SupportProvider()),
-          ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ],
         child: const MyApp(),
       ),

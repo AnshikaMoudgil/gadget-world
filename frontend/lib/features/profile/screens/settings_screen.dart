@@ -7,7 +7,6 @@ import 'package:gadget_store/features/auth/screens/login_screen.dart'; // To nav
 import 'package:gadget_store/features/profile/providers/settings_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -351,15 +350,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           onChanged: (val) {
                             _updateSetting('order_updates_email', val);
                             _updateSetting('order_updates_sms', val);
-                            if (val) {
-                              FirebaseMessaging.instance.subscribeToTopic(
-                                'order_updates',
-                              );
-                            } else {
-                              FirebaseMessaging.instance.unsubscribeFromTopic(
-                                'order_updates',
-                              );
-                            }
                           },
                         ),
                         const SizedBox(height: 16),
@@ -371,37 +361,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           value: settings.promotionsEmail,
                           onChanged: (val) {
                             _updateSetting('promotions_email', val);
-                            if (val) {
-                              FirebaseMessaging.instance.subscribeToTopic(
-                                'promotions',
-                              );
-                            } else {
-                              FirebaseMessaging.instance.unsubscribeFromTopic(
-                                'promotions',
-                              );
-                            }
                           },
                         ),
-                        const SizedBox(height: 16),
-                        _buildSwitchItem(
-                          icon: PhosphorIcons.user,
-                          title: 'Account Alerts',
-                          subtitle:
-                              'Important alerts about your account and security.',
-                          value: settings.notificationsEnabled,
-                          onChanged: (val) {
-                            _updateSetting('notifications_enabled', val);
-                            if (val) {
-                              FirebaseMessaging.instance.subscribeToTopic(
-                                'account_alerts',
-                              );
-                            } else {
-                              FirebaseMessaging.instance.unsubscribeFromTopic(
-                                'account_alerts',
-                              );
-                            }
-                          },
-                        ),
+
                         const SizedBox(height: 32),
                         const Text(
                           'Preferences',
