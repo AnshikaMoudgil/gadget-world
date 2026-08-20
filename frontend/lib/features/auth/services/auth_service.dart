@@ -6,7 +6,7 @@ class AuthService {
 
   // Sign out
   Future<void> signOut() async {
-    await GoogleSignIn().signOut();
+    await GoogleSignIn.instance.signOut();
     await _supabase.auth.signOut();
   }
 
