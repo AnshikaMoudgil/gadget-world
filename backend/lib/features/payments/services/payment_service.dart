@@ -188,8 +188,34 @@ class PaymentService {
 
     final String orderId = paymentRes.data!['order_id'];
     final double amount = (paymentRes.data!['amount'] as num).toDouble();
+    final String currency = paymentRes.data!['currency'] as String? ?? 'INR';
 
-    // 3. Call confirm_order_payment RPC or update orders/payments directly
+    // 3. Verify the payment state with Razorpay. A valid checkout signature only
+    // proves the IDs came from Razorpay; it does not prove the payment was
+    // captured (for example, when manual capture is enabled).
+    final providerPayment =
+        await _razorpayService.fetchPayment(razorpayPaymentId);
+    if (providerPayment['id'] != razorpayPaymentId ||
+        providerPayment['order_id'] != razorpayOrderId) {
+      throw Exception('Razorpay payment does not match the supplied payment');
+    }
+
+    if (providerPayment['status'] != 'captured') {
+      throw Exception(
+          'Razorpay payment is not captured (status: ${providerPayment['status'] ?? 'unknown'})');
+    }
+
+    final providerAmount = providerPayment['amount'];
+    if (providerAmount is! num ||
+        providerAmount.toInt() != (amount * 100).round()) {
+      throw Exception('Razorpay payment amount mismatch');
+    }
+
+    if (providerPayment['currency'] != currency) {
+      throw Exception('Razorpay payment currency mismatch');
+    }
+
+    // 4. Confirm the payment atomically in the database.
     final rpcResult = await SupabaseDb.execute(() => SupabaseDb.adminClient.rpc(
           'confirm_order_payment',
           params: {
@@ -207,7 +233,7 @@ class PaymentService {
           'Payment confirmation failed securely: ${rpcResult.message}');
     }
 
-    // 4. Clear cart for user
+    // 5. Clear cart for user
     final cartRes = await SupabaseDb.adminClient
         .from('carts')
         .select('id')
