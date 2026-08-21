@@ -2,8 +2,14 @@
 -- address snapshots, and inventory reservation.
 ALTER TABLE public.orders
   ADD COLUMN IF NOT EXISTS shipping_address_snapshot JSONB,
+  ADD COLUMN IF NOT EXISTS checkout_cart_id UUID REFERENCES public.carts(id) ON DELETE SET NULL,
   ADD COLUMN IF NOT EXISTS stock_reserved BOOLEAN NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS stock_reservation_expires_at TIMESTAMPTZ;
+
+CREATE UNIQUE INDEX IF NOT EXISTS orders_one_active_checkout_per_cart
+  ON public.orders(checkout_cart_id)
+  WHERE checkout_cart_id IS NOT NULL
+    AND status IN ('pending_payment', 'pending');
 
 CREATE INDEX IF NOT EXISTS idx_orders_expired_stock_reservations
   ON public.orders(stock_reservation_expires_at)
@@ -33,6 +39,7 @@ DECLARE
   v_product public.products%ROWTYPE;
   v_variant public.product_variants%ROWTYPE;
   v_coupon public.coupons%ROWTYPE;
+  v_active_checkout public.orders%ROWTYPE;
   v_order_id UUID;
   v_item_count INTEGER := 0;
   v_usage_count INTEGER;
@@ -59,6 +66,26 @@ BEGIN
   FOR UPDATE;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Cart does not belong to the supplied user';
+  END IF;
+
+  -- The cart-row lock serializes checkout attempts. Reject a live claim, or
+  -- cancel an expired one so its inventory and coupon reservation are restored
+  -- before this checkout continues.
+  SELECT * INTO v_active_checkout
+  FROM public.orders
+  WHERE checkout_cart_id = p_cart_id
+    AND status IN ('pending_payment', 'pending')
+  ORDER BY created_at DESC
+  LIMIT 1
+  FOR UPDATE;
+
+  IF FOUND THEN
+    IF v_active_checkout.stock_reservation_expires_at > NOW() THEN
+      RAISE EXCEPTION 'An active checkout already exists for this cart';
+    END IF;
+    UPDATE public.orders
+    SET status = 'cancelled', updated_at = NOW()
+    WHERE id = v_active_checkout.id;
   END IF;
 
   SELECT * INTO v_address
@@ -164,12 +191,14 @@ BEGIN
   END IF;
 
   INSERT INTO public.orders (
-    user_id, shipping_address_id, shipping_address_snapshot, status,
+    user_id, checkout_cart_id, shipping_address_id,
+    shipping_address_snapshot, status,
     payment_status, payment_method, total_amount, subtotal, shipping_fee,
     discount_amount, coupon_code, stock_reserved,
     stock_reservation_expires_at
   ) VALUES (
     p_user_id,
+    p_cart_id,
     p_address_id,
     jsonb_build_object(
       'id', v_address.id,
@@ -320,6 +349,28 @@ CREATE TRIGGER on_order_stock_change
   BEFORE UPDATE OF status ON public.orders
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_order_status_stock_change();
+
+-- Consume exactly the cart claimed by this checkout. A competing checkout
+-- waits on the active order row above and sees the emptied cart after commit.
+CREATE OR REPLACE FUNCTION public.handle_order_confirmed_clear_cart()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_catalog
+AS $$
+BEGIN
+  IF (TG_OP = 'INSERT' AND NEW.status = 'confirmed') OR
+     (TG_OP = 'UPDATE' AND NEW.status = 'confirmed' AND
+      OLD.status IN ('pending_payment', 'pending')) THEN
+    IF NEW.checkout_cart_id IS NOT NULL THEN
+      DELETE FROM public.cart_items WHERE cart_id = NEW.checkout_cart_id;
+    ELSE
+      PERFORM public.clear_user_cart(NEW.user_id);
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
 
 CREATE OR REPLACE FUNCTION public.release_expired_stock_reservations()
 RETURNS INTEGER

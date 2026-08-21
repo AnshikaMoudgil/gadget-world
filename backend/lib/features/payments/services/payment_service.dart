@@ -32,6 +32,27 @@ class PaymentService {
       throw Exception('Cart is empty');
     }
 
+    // Avoid creating another provider order for a sequential retry. The atomic
+    // checkout RPC enforces the same rule under a cart-row lock for races.
+    final activeCheckout = await SupabaseDb.querySingle(() => SupabaseDb
+        .adminClient
+        .from('orders')
+        .select('id')
+        .eq('checkout_cart_id', cart.id)
+        .inFilter('status', ['pending_payment', 'pending'])
+        .gt('stock_reservation_expires_at',
+            DateTime.now().toUtc().toIso8601String())
+        .limit(1)
+        .maybeSingle());
+    if (!activeCheckout.isError && activeCheckout.data != null) {
+      throw Exception(
+          'An active checkout already exists for this cart. Complete or cancel it before retrying.');
+    }
+    if (activeCheckout.isError && activeCheckout.statusCode != 404) {
+      throw Exception(
+          'Failed to check for an active checkout: ${activeCheckout.message}');
+    }
+
     double subtotal = 0;
     for (var item in cart.items) {
       final product = item.product;
