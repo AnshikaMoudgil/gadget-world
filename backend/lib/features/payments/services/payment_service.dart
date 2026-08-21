@@ -174,11 +174,12 @@ class PaymentService {
       throw Exception('Invalid payment signature');
     }
 
-    // 2. Fetch payment record to find order_id
+    // 2. Fetch payment record to find order_id and ensure ownership
     final paymentRes = await SupabaseDb.querySingle(() => SupabaseDb.adminClient
         .from('payments')
-        .select()
+        .select('*, orders!inner(user_id)')
         .eq('razorpay_order_id', razorpayOrderId)
+        .eq('orders.user_id', userId)
         .maybeSingle());
 
     if (paymentRes.isError || paymentRes.data == null) {
@@ -187,8 +188,34 @@ class PaymentService {
 
     final String orderId = paymentRes.data!['order_id'];
     final double amount = (paymentRes.data!['amount'] as num).toDouble();
+    final String currency = paymentRes.data!['currency'] as String? ?? 'INR';
 
-    // 3. Call confirm_order_payment RPC or update orders/payments directly
+    // 3. Verify the payment state with Razorpay. A valid checkout signature only
+    // proves the IDs came from Razorpay; it does not prove the payment was
+    // captured (for example, when manual capture is enabled).
+    final providerPayment =
+        await _razorpayService.fetchPayment(razorpayPaymentId);
+    if (providerPayment['id'] != razorpayPaymentId ||
+        providerPayment['order_id'] != razorpayOrderId) {
+      throw Exception('Razorpay payment does not match the supplied payment');
+    }
+
+    if (providerPayment['status'] != 'captured') {
+      throw Exception(
+          'Razorpay payment is not captured (status: ${providerPayment['status'] ?? 'unknown'})');
+    }
+
+    final providerAmount = providerPayment['amount'];
+    if (providerAmount is! num ||
+        providerAmount.toInt() != (amount * 100).round()) {
+      throw Exception('Razorpay payment amount mismatch');
+    }
+
+    if (providerPayment['currency'] != currency) {
+      throw Exception('Razorpay payment currency mismatch');
+    }
+
+    // 4. Confirm the payment atomically in the database.
     final rpcResult = await SupabaseDb.execute(() => SupabaseDb.adminClient.rpc(
           'confirm_order_payment',
           params: {
@@ -197,21 +224,16 @@ class PaymentService {
             'p_razorpay_order_id': razorpayOrderId,
             'p_razorpay_signature': razorpaySignature,
             'p_amount': amount,
+            'p_user_id': userId,
           },
         ));
 
     if (rpcResult.isError) {
-      await SupabaseDb.adminClient.from('payments').update({
-        'status': 'captured',
-        'razorpay_payment_id': razorpayPaymentId,
-        'razorpay_signature': razorpaySignature,
-      }).eq('razorpay_order_id', razorpayOrderId);
-
-      await SupabaseDb.adminClient.from('orders').update(
-          {'status': 'confirmed', 'payment_status': 'paid'}).eq('id', orderId);
+      throw Exception(
+          'Payment confirmation failed securely: ${rpcResult.message}');
     }
 
-    // 4. Clear cart for user
+    // 5. Clear cart for user
     final cartRes = await SupabaseDb.adminClient
         .from('carts')
         .select('id')
@@ -243,16 +265,17 @@ class PaymentService {
   }
 
   Future<void> processWebhook(String signature, String body) async {
-    final webhookSecret = Env.getOr('RAZORPAY_WEBHOOK_SECRET', 'mock_secret');
+    final webhookSecret = Env.getOrNull('RAZORPAY_WEBHOOK_SECRET');
 
-    if (webhookSecret != 'mock_secret') {
-      final hmac = Hmac(sha256, utf8.encode(webhookSecret));
-      final digest = hmac.convert(utf8.encode(body));
-      if (digest.toString() != signature) {
-        throw Exception('Invalid webhook signature');
-      }
+    if (webhookSecret == null) {
+      throw Exception('RAZORPAY_WEBHOOK_SECRET is missing. Webhooks disabled.');
     }
 
+    final hmac = Hmac(sha256, utf8.encode(webhookSecret));
+    final digest = hmac.convert(utf8.encode(body));
+    if (digest.toString() != signature) {
+      throw Exception('Invalid webhook signature');
+    }
     final payload = jsonDecode(body) as Map<String, dynamic>;
     final event = payload['event'] as String?;
 
@@ -264,29 +287,50 @@ class PaymentService {
 
     if (event == 'payment.captured') {
       final paymentEntity = payload['payload']?['payment']?['entity'];
-      if (paymentEntity != null) {
-        final razorpayOrderId = paymentEntity['order_id'] as String?;
-        final razorpayPaymentId = paymentEntity['id'] as String?;
-        if (razorpayOrderId != null) {
-          final paymentResult = await SupabaseDb.querySingle(() => SupabaseDb
-              .adminClient
-              .from('payments')
-              .select()
-              .eq('razorpay_order_id', razorpayOrderId)
-              .maybeSingle());
+      if (paymentEntity is! Map<String, dynamic>) {
+        throw Exception('Captured webhook is missing payment details');
+      }
 
-          if (!paymentResult.isError && paymentResult.data != null) {
-            final orderId = paymentResult.data!['order_id'];
-            final amount = (paymentResult.data!['amount'] as num).toDouble();
-            await SupabaseDb.adminClient.rpc('confirm_order_payment', params: {
-              'p_order_id': orderId,
-              'p_razorpay_payment_id': razorpayPaymentId ?? '',
-              'p_razorpay_order_id': razorpayOrderId,
-              'p_razorpay_signature': 'webhook',
-              'p_amount': amount,
-            });
-          }
-        }
+      final razorpayOrderId = paymentEntity['order_id'] as String?;
+      final razorpayPaymentId = paymentEntity['id'] as String?;
+      final razorpayAmount = paymentEntity['amount'] as num?;
+      if (razorpayOrderId == null ||
+          razorpayOrderId.isEmpty ||
+          razorpayPaymentId == null ||
+          razorpayPaymentId.isEmpty ||
+          razorpayAmount == null) {
+        throw Exception('Captured webhook has invalid payment details');
+      }
+
+      final paymentResult = await SupabaseDb.querySingle(() => SupabaseDb
+          .adminClient
+          .from('payments')
+          .select()
+          .eq('razorpay_order_id', razorpayOrderId)
+          .maybeSingle());
+
+      if (paymentResult.isError || paymentResult.data == null) {
+        throw Exception('Webhook payment does not match a known order');
+      }
+
+      final orderId = paymentResult.data!['order_id'];
+      final amount = (paymentResult.data!['amount'] as num).toDouble();
+      if (razorpayAmount.toInt() != (amount * 100).round()) {
+        throw Exception('Webhook payment amount mismatch');
+      }
+
+      final rpcResult = await SupabaseDb.execute(
+          () => SupabaseDb.adminClient.rpc('confirm_order_payment', params: {
+                'p_order_id': orderId,
+                'p_razorpay_payment_id': razorpayPaymentId,
+                'p_razorpay_order_id': razorpayOrderId,
+                'p_razorpay_signature': 'webhook',
+                'p_amount': amount,
+              }));
+
+      if (rpcResult.isError) {
+        throw Exception(
+            'Webhook payment confirmation failed: ${rpcResult.message}');
       }
     }
   }
