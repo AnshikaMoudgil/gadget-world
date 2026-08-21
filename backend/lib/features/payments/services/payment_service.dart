@@ -16,7 +16,12 @@ class PaymentService {
     String? addressId,
     String? couponCode,
   }) async {
-    // 1. Fetch user's cart
+    if (addressId == null || addressId.isEmpty) {
+      throw Exception('A shipping address is required');
+    }
+
+    // Preflight the checkout to avoid creating a Razorpay order for an obviously
+    // invalid cart. The database RPC repeats all validations under row locks.
     final cartResult = await _cartService.getCart(userId);
     if (cartResult.isError) {
       throw Exception('Failed to load cart: ${cartResult.message}');
@@ -27,34 +32,54 @@ class PaymentService {
       throw Exception('Cart is empty');
     }
 
-    // 2. Calculate total amount
     double subtotal = 0;
     for (var item in cart.items) {
       final product = item.product;
-      if (product == null) continue;
+      if (product == null || product['is_active'] != true) {
+        throw Exception('Cart contains an unavailable product');
+      }
 
-      final price = (product['price'] as num).toDouble();
-      subtotal += price * item.quantity;
+      if (item.quantity <= 0) {
+        throw Exception('Cart contains an invalid quantity');
+      }
+
+      num price;
+      if (item.variantId != null) {
+        final variant = item.variant;
+        if (variant == null ||
+            variant['id'] != item.variantId ||
+            variant['product_id'] != item.productId) {
+          throw Exception('Cart contains an invalid product variant');
+        }
+        if ((variant['stock_quantity'] as num? ?? 0) < item.quantity) {
+          throw Exception('Insufficient stock for ${product['name']}');
+        }
+        price = variant['price'] as num? ?? product['price'] as num;
+      } else {
+        if ((product['stock_quantity'] as num? ?? 0) < item.quantity) {
+          throw Exception('Insufficient stock for ${product['name']}');
+        }
+        price = product['price'] as num;
+      }
+
+      subtotal += price.toDouble() * item.quantity;
     }
 
     if (subtotal <= 0) {
       throw Exception('Invalid total amount');
     }
 
-    // Server-side calculation of shipping and discount
     double shippingFee = subtotal > 50000 ? 0.0 : 299.0;
     double discount = 0.0;
     String? validCouponCode;
-    String? validCouponId;
 
     if (couponCode != null && couponCode.isNotEmpty) {
       final couponRes =
           await _couponService.validateCoupon(couponCode, subtotal, userId);
       if (couponRes['valid'] == true) {
         discount = (couponRes['discount_amount'] as num).toDouble();
-        validCouponCode = couponCode;
+        validCouponCode = couponCode.toUpperCase();
         if (couponRes['coupon'] != null) {
-          validCouponId = couponRes['coupon']['id'];
           if (couponRes['coupon']['discount_type'] == 'free_shipping') {
             shippingFee = 0.0;
           }
@@ -62,12 +87,11 @@ class PaymentService {
       }
     }
 
-    double finalAmount = subtotal + shippingFee - discount;
+    final double finalAmount = subtotal + shippingFee - discount;
 
     final int amountSubunits = (finalAmount * 100).round();
     final String currency = 'INR';
 
-    // 3. Create Razorpay order
     final cartIdPart = cart.id.length > 8 ? cart.id.substring(0, 8) : cart.id;
     final receipt = 'c_${cartIdPart}_${DateTime.now().millisecondsSinceEpoch}';
 
@@ -79,75 +103,28 @@ class PaymentService {
 
     final razorpayOrderId = razorpayOrder['id'] as String;
 
-    // 4. Create Order record in public.orders
-    final orderInsertResult =
-        await SupabaseDb.querySingle(() => SupabaseDb.adminClient
-            .from('orders')
-            .insert({
-              'user_id': userId,
-              'status': 'pending_payment',
-              'payment_status': 'unpaid',
-              'payment_method': 'razorpay',
-              'total_amount': finalAmount,
-              'subtotal': subtotal,
-              if (addressId != null) 'shipping_address_id': addressId,
-              'shipping_fee': shippingFee,
-              'discount_amount': discount,
-              if (validCouponCode != null) 'coupon_code': validCouponCode,
-            })
-            .select()
-            .single());
+    // The RPC re-reads and locks the cart/catalog/address, recalculates the
+    // totals, creates all checkout records, and reserves stock atomically.
+    final checkoutResult = await SupabaseDb.querySingle<Map<String, dynamic>>(
+        () async => Map<String, dynamic>.from(await SupabaseDb.adminClient
+                .rpc('create_razorpay_checkout', params: {
+              'p_user_id': userId,
+              'p_cart_id': cart.id,
+              'p_address_id': addressId,
+              'p_razorpay_order_id': razorpayOrderId,
+              'p_currency': currency,
+              'p_expected_amount': finalAmount,
+              'p_coupon_code': validCouponCode,
+            }) as Map));
 
-    if (orderInsertResult.isError) {
-      throw Exception('Failed to create order: ${orderInsertResult.message}');
-    }
-
-    final String orderId = orderInsertResult.data!['id'];
-
-    // 5. Insert order items into public.order_items
-    for (var item in cart.items) {
-      if (item.product == null) continue;
-      final price = (item.product!['price'] as num).toDouble();
-      final productName = item.product!['name'] as String? ?? 'Product';
-
-      await SupabaseDb.querySingle(
-          () => SupabaseDb.adminClient.from('order_items').insert({
-                'order_id': orderId,
-                'product_id': item.productId,
-                'variant_id': item.variantId,
-                'product_name': productName,
-                'quantity': item.quantity,
-                'unit_price': price,
-                'total_price': price * item.quantity,
-              }));
-    }
-
-    // 5.5 Record coupon usage
-    if (validCouponId != null) {
-      await _couponService.recordCouponUsage(validCouponId, userId, orderId);
-    }
-
-    // 6. Insert payment row into public.payments
-    final paymentInsertResult =
-        await SupabaseDb.querySingle(() => SupabaseDb.adminClient
-            .from('payments')
-            .insert({
-              'order_id': orderId,
-              'provider': 'razorpay',
-              'razorpay_order_id': razorpayOrderId,
-              'amount': finalAmount,
-              'currency': currency,
-              'status': 'created',
-            })
-            .select()
-            .single());
-
-    if (paymentInsertResult.isError) {
-      throw Exception('Failed to save payment: ${paymentInsertResult.message}');
+    if (checkoutResult.isError || checkoutResult.data == null) {
+      throw Exception(
+          'Failed to create checkout securely: ${checkoutResult.message}');
     }
 
     return {
       'orderId': razorpayOrderId,
+      'internalOrderId': checkoutResult.data!['order_id'],
       'amount': amountSubunits,
       'currency': currency,
       'keyId': Env.getOrNull('RAZORPAY_KEY_ID') ??

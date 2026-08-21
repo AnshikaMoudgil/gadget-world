@@ -59,6 +59,8 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     final itemsList = (json['order_items'] as List?) ?? [];
+    final shippingAddressJson =
+        json['shipping_address_snapshot'] ?? json['user_addresses'];
 
     // razorpay_order_id might be inside payments array if not in orders table directly
     String rzpOrderId = json['razorpay_order_id'] ?? '';
@@ -94,12 +96,13 @@ class Order {
           ? DateTime.parse(json['delivered_at'])
           : null,
       items: itemsList.map((item) => OrderItem.fromJson(item)).toList(),
-      shippingAddress: json['user_addresses'] != null
-          ? (json['user_addresses'] is List &&
-                    (json['user_addresses'] as List).isNotEmpty)
-                ? Address.fromJson((json['user_addresses'] as List).first)
-                : (json['user_addresses'] is Map)
-                ? Address.fromJson(json['user_addresses'])
+      shippingAddress: shippingAddressJson != null
+          ? (shippingAddressJson is List && shippingAddressJson.isNotEmpty)
+                ? Address.fromJson(shippingAddressJson.first)
+                : (shippingAddressJson is Map)
+                ? Address.fromJson(
+                    Map<String, dynamic>.from(shippingAddressJson),
+                  )
                 : null
           : null,
     );
