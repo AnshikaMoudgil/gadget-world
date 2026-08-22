@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
+import '../../../core/network/safe_error.dart';
 import '../services/settings_service.dart';
 import '../models/update_settings_request.dart';
 
@@ -14,9 +15,7 @@ class SettingsController {
       return Response.ok(jsonEncode(settings.toJson()),
           headers: {'Content-Type': 'application/json'});
     } catch (e) {
-      return Response.internalServerError(
-          body: jsonEncode({'error': e.toString()}),
-          headers: {'Content-Type': 'application/json'});
+      return SafeError.response('settings.get', e);
     }
   }
 
@@ -32,9 +31,12 @@ class SettingsController {
       return Response.ok(jsonEncode(settings.toJson()),
           headers: {'Content-Type': 'application/json'});
     } catch (e) {
-      return Response.badRequest(
-          body: jsonEncode({'error': e.toString()}),
-          headers: {'Content-Type': 'application/json'});
+      return SafeError.response(
+        'settings.update',
+        e,
+        statusCode: 400,
+        message: 'Unable to update settings.',
+      );
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
+import '../../../core/network/safe_error.dart';
 import '../services/payment_service.dart';
 
 class PaymentController {
@@ -22,11 +23,13 @@ class PaymentController {
 
       return Response.ok(jsonEncode(result),
           headers: {'Content-Type': 'application/json'});
-    } catch (e, st) {
-      print('[PaymentController.createOrder ERROR] $e\n$st');
-      return Response(400,
-          body: jsonEncode({'error': e.toString()}),
-          headers: {'Content-Type': 'application/json'});
+    } catch (e) {
+      return SafeError.response(
+        'payment.create_order',
+        e,
+        statusCode: 400,
+        message: 'Unable to create the payment order.',
+      );
     }
   }
 
@@ -45,11 +48,13 @@ class PaymentController {
 
       return Response.ok(jsonEncode({'status': 'success'}),
           headers: {'Content-Type': 'application/json'});
-    } catch (e, st) {
-      print('[PaymentController.verifyPayment ERROR] $e\n$st');
-      return Response(400,
-          body: jsonEncode({'error': e.toString()}),
-          headers: {'Content-Type': 'application/json'});
+    } catch (e) {
+      return SafeError.response(
+        'payment.verify',
+        e,
+        statusCode: 400,
+        message: 'Payment verification failed.',
+      );
     }
   }
 
@@ -59,11 +64,12 @@ class PaymentController {
       final result = await _paymentService.getOrders(userId);
       return Response.ok(jsonEncode(result),
           headers: {'Content-Type': 'application/json'});
-    } catch (e, st) {
-      print('[PaymentController.getOrders ERROR] $e\n$st');
-      return Response.internalServerError(
-          body: jsonEncode({'error': e.toString()}),
-          headers: {'Content-Type': 'application/json'});
+    } catch (e) {
+      return SafeError.response(
+        'payment.get_orders',
+        e,
+        message: 'Unable to retrieve orders.',
+      );
     }
   }
 
@@ -79,11 +85,13 @@ class PaymentController {
 
       return Response.ok(jsonEncode({'status': 'ok'}),
           headers: {'Content-Type': 'application/json'});
-    } catch (e, st) {
-      print('[PaymentController.handleWebhook ERROR] $e\n$st');
-      return Response(400,
-          body: jsonEncode({'error': e.toString()}),
-          headers: {'Content-Type': 'application/json'});
+    } catch (e) {
+      return SafeError.response(
+        'payment.webhook',
+        e,
+        statusCode: 400,
+        message: 'Webhook processing failed.',
+      );
     }
   }
 }

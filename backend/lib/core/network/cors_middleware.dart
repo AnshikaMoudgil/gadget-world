@@ -1,23 +1,41 @@
 import 'package:shelf/shelf.dart';
 
-/// Middleware that adds CORS headers to all responses.
-/// Also intercepts OPTIONS requests and returns a 200 OK with the headers.
-Middleware corsMiddleware() {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
+/// Adds CORS headers only for explicitly trusted browser origins.
+Middleware corsMiddleware(Iterable<String> allowedOrigins) {
+  final allowed = allowedOrigins.toSet();
+  if (allowed.isEmpty || allowed.contains('*')) {
+    throw StateError('ALLOWED_ORIGINS must contain explicit origins');
+  }
+
+  const preflightHeaders = {
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers':
         'Origin, Content-Type, Accept, Authorization',
+    'Access-Control-Max-Age': '600',
+    'Vary': 'Origin',
   };
 
   return (Handler innerHandler) {
     return (Request request) async {
+      final origin = request.headers['origin'];
+      final isAllowed = origin != null && allowed.contains(origin);
+
       if (request.method == 'OPTIONS') {
-        return Response.ok('', headers: corsHeaders);
+        if (!isAllowed) {
+          return Response.forbidden('Origin is not allowed');
+        }
+        return Response(204, headers: {
+          ...preflightHeaders,
+          'Access-Control-Allow-Origin': origin,
+        });
       }
 
       final response = await innerHandler(request);
-      return response.change(headers: corsHeaders);
+      if (!isAllowed) return response;
+      return response.change(headers: {
+        ...preflightHeaders,
+        'Access-Control-Allow-Origin': origin,
+      });
     };
   };
 }

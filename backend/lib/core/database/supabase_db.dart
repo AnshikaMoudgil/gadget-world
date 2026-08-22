@@ -1,6 +1,7 @@
 import 'package:supabase/supabase.dart';
 
 import '../config/env.dart';
+import '../network/safe_error.dart';
 import 'db_result.dart';
 
 export 'db_result.dart';
@@ -101,15 +102,19 @@ class SupabaseDb {
     } on PostgrestException catch (e) {
       return _handlePostgrestError(e);
     } on AuthException catch (e) {
+      final errorId = SafeError.report('database.auth', e, statusCode: 401);
       return DbResult.error(
-        e.message,
+        'Authentication failed.',
         statusCode:
             e.statusCode != null ? int.tryParse(e.statusCode!) ?? 401 : 401,
+        errorId: errorId,
       );
     } catch (e) {
+      final errorId = SafeError.report('database.query', e);
       return DbResult.error(
         'An unexpected error occurred. Please try again later.',
         statusCode: 500,
+        errorId: errorId,
       );
     }
   }
@@ -135,15 +140,19 @@ class SupabaseDb {
     } on PostgrestException catch (e) {
       return _handlePostgrestError(e);
     } on AuthException catch (e) {
+      final errorId = SafeError.report('database.auth', e, statusCode: 401);
       return DbResult.error(
-        e.message,
+        'Authentication failed.',
         statusCode:
             e.statusCode != null ? int.tryParse(e.statusCode!) ?? 401 : 401,
+        errorId: errorId,
       );
     } catch (e) {
+      final errorId = SafeError.report('database.query_single', e);
       return DbResult.error(
         'An unexpected error occurred. Please try again later.',
         statusCode: 500,
+        errorId: errorId,
       );
     }
   }
@@ -158,15 +167,19 @@ class SupabaseDb {
     } on PostgrestException catch (e) {
       return _handlePostgrestError(e);
     } on AuthException catch (e) {
+      final errorId = SafeError.report('database.auth', e, statusCode: 401);
       return DbResult.error(
-        e.message,
+        'Authentication failed.',
         statusCode:
             e.statusCode != null ? int.tryParse(e.statusCode!) ?? 401 : 401,
+        errorId: errorId,
       );
     } catch (e) {
+      final errorId = SafeError.report('database.execute', e);
       return DbResult.error(
         'An unexpected error occurred. Please try again later.',
         statusCode: 500,
+        errorId: errorId,
       );
     }
   }
@@ -187,29 +200,32 @@ class SupabaseDb {
   /// Map Postgrest error codes to meaningful HTTP statuses and messages.
   static DbResult<T> _handlePostgrestError<T>(PostgrestException e) {
     final code = e.code;
-    final detail = e.details;
+    final errorId = SafeError.report('database.postgrest.$code', e);
 
     // Common Postgres error codes → HTTP status mapping
     switch (code) {
       // 23505 = unique_violation
       case '23505':
         return DbResult.error(
-          detail?.toString() ?? 'A record with that value already exists.',
+          'A record with that value already exists.',
           statusCode: 409,
+          errorId: errorId,
         );
 
       // 23503 = foreign_key_violation
       case '23503':
         return DbResult.error(
-          detail?.toString() ?? 'Referenced record does not exist.',
+          'Referenced record does not exist.',
           statusCode: 400,
+          errorId: errorId,
         );
 
       // 23514 = check_violation (e.g. postal_code format)
       case '23514':
         return DbResult.error(
-          detail?.toString() ?? 'Value does not meet the required constraints.',
+          'Value does not meet the required constraints.',
           statusCode: 400,
+          errorId: errorId,
         );
 
       // 42501 = insufficient_privilege (RLS denied)
@@ -217,19 +233,22 @@ class SupabaseDb {
         return DbResult.error(
           'You do not have permission to perform this action.',
           statusCode: 403,
+          errorId: errorId,
         );
 
       // PGRST116 = not exactly one row (used by .single())
       case 'PGRST116':
-        return DbResult.notFound('The requested resource was not found.');
+        return DbResult.error(
+          'The requested resource was not found.',
+          statusCode: 404,
+          errorId: errorId,
+        );
 
       default:
-        // Log the raw error for debugging, return a safe message to the client.
-        print('[SupabaseDb] PostgrestException: '
-            'code=$code, message=${e.message}, details=$detail');
         return DbResult.error(
-          'A database error occurred: ${e.message} (Code: $code)',
+          'The database operation could not be completed.',
           statusCode: 500,
+          errorId: errorId,
         );
     }
   }

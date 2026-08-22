@@ -9,9 +9,13 @@ import '../models/product_model.dart';
 class CatalogController {
   static const _jsonHeaders = {'Content-Type': 'application/json'};
 
-  Response _error(int status, String message) {
+  Response _error(int status, String message, [String? errorId]) {
     return Response(status,
-        body: jsonEncode({'error': message}), headers: _jsonHeaders);
+        body: jsonEncode({
+          'error': message,
+          if (errorId != null) 'error_id': errorId,
+        }),
+        headers: _jsonHeaders);
   }
 
   Response _ok(Object? body) {
@@ -28,8 +32,8 @@ class CatalogController {
     });
 
     if (result.isError) {
-      return _error(
-          result.statusCode, result.message ?? 'Failed to fetch categories');
+      return _error(result.statusCode,
+          result.message ?? 'Failed to fetch categories', result.errorId);
     }
 
     final categories =
@@ -126,8 +130,8 @@ class CatalogController {
     });
 
     if (result.isError) {
-      return _error(
-          result.statusCode, result.message ?? 'Failed to fetch products');
+      return _error(result.statusCode,
+          result.message ?? 'Failed to fetch products', result.errorId);
     }
 
     final products = result.data!.map((e) => ProductModel.fromJson(e)).toList();
@@ -167,7 +171,8 @@ class CatalogController {
     });
 
     if (result.isError) {
-      return _error(result.statusCode, result.message ?? 'Product not found');
+      return _error(result.statusCode, result.message ?? 'Product not found',
+          result.errorId);
     }
 
     return _ok(ProductModel.fromJson(result.data!).toJson());

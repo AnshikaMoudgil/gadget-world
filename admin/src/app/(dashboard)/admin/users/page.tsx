@@ -12,9 +12,27 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<Profile["role"] | null>(null);
   const [toast, setToast] = useState<{ type: string; message: string } | null>(null);
 
-  const supabase = createBrowserSupabaseClient();
+  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+
+  useEffect(() => {
+    const loadCurrentAdmin = async () => {
+      const { data: authData } = await supabase.auth.getUser();
+      const id = authData.user?.id;
+      if (!id) return;
+      setCurrentUserId(id);
+      const { data } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", id)
+        .single();
+      setCurrentUserRole((data?.role as Profile["role"] | undefined) ?? null);
+    };
+    void loadCurrentAdmin();
+  }, [supabase]);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -70,8 +88,16 @@ export default function UsersPage() {
   };
 
   const changeRole = async (user: Profile, newRole: string) => {
+    if (user.id === currentUserId) {
+      showToast("error", "You cannot change your own role.");
+      return;
+    }
     if (user.role === "superadmin") {
       showToast("error", "Superadmin roles cannot be modified.");
+      return;
+    }
+    if (newRole === "superadmin" && currentUserRole !== "superadmin") {
+      showToast("error", "Only an existing superadmin can assign that role.");
       return;
     }
 
@@ -257,11 +283,17 @@ export default function UsersPage() {
                         options={[
                           { value: "customer", label: "Customer" },
                           { value: "admin", label: "Admin" },
-                          { value: "superadmin", label: "Superadmin" },
+                          ...(currentUserRole === "superadmin"
+                            ? [{ value: "superadmin", label: "Superadmin" }]
+                            : []),
                         ]}
                         value={user.role}
                         onChange={(newRole) => changeRole(user, newRole)}
-                        disabled={user.role === "superadmin"}
+                        disabled={
+                          currentUserRole !== "superadmin" ||
+                          user.role === "superadmin" ||
+                          user.id === currentUserId
+                        }
                       />
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap">
