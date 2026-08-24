@@ -31,12 +31,22 @@ jobs:
       - name: Create frontend environment file
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
         run: |
+          test -n "$SUPABASE_URL"
+          test -n "$SUPABASE_PUBLISHABLE_KEY"
+          test -n "$BACKEND_URL"
           {
-            printf 'SUPABASE_URL=%s\n' "${SUPABASE_URL:-https://xyzcompany.supabase.co}"
-            printf 'SUPABASE_ANON_KEY=%s\n' "${SUPABASE_ANON_KEY:-public-anon-key}"
+            printf 'SUPABASE_URL=%s\n' "$SUPABASE_URL"
+            printf 'SUPABASE_PUBLISHABLE_KEY=%s\n' "$SUPABASE_PUBLISHABLE_KEY"
+            printf 'BACKEND_URL=%s\n' "$BACKEND_URL"
           } > .env
+
+      - name: Backend health smoke test
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+        run: curl --fail --retry 3 --retry-delay 5 "$BACKEND_URL/health"
 
       - name: Install dependencies
         run: flutter pub get

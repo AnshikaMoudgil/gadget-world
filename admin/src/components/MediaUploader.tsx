@@ -21,6 +21,7 @@ export default function MediaUploader({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const supabase = createBrowserSupabaseClient();
+  const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -33,6 +34,11 @@ export default function MediaUploader({
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+      if (!allowedTypes.has(file.type) || file.size > 5 * 1024 * 1024) {
+        setError("Only JPEG, PNG, WebP, or GIF images up to 5 MB are allowed.");
+        setUploading(false);
+        return;
+      }
       const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
       const filePath = fileName;
@@ -139,7 +145,7 @@ export default function MediaUploader({
       <div className="relative border-2 border-dashed border-slate-300 hover:border-slate-800 rounded-2xl p-8 text-center bg-slate-50 hover:bg-slate-100/60 transition-all cursor-pointer group">
         <input
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+          accept="image/jpeg,image/png,image/webp,image/gif"
           multiple={multiple}
           onChange={handleFileUpload}
           disabled={uploading}
@@ -164,7 +170,7 @@ export default function MediaUploader({
                 : "Click to upload or drag & drop files"}
             </p>
             <p className="text-xs text-slate-500 mt-1 font-medium">
-              JPEG, PNG, WebP, GIF, SVG (Direct storage in <code className="px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded font-mono text-[11px]">{bucket}</code> bucket)
+              JPEG, PNG, WebP, or GIF up to 5 MB (stored in <code className="px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded font-mono text-[11px]">{bucket}</code>)
             </p>
           </div>
         </div>

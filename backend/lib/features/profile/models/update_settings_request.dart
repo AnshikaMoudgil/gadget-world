@@ -42,4 +42,17 @@ class UpdateSettingsRequest {
     }
     return data;
   }
+
+  String? validate() {
+    if (toJson().isEmpty) return 'At least one setting is required';
+    if (preferredTheme != null &&
+        !{'light', 'dark', 'system'}.contains(preferredTheme)) {
+      return 'preferred_theme is invalid';
+    }
+    if (preferredLanguage != null &&
+        !RegExp(r'^[a-z]{2}(?:-[A-Z]{2})?$').hasMatch(preferredLanguage!)) {
+      return 'preferred_language is invalid';
+    }
+    return null;
+  }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import '../../../core/database/db_result.dart';
+import '../../../core/network/json_request.dart';
 import '../services/cart_service.dart';
 import '../models/add_to_cart_request.dart';
 
@@ -30,8 +31,11 @@ class CartController {
     final userId = request.context['userId'] as String;
 
     try {
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
+      final data = await readJsonObject(
+        request,
+        allowedKeys: {'product_id', 'variant_id', 'quantity'},
+        requiredKeys: {'product_id'},
+      );
       final addRequest = AddToCartRequest.fromJson(data);
 
       final validationError = addRequest.validate();
@@ -61,8 +65,11 @@ class CartController {
     final userId = request.context['userId'] as String;
 
     try {
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
+      final data = await readJsonObject(
+        request,
+        allowedKeys: {'quantity'},
+        requiredKeys: {'quantity'},
+      );
 
       if (!data.containsKey('quantity')) {
         return Response(400,

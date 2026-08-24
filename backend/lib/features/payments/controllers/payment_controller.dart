@@ -1,16 +1,23 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import '../../../core/network/safe_error.dart';
+import '../../../core/network/json_request.dart';
 import '../services/payment_service.dart';
 
 class PaymentController {
-  final PaymentService _paymentService = PaymentService();
+  static const _maxWebhookBytes = 256 * 1024;
+  PaymentService? _paymentServiceInstance;
+  PaymentService get _paymentService =>
+      _paymentServiceInstance ??= PaymentService();
 
   Future<Response> createOrder(Request request) async {
     try {
       final userId = request.context['userId'] as String;
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
+      final data = await readJsonObject(
+        request,
+        allowedKeys: {'addressId', 'couponCode'},
+        requiredKeys: {'addressId'},
+      );
 
       final addressId = data['addressId'] as String?;
       final couponCode = data['couponCode'] as String?;
@@ -36,8 +43,19 @@ class PaymentController {
   Future<Response> verifyPayment(Request request) async {
     try {
       final userId = request.context['userId'] as String;
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
+      final data = await readJsonObject(
+        request,
+        allowedKeys: {
+          'razorpayOrderId',
+          'razorpayPaymentId',
+          'razorpaySignature',
+        },
+        requiredKeys: {
+          'razorpayOrderId',
+          'razorpayPaymentId',
+          'razorpaySignature',
+        },
+      );
 
       await _paymentService.verifyPayment(
         userId: userId,
@@ -76,12 +94,28 @@ class PaymentController {
   Future<Response> handleWebhook(Request request) async {
     try {
       final signature = request.headers['x-razorpay-signature'];
-      if (signature == null) {
+      final eventId = request.headers['x-razorpay-event-id'];
+      if (signature == null || signature.isEmpty) {
         return Response.badRequest(body: 'Missing signature');
       }
-      final body = await request.readAsString();
+      if (eventId == null || eventId.isEmpty || eventId.length > 200) {
+        return Response.badRequest(body: 'Missing or invalid event ID');
+      }
+      final declaredLength =
+          int.tryParse(request.headers['content-length'] ?? '');
+      if (declaredLength != null && declaredLength > _maxWebhookBytes) {
+        return Response(413, body: 'Webhook body is too large');
+      }
+      final bytes = <int>[];
+      await for (final chunk in request.read()) {
+        bytes.addAll(chunk);
+        if (bytes.length > _maxWebhookBytes) {
+          return Response(413, body: 'Webhook body is too large');
+        }
+      }
+      final body = utf8.decode(bytes);
 
-      await _paymentService.processWebhook(signature, body);
+      await _paymentService.processWebhook(eventId, signature, body);
 
       return Response.ok(jsonEncode({'status': 'ok'}),
           headers: {'Content-Type': 'application/json'});
