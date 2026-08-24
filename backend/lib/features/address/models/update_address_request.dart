@@ -76,18 +76,32 @@ class UpdateAddressRequest {
     final errors = <String>[];
     if (recipientName != null && recipientName!.trim().isEmpty) {
       errors.add('recipient_name cannot be blank');
+    } else if (recipientName != null && recipientName!.length > 100) {
+      errors.add('recipient_name cannot exceed 100 characters');
     }
-    if (phoneNumber != null && phoneNumber!.trim().isEmpty) {
-      errors.add('phone_number cannot be blank');
+    if (phoneNumber != null &&
+        !RegExp(r'^\+?[0-9]{10,15}$').hasMatch(phoneNumber!.trim())) {
+      errors.add('phone_number must contain 10 to 15 digits');
     }
     if (addressLine1 != null && addressLine1!.trim().isEmpty) {
       errors.add('address_line1 cannot be blank');
+    } else if (addressLine1 != null && addressLine1!.length > 200) {
+      errors.add('address_line1 cannot exceed 200 characters');
     }
-    if (city != null && city!.trim().isEmpty) {
-      errors.add('city cannot be blank');
+    if (addressLine2 != null && addressLine2!.length > 200) {
+      errors.add('address_line2 cannot exceed 200 characters');
     }
-    if (state != null && state!.trim().isEmpty) {
-      errors.add('state cannot be blank');
+    if (landmark != null && landmark!.length > 200) {
+      errors.add('landmark cannot exceed 200 characters');
+    }
+    if (city != null && (city!.trim().isEmpty || city!.length > 100)) {
+      errors.add('city must contain 1 to 100 characters');
+    }
+    if (state != null && (state!.trim().isEmpty || state!.length > 100)) {
+      errors.add('state must contain 1 to 100 characters');
+    }
+    if (country != null && (country!.trim().isEmpty || country!.length > 100)) {
+      errors.add('country must contain 1 to 100 characters');
     }
     if (postalCode != null &&
         !RegExp(r'^[1-9][0-9]{5}$').hasMatch(postalCode!)) {

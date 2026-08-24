@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import '../../../core/network/safe_error.dart';
+import '../../../core/network/json_request.dart';
 import '../services/coupon_service.dart';
 
 class CouponController {
@@ -9,8 +10,11 @@ class CouponController {
   Future<Response> validateCoupon(Request request) async {
     try {
       final userId = request.context['userId'] as String;
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
+      final data = await readJsonObject(
+        request,
+        allowedKeys: {'code', 'cart_total'},
+        requiredKeys: {'code', 'cart_total'},
+      );
 
       if (!data.containsKey('code') || !data.containsKey('cart_total')) {
         return Response.badRequest(

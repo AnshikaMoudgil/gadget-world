@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shelf/shelf.dart';
+import '../../../core/network/json_request.dart';
 
 import '../models/create_address_request.dart';
 import '../models/update_address_request.dart';
@@ -21,11 +22,21 @@ class AddressController {
 
   /// Extract the authenticated user's ID from the request.
   ///
-  /// TODO: Wire this to the real auth middleware context value.
-  String _userId(Request request) {
-    // Placeholder — returns a fixed value until auth middleware is wired up.
-    return request.context['userId'] as String? ?? 'anonymous';
-  }
+  String? _userId(Request request) => request.context['userId'] as String?;
+
+  static const _addressKeys = {
+    'recipient_name',
+    'phone_number',
+    'address_line1',
+    'address_line2',
+    'landmark',
+    'city',
+    'state',
+    'postal_code',
+    'country',
+    'address_type',
+    'is_default',
+  };
 
   Response _error(int status, String message) {
     return Response(status,
@@ -43,6 +54,7 @@ class AddressController {
   /// `GET /` — list all addresses for the authenticated user.
   Future<Response> list(Request request) async {
     final userId = _userId(request);
+    if (userId == null) return _error(401, 'Authentication required');
     final addresses = await _service.listAddresses(userId);
     return _ok(addresses.map((a) => a.toJson()).toList());
   }
@@ -50,6 +62,7 @@ class AddressController {
   /// `GET /<id>` — get a single address.
   Future<Response> get(Request request, String id) async {
     final userId = _userId(request);
+    if (userId == null) return _error(401, 'Authentication required');
     final address = await _service.getAddress(userId, id);
     if (address == null) {
       return _error(404, 'Address not found');
@@ -60,10 +73,28 @@ class AddressController {
   /// `POST /` — create a new address.
   Future<Response> create(Request request) async {
     final userId = _userId(request);
+    if (userId == null) return _error(401, 'Authentication required');
 
-    final body = await request.readAsString();
-    final json = jsonDecode(body) as Map<String, dynamic>;
-    final dto = CreateAddressRequest.fromJson(json);
+    late CreateAddressRequest dto;
+    try {
+      final json = await readJsonObject(
+        request,
+        allowedKeys: _addressKeys,
+        requiredKeys: {
+          'recipient_name',
+          'phone_number',
+          'address_line1',
+          'city',
+          'state',
+          'postal_code',
+        },
+      );
+      dto = CreateAddressRequest.fromJson(json);
+    } on FormatException catch (error) {
+      return _error(400, error.message);
+    } on TypeError {
+      return _error(400, 'Address fields have invalid types');
+    }
 
     final errors = dto.validate();
     if (errors.isNotEmpty) {
@@ -78,10 +109,17 @@ class AddressController {
   /// `PUT /<id>` — update an existing address (partial).
   Future<Response> update(Request request, String id) async {
     final userId = _userId(request);
+    if (userId == null) return _error(401, 'Authentication required');
 
-    final body = await request.readAsString();
-    final json = jsonDecode(body) as Map<String, dynamic>;
-    final dto = UpdateAddressRequest.fromJson(json);
+    late UpdateAddressRequest dto;
+    try {
+      final json = await readJsonObject(request, allowedKeys: _addressKeys);
+      dto = UpdateAddressRequest.fromJson(json);
+    } on FormatException catch (error) {
+      return _error(400, error.message);
+    } on TypeError {
+      return _error(400, 'Address fields have invalid types');
+    }
 
     if (dto.isEmpty) {
       return _error(400, 'No fields to update');
@@ -99,6 +137,7 @@ class AddressController {
   /// `DELETE /<id>` — delete an address.
   Future<Response> delete(Request request, String id) async {
     final userId = _userId(request);
+    if (userId == null) return _error(401, 'Authentication required');
     await _service.deleteAddress(userId, id);
     return Response(204);
   }
@@ -106,6 +145,7 @@ class AddressController {
   /// `PATCH /<id>/set-default` — mark an address as the default.
   Future<Response> setDefault(Request request, String id) async {
     final userId = _userId(request);
+    if (userId == null) return _error(401, 'Authentication required');
     await _service.setDefault(userId, id);
     return _ok({'message': 'Address set as default'});
   }

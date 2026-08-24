@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import '../../../core/network/safe_error.dart';
+import '../../../core/network/json_request.dart';
 import '../services/settings_service.dart';
 import '../models/update_settings_request.dart';
 
@@ -23,9 +24,24 @@ class SettingsController {
     final userId = request.context['userId'] as String;
 
     try {
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
+      final data = await readJsonObject(
+        request,
+        allowedKeys: {
+          'order_updates_sms',
+          'order_updates_email',
+          'promotions_email',
+          'preferred_theme',
+          'preferred_language',
+        },
+      );
       final req = UpdateSettingsRequest.fromJson(data);
+      final validationError = req.validate();
+      if (validationError != null) {
+        return Response.badRequest(
+          body: jsonEncode({'error': validationError}),
+          headers: SafeError.jsonHeaders,
+        );
+      }
 
       final settings = await _service.updateSettings(userId, req);
       return Response.ok(jsonEncode(settings.toJson()),

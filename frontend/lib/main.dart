@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/onboarding/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
@@ -24,10 +25,25 @@ Future<void> main() async {
   // Load environment variables
   await dotenv.load(fileName: ".env");
 
+  final supabaseUrl = dotenv.env['SUPABASE_URL'];
+  final supabaseKey =
+      dotenv.env['SUPABASE_PUBLISHABLE_KEY'] ?? dotenv.env['SUPABASE_ANON_KEY'];
+  final backendUrl = dotenv.env['BACKEND_URL'] ?? dotenv.env['API_BASE_URL'];
+  if (kReleaseMode &&
+      ([
+        supabaseUrl,
+        supabaseKey,
+        backendUrl,
+      ].any((value) => value == null || value.trim().isEmpty))) {
+    throw StateError(
+      'SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, and BACKEND_URL are required.',
+    );
+  }
+
   // Initialize Supabase
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? 'https://xyzcompany.supabase.co',
-    publishableKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY'] ?? 'public-anon-key',
+    url: supabaseUrl ?? 'http://127.0.0.1:54321',
+    publishableKey: supabaseKey ?? 'development-anon-key',
   );
 
   runApp(

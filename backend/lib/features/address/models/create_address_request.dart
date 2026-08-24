@@ -70,18 +70,31 @@ class CreateAddressRequest {
     final errors = <String>[];
     if (recipientName.trim().isEmpty) {
       errors.add('recipient_name is required');
+    } else if (recipientName.length > 100) {
+      errors.add('recipient_name cannot exceed 100 characters');
     }
-    if (phoneNumber.trim().isEmpty) {
-      errors.add('phone_number is required');
+    if (!RegExp(r'^\+?[0-9]{10,15}$').hasMatch(phoneNumber.trim())) {
+      errors.add('phone_number must contain 10 to 15 digits');
     }
     if (addressLine1.trim().isEmpty) {
       errors.add('address_line1 is required');
+    } else if (addressLine1.length > 200) {
+      errors.add('address_line1 cannot exceed 200 characters');
     }
-    if (city.trim().isEmpty) {
-      errors.add('city is required');
+    if (addressLine2 != null && addressLine2!.length > 200) {
+      errors.add('address_line2 cannot exceed 200 characters');
     }
-    if (state.trim().isEmpty) {
-      errors.add('state is required');
+    if (landmark != null && landmark!.length > 200) {
+      errors.add('landmark cannot exceed 200 characters');
+    }
+    if (city.trim().isEmpty || city.length > 100) {
+      errors.add('city must contain 1 to 100 characters');
+    }
+    if (state.trim().isEmpty || state.length > 100) {
+      errors.add('state must contain 1 to 100 characters');
+    }
+    if (country.trim().isEmpty || country.length > 100) {
+      errors.add('country must contain 1 to 100 characters');
     }
     if (!RegExp(r'^[1-9][0-9]{5}$').hasMatch(postalCode)) {
       errors.add('postal_code must be a valid 6-digit Indian PIN code');

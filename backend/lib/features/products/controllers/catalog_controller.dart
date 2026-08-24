@@ -46,15 +46,51 @@ class CatalogController {
     final categoryId = params['categoryId'];
     final search = params['search']?.trim();
     final featured = params['featured'];
-    final limit = int.tryParse(params['limit'] ?? '');
+    final parsedLimit = int.tryParse(params['limit'] ?? '24');
+    final page = int.tryParse(params['page'] ?? '1');
 
-    // New filter params
     final minPrice = double.tryParse(params['minPrice'] ?? '');
     final maxPrice = double.tryParse(params['maxPrice'] ?? '');
     final brandId = params['brandId'];
-    final inStock = params['inStock']; // 'true' or 'false'
-    final sort =
-        params['sort']; // 'price_asc', 'price_desc', 'newest', 'popular'
+    final inStock = params['inStock'];
+    final sort = params['sort'] ?? 'newest';
+
+    if (parsedLimit == null || parsedLimit < 1 || parsedLimit > 100) {
+      return _error(400, 'limit must be between 1 and 100');
+    }
+    if (page == null || page < 1 || page > 10000) {
+      return _error(400, 'page must be between 1 and 10000');
+    }
+    if (search != null && search.length > 100) {
+      return _error(400, 'search cannot exceed 100 characters');
+    }
+    final safeSearch = search
+        ?.replaceAll(RegExp(r'[^a-zA-Z0-9\s-]'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    if (categoryId != null && categoryId.length > 100 ||
+        brandId != null && brandId.length > 100) {
+      return _error(400, 'filter value is too long');
+    }
+    if (params.containsKey('minPrice') && minPrice == null ||
+        params.containsKey('maxPrice') && maxPrice == null) {
+      return _error(400, 'price filters must be numeric');
+    }
+    if (minPrice != null && (minPrice < 0 || minPrice > 10000000) ||
+        maxPrice != null && (maxPrice < 0 || maxPrice > 10000000) ||
+        minPrice != null && maxPrice != null && minPrice > maxPrice) {
+      return _error(400, 'price range is invalid');
+    }
+    if (featured != null && featured != 'true' && featured != 'false' ||
+        inStock != null && inStock != 'true' && inStock != 'false') {
+      return _error(400, 'boolean filters must be true or false');
+    }
+    if (!{'price_asc', 'price_desc', 'newest', 'popular'}.contains(sort)) {
+      return _error(400, 'sort value is invalid');
+    }
+
+    final limit = parsedLimit;
+    final offset = (page - 1) * limit;
 
     final result = await SupabaseDb.query<List<Map<String, dynamic>>>(() async {
       var query = SupabaseDb.client
@@ -68,9 +104,10 @@ class CatalogController {
       if (featured == 'true') {
         query = query.eq('is_featured', true);
       }
-      if (search != null && search.isNotEmpty) {
-        final escaped = search.replaceAll(',', ' ');
-        query = query.or('name.ilike.%$escaped%,description.ilike.%$escaped%');
+      if (safeSearch != null && safeSearch.isNotEmpty) {
+        query = query.or(
+          'name.ilike.%$safeSearch%,description.ilike.%$safeSearch%',
+        );
       }
 
       // Apply new filters
@@ -123,10 +160,7 @@ class CatalogController {
         ordered = query.order('created_at', ascending: false);
       }
 
-      if (limit != null && limit > 0) {
-        ordered = ordered.limit(limit);
-      }
-      return await ordered;
+      return await ordered.range(offset, offset + limit - 1);
     });
 
     if (result.isError) {
