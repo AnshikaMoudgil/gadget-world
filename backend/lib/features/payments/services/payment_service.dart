@@ -261,6 +261,8 @@ class PaymentService {
           discount_amount,
           coupon_code,
           shipping_address_snapshot,
+          shipped_at,
+          delivered_at,
           created_at,
           updated_at,
           order_items (

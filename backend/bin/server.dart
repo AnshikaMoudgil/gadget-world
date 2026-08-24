@@ -51,7 +51,10 @@ void main(List<String> args) async {
   // Configure a pipeline that logs requests.
   final handler = Pipeline()
       .addMiddleware(safeErrorMiddleware())
-      .addMiddleware(securityHeadersMiddleware(requireHttps: Env.requireHttps))
+      .addMiddleware(securityHeadersMiddleware(
+        requireHttps: Env.requireHttps,
+        trustProxy: Env.trustProxy,
+      ))
       .addMiddleware(rateLimitMiddleware(
         requestsPerMinute: Env.rateLimitPerMinute,
         trustProxy: Env.trustProxy,

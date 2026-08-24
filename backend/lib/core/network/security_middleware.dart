@@ -1,9 +1,11 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:shelf/shelf.dart';
 
-Middleware securityHeadersMiddleware({required bool requireHttps}) {
+Middleware securityHeadersMiddleware({
+  required bool requireHttps,
+  required bool trustProxy,
+}) {
   const headers = {
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'DENY',
@@ -14,11 +16,14 @@ Middleware securityHeadersMiddleware({required bool requireHttps}) {
   };
 
   return (Handler innerHandler) => (Request request) async {
-        if (requireHttps && request.headers['x-forwarded-proto'] != 'https') {
+        final scheme = trustProxy
+            ? request.headers['x-forwarded-proto']?.split(',').first.trim()
+            : request.requestedUri.scheme;
+        if (requireHttps && scheme != 'https') {
           return Response.forbidden('HTTPS is required', headers: headers);
         }
         final response = await innerHandler(request);
-        return response.change(headers: headers);
+        return response.change(headers: {...response.headers, ...headers});
       };
 }
 
@@ -27,26 +32,28 @@ Middleware requestLimitsMiddleware({
   required Duration timeout,
 }) {
   return (Handler innerHandler) => (Request request) async {
-        final declaredLength = int.tryParse(
-          request.headers[HttpHeaders.contentLengthHeader] ?? '',
-        );
-        if (declaredLength != null && declaredLength > maxBodyBytes) {
-          return Response(413, body: 'Request body is too large');
-        }
-
-        var boundedRequest = request;
-        if (request.method != 'GET' && request.method != 'HEAD') {
-          final bytes = <int>[];
-          await for (final chunk in request.read()) {
-            bytes.addAll(chunk);
-            if (bytes.length > maxBodyBytes) {
-              return Response(413, body: 'Request body is too large');
-            }
+        return (() async {
+          final declaredLength = int.tryParse(
+            request.headers[HttpHeaders.contentLengthHeader] ?? '',
+          );
+          if (declaredLength != null && declaredLength > maxBodyBytes) {
+            return Response(413, body: 'Request body is too large');
           }
-          boundedRequest = request.change(body: bytes);
-        }
 
-        return Future<Response>.sync(() => innerHandler(boundedRequest))
+          var boundedRequest = request;
+          if (request.method != 'GET' && request.method != 'HEAD') {
+            final bytes = <int>[];
+            await for (final chunk in request.read()) {
+              bytes.addAll(chunk);
+              if (bytes.length > maxBodyBytes) {
+                return Response(413, body: 'Request body is too large');
+              }
+            }
+            boundedRequest = request.change(body: bytes);
+          }
+
+          return innerHandler(boundedRequest);
+        })()
             .timeout(
           timeout,
           onTimeout: () => Response(504, body: 'Request timed out'),
