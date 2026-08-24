@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import CustomSelect from "@/components/CustomSelect";
 import { getGenericErrorMessage } from "@/lib/errorUtils";
@@ -13,6 +13,8 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
   const [toast, setToast] = useState<{ type: string; message: string } | null>(null);
 
   // Delivery update form state inside drawer
@@ -23,33 +25,43 @@ export default function OrdersPage() {
   const [trackingNumber, setTrackingNumber] = useState("");
   const [updating, setUpdating] = useState(false);
 
-  const supabase = createBrowserSupabaseClient();
+  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  const pageSize = 50;
 
   const loadOrders = useCallback(async () => {
     setLoading(true);
     try {
       let query = supabase
         .from("orders")
-        .select("*, items:order_items(*)")
-        .order("created_at", { ascending: false });
+        .select(`
+          id, user_id, shipping_address_id, order_number, status,
+          payment_status, payment_method, total_amount, subtotal,
+          shipping_fee, tax_amount, notes, created_at, updated_at,
+          items:order_items(
+            id, order_id, product_id, variant_id, product_name,
+            variant_name, quantity, unit_price, total_price, created_at
+          )
+        `, { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(page * pageSize, (page + 1) * pageSize - 1);
 
       if (search) query = query.or(`order_number.ilike.%${search}%`);
       if (statusFilter) query = query.eq("status", statusFilter);
       if (paymentStatusFilter) query = query.eq("payment_status", paymentStatusFilter);
 
-      const { data: ordersData, error: ordersErr } = await query;
+      const { data: ordersData, count, error: ordersErr } = await query;
       if (ordersErr) {
-        console.error("Error fetching orders:", ordersErr);
         showToast("error", getGenericErrorMessage(ordersErr, "Failed to load orders"));
         setOrders([]);
         return;
       }
+      setTotal(count ?? 0);
 
       if (ordersData && ordersData.length > 0) {
         const userIds = Array.from(new Set(ordersData.map((o) => o.user_id).filter(Boolean)));
         const { data: profilesData } = await supabase
           .from("profiles")
-          .select("*")
+          .select("id, full_name, email, phone_number")
           .in("id", userIds);
 
         const profileMap = new Map((profilesData as Profile[] ?? []).map((p) => [p.id, p]));
@@ -64,12 +76,11 @@ export default function OrdersPage() {
         setOrders([]);
       }
     } catch (err) {
-      console.error("Failed to load orders:", err);
       showToast("error", getGenericErrorMessage(err, "An error occurred while loading orders."));
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, paymentStatusFilter, supabase]);
+  }, [page, search, statusFilter, paymentStatusFilter, supabase]);
 
   useEffect(() => {
     loadOrders();
@@ -355,6 +366,14 @@ export default function OrdersPage() {
             </table>
           </div>
         )}
+      </div>
+
+      <div className="flex items-center justify-between text-sm text-slate-600">
+        <span>{total === 0 ? "No orders" : `${page * pageSize + 1}-${Math.min((page + 1) * pageSize, total)} of ${total}`}</span>
+        <div className="flex gap-2">
+          <button className="px-3 py-2 rounded-lg border disabled:opacity-40" disabled={page === 0} onClick={() => setPage((value) => value - 1)}>Previous</button>
+          <button className="px-3 py-2 rounded-lg border disabled:opacity-40" disabled={(page + 1) * pageSize >= total} onClick={() => setPage((value) => value + 1)}>Next</button>
+        </div>
       </div>
 
       {/* Solid Opaque Backdrop & Right Slide-Over Modal */}

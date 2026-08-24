@@ -5,20 +5,10 @@ import '../models/update_settings_request.dart';
 class SettingsService {
   Future<UserSettings> getSettings(String userId) async {
     final result = await SupabaseDb.querySingle<Map<String, dynamic>>(() async {
-      var data = await SupabaseDb.adminClient
-          .from('user_settings')
-          .select()
-          .eq('user_id', userId)
-          .maybeSingle();
-
-      if (data == null) {
-        data = await SupabaseDb.adminClient
-            .from('user_settings')
-            .insert({'user_id': userId})
-            .select()
-            .single();
-      }
-      return data;
+      return Map<String, dynamic>.from(await SupabaseDb.adminClient.rpc(
+        'get_or_create_user_settings',
+        params: {'p_user_id': userId},
+      ) as Map);
     });
 
     if (result.isError) {

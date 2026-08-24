@@ -147,4 +147,26 @@ void main() {
     expect(body, isNot(contains('secret-value')));
     expect(body, isNot(contains('razorpay_signature')));
   });
+
+  test('request logging excludes query strings and exception details',
+      () async {
+    final logs = <String>[];
+    final handler = safeRequestLoggingMiddleware(log: logs.add)(
+      (_) => throw Exception('razorpay_signature=secret-value'),
+    );
+
+    await expectLater(
+      handler(Request(
+        'GET',
+        Uri.parse('http://localhost/orders?token=query-secret'),
+      )),
+      throwsException,
+    );
+
+    expect(logs, hasLength(1));
+    expect(logs.single, contains('GET /orders 500'));
+    expect(logs.single, isNot(contains('query-secret')));
+    expect(logs.single, isNot(contains('secret-value')));
+    expect(logs.single, isNot(contains('razorpay_signature')));
+  });
 }

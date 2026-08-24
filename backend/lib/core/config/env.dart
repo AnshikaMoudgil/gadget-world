@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dotenv/dotenv.dart';
 
 /// Centralized environment configuration.
@@ -31,7 +33,8 @@ class Env {
   static void load({String filename = '.env'}) {
     if (_loaded) return;
 
-    _dotEnv = DotEnv(includePlatformEnvironment: true)..load([filename]);
+    _dotEnv = DotEnv(includePlatformEnvironment: true)
+      ..load(File(filename).existsSync() ? [filename] : const []);
     _loaded = true;
 
     // Validate required keys immediately so we fail fast.
@@ -39,6 +42,7 @@ class Env {
       'SUPABASE_URL',
       'SUPABASE_PUBLISHABLE_KEY',
       'SUPABASE_SECRET_KEY',
+      'RAZORPAY_WEBHOOK_SECRET',
     ]);
   }
 

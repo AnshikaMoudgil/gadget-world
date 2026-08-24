@@ -12,11 +12,14 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<Profile["role"] | null>(null);
   const [toast, setToast] = useState<{ type: string; message: string } | null>(null);
 
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  const pageSize = 50;
 
   useEffect(() => {
     const loadCurrentAdmin = async () => {
@@ -36,7 +39,11 @@ export default function UsersPage() {
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
-    let query = supabase.from("profiles").select("*").order("created_at", { ascending: false });
+    let query = supabase
+      .from("profiles")
+      .select("id, full_name, email, phone_number, role, is_suspended, created_at", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(page * pageSize, (page + 1) * pageSize - 1);
 
     if (search) {
       query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%,phone_number.ilike.%${search}%`);
@@ -50,16 +57,16 @@ export default function UsersPage() {
       query = query.eq("is_suspended", true);
     }
 
-    const { data, error } = await query;
+    const { data, count, error } = await query;
     if (error) {
-      console.error("Error loading users:", error);
       showToast("error", getGenericErrorMessage(error, "Failed to load users"));
       setUsers([]);
     } else {
       setUsers(data as Profile[] ?? []);
+      setTotal(count ?? 0);
     }
     setLoading(false);
-  }, [search, roleFilter, statusFilter, supabase]);
+  }, [page, search, roleFilter, statusFilter, supabase]);
 
   useEffect(() => {
     loadUsers();
@@ -333,6 +340,13 @@ export default function UsersPage() {
             </table>
           </div>
         )}
+      </div>
+      <div className="flex items-center justify-between text-sm text-slate-600">
+        <span>{total === 0 ? "No users" : `${page * pageSize + 1}-${Math.min((page + 1) * pageSize, total)} of ${total}`}</span>
+        <div className="flex gap-2">
+          <button className="px-3 py-2 rounded-lg border disabled:opacity-40" disabled={page === 0} onClick={() => setPage((value) => value - 1)}>Previous</button>
+          <button className="px-3 py-2 rounded-lg border disabled:opacity-40" disabled={(page + 1) * pageSize >= total} onClick={() => setPage((value) => value + 1)}>Next</button>
+        </div>
       </div>
     </div>
   );
