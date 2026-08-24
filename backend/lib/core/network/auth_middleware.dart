@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import '../database/supabase_db.dart';
+import 'safe_error.dart';
 
 /// Middleware to extract and validate the Supabase JWT from the Authorization header.
 ///
@@ -33,10 +34,12 @@ Middleware authMiddleware() {
         final updatedRequest = request.change(context: {'userId': user.id});
         return await innerHandler(updatedRequest);
       } catch (e) {
-        return Response(401,
-            body:
-                jsonEncode({'error': 'Authentication failed: ${e.toString()}'}),
-            headers: {'Content-Type': 'application/json'});
+        return SafeError.response(
+          'authentication.validate_token',
+          e,
+          statusCode: 401,
+          message: 'Authentication failed.',
+        );
       }
     };
   };

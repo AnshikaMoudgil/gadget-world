@@ -22,14 +22,30 @@ class DbResult<T> {
   /// A suggested HTTP status code for the error (default 500).
   final int statusCode;
 
-  const DbResult._({this.data, this.message, this.statusCode = 200});
+  /// Correlation ID for server-side failures. Safe to return to clients.
+  final String? errorId;
+
+  const DbResult._({
+    this.data,
+    this.message,
+    this.statusCode = 200,
+    this.errorId,
+  });
 
   /// Create a successful result.
   factory DbResult.success(T data) => DbResult._(data: data);
 
   /// Create a failed result.
-  factory DbResult.error(String message, {int statusCode = 500}) =>
-      DbResult._(message: message, statusCode: statusCode);
+  factory DbResult.error(
+    String message, {
+    int statusCode = 500,
+    String? errorId,
+  }) =>
+      DbResult._(
+        message: message,
+        statusCode: statusCode,
+        errorId: errorId,
+      );
 
   /// Create a 404 error.
   factory DbResult.notFound([String message = 'Resource not found']) =>

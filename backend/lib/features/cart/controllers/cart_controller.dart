@@ -1,10 +1,16 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
+import '../../../core/database/db_result.dart';
 import '../services/cart_service.dart';
 import '../models/add_to_cart_request.dart';
 
 class CartController {
   final CartService _cartService = CartService();
+
+  Map<String, dynamic> _errorBody(DbResult<Object?> result) => {
+        'error': result.message,
+        if (result.errorId != null) 'error_id': result.errorId,
+      };
 
   Future<Response> getCart(Request request) async {
     final userId = request.context['userId'] as String;
@@ -12,7 +18,7 @@ class CartController {
 
     if (result.isError) {
       return Response(result.statusCode,
-          body: jsonEncode({'error': result.message}),
+          body: jsonEncode(_errorBody(result)),
           headers: {'Content-Type': 'application/json'});
     }
 
@@ -38,7 +44,7 @@ class CartController {
       final result = await _cartService.addToCart(userId, addRequest);
       if (result.isError) {
         return Response(result.statusCode,
-            body: jsonEncode({'error': result.message}),
+            body: jsonEncode(_errorBody(result)),
             headers: {'Content-Type': 'application/json'});
       }
 
@@ -70,7 +76,7 @@ class CartController {
 
       if (result.isError) {
         return Response(result.statusCode,
-            body: jsonEncode({'error': result.message}),
+            body: jsonEncode(_errorBody(result)),
             headers: {'Content-Type': 'application/json'});
       }
 
@@ -90,7 +96,7 @@ class CartController {
 
     if (result.isError) {
       return Response(result.statusCode,
-          body: jsonEncode({'error': result.message}),
+          body: jsonEncode(_errorBody(result)),
           headers: {'Content-Type': 'application/json'});
     }
 

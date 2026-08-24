@@ -249,10 +249,47 @@ class PaymentService {
   Future<List<Map<String, dynamic>>> getOrders(String userId) async {
     final result = await SupabaseDb.query(
         () => SupabaseDb.adminClient.from('orders').select('''
-          *,
-          order_items (*, products (*)),
-          payments (*),
-          user_addresses!orders_shipping_address_id_fkey (*)
+          id,
+          order_number,
+          status,
+          payment_status,
+          payment_method,
+          total_amount,
+          subtotal,
+          shipping_fee,
+          tax_amount,
+          discount_amount,
+          coupon_code,
+          shipping_address_snapshot,
+          shipped_at,
+          delivered_at,
+          created_at,
+          updated_at,
+          order_items (
+            id,
+            product_id,
+            variant_id,
+            product_name,
+            variant_name,
+            quantity,
+            unit_price,
+            total_price,
+            products (id, slug, name, images)
+          ),
+          payments (razorpay_order_id, status, amount, currency, created_at),
+          user_addresses!orders_shipping_address_id_fkey (
+            id,
+            recipient_name,
+            phone_number,
+            address_line1,
+            address_line2,
+            landmark,
+            city,
+            state,
+            postal_code,
+            country,
+            address_type
+          )
         ''').eq('user_id', userId).order('created_at', ascending: false));
 
     if (result.isError) {

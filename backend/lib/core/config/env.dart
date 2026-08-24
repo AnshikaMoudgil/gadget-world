@@ -78,6 +78,23 @@ class Env {
   static String get supabaseServiceRoleKey => get('SUPABASE_SECRET_KEY');
   static String? get databaseUrl => getOrNull('DATABASE_URL');
   static int get port => int.parse(getOr('PORT', '8080'));
+  static String get bindAddress => getOr('BIND_ADDRESS', '0.0.0.0');
+  static List<String> get allowedOrigins => getOr(
+        'ALLOWED_ORIGINS',
+        'http://localhost:3000,http://localhost:5173',
+      )
+          .split(',')
+          .map((origin) => origin.trim())
+          .where((origin) => origin.isNotEmpty)
+          .toList(growable: false);
+  static bool get trustProxy => getOr('TRUST_PROXY', 'false') == 'true';
+  static bool get requireHttps => getOr('REQUIRE_HTTPS', 'false') == 'true';
+  static int get maxRequestBodyBytes =>
+      int.parse(getOr('MAX_REQUEST_BODY_BYTES', '1048576'));
+  static int get requestTimeoutSeconds =>
+      int.parse(getOr('REQUEST_TIMEOUT_SECONDS', '30'));
+  static int get rateLimitPerMinute =>
+      int.parse(getOr('RATE_LIMIT_PER_MINUTE', '120'));
 
   // ---------------------------------------------------------------------------
   // Internal

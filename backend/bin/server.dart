@@ -7,6 +7,8 @@ import '../lib/core/config/env.dart';
 import '../lib/core/database/supabase_db.dart';
 import '../lib/core/network/app_router.dart';
 import '../lib/core/network/cors_middleware.dart';
+import '../lib/core/network/security_middleware.dart';
+import '../lib/core/network/safe_error.dart';
 
 void main(List<String> args) async {
   // ── 1. Load environment variables & validate required keys ──
@@ -41,15 +43,27 @@ void main(List<String> args) async {
     return;
   }
 
-  // Use any available host or IPv4 localhost (127.0.0.1).
-  final ip = InternetAddress.anyIPv4;
+  final ip = InternetAddress(Env.bindAddress);
 
   // Initialize the App Router
   final appRouter = AppRouter();
 
   // Configure a pipeline that logs requests.
   final handler = Pipeline()
-      .addMiddleware(corsMiddleware())
+      .addMiddleware(safeErrorMiddleware())
+      .addMiddleware(securityHeadersMiddleware(
+        requireHttps: Env.requireHttps,
+        trustProxy: Env.trustProxy,
+      ))
+      .addMiddleware(rateLimitMiddleware(
+        requestsPerMinute: Env.rateLimitPerMinute,
+        trustProxy: Env.trustProxy,
+      ))
+      .addMiddleware(requestLimitsMiddleware(
+        maxBodyBytes: Env.maxRequestBodyBytes,
+        timeout: Duration(seconds: Env.requestTimeoutSeconds),
+      ))
+      .addMiddleware(corsMiddleware(Env.allowedOrigins))
       .addMiddleware(logRequests())
       .addHandler(appRouter.router.call);
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
+import '../../../core/network/safe_error.dart';
 import '../services/coupon_service.dart';
 
 class CouponController {
@@ -25,12 +26,13 @@ class CouponController {
 
       return Response.ok(jsonEncode(result),
           headers: {'Content-Type': 'application/json'});
-    } catch (e, st) {
-      print('[CouponController.validateCoupon ERROR] $e\n$st');
-      return Response(400,
-          body: jsonEncode(
-              {'error': 'Invalid request body or validation failed'}),
-          headers: {'Content-Type': 'application/json'});
+    } catch (e) {
+      return SafeError.response(
+        'coupon.validate',
+        e,
+        statusCode: 400,
+        message: 'Invalid request body or coupon.',
+      );
     }
   }
 
@@ -40,11 +42,12 @@ class CouponController {
       final coupons = await _couponService.getAvailableCoupons(userId);
       return Response.ok(jsonEncode(coupons),
           headers: {'Content-Type': 'application/json'});
-    } catch (e, st) {
-      print('[CouponController.getAvailableCoupons ERROR] $e\n$st');
-      return Response.internalServerError(
-          body: jsonEncode({'error': 'Failed to fetch available coupons'}),
-          headers: {'Content-Type': 'application/json'});
+    } catch (e) {
+      return SafeError.response(
+        'coupon.list',
+        e,
+        message: 'Unable to retrieve available coupons.',
+      );
     }
   }
 }
