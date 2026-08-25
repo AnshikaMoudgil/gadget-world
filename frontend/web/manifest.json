@@ -1,6 +1,6 @@
 {
-    "name": "gadget_store",
-    "short_name": "gadget_store",
+    "name": "Gadget World",
+    "short_name": "Gadget World",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

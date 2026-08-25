@@ -243,7 +243,7 @@ class InvoiceGenerator {
               pw.SizedBox(height: 8),
               pw.Center(
                 child: pw.Text(
-                  'Thank you for shopping with Gadget Store!',
+                  'Thank you for shopping with Gadget World!',
                   style: const pw.TextStyle(color: PdfColors.grey600),
                 ),
               ),

@@ -795,7 +795,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             Icons.flash_on,
                             size: 30,
                             color: AppTheme.black,
-                          ), // Gadget Store Logo equivalent
+                          ), // Gadget World logo equivalent
                         ],
                       ),
                     ),

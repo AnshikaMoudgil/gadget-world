@@ -472,7 +472,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           if (!hasOrders)
             _buildBannerItem(
-              'Welcome to Gadget Store!',
+              'Welcome to Gadget World!',
               'Place your first order',
               'Explore our best products and enjoy a seamless shopping experience.',
               'assets/images/promo_banner_1.png',

@@ -32,7 +32,7 @@ class AboutScreen extends StatelessWidget {
                     const SizedBox(height: 32),
                     const Center(
                       child: Text(
-                        'Â© 2025 Gadget Store. All rights reserved.',
+                        'Â© 2025 Gadget World. All rights reserved.',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppTheme.greyText,
@@ -112,7 +112,7 @@ class AboutScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Text(
-                  'Gadget Store',
+                  'Gadget World',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -130,7 +130,7 @@ class AboutScreen extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         const Text(
-          'Gadget Store is your one-stop destination for premium gadgets and accessories. We bring you the latest tech with unbeatable quality and trust.',
+          'Gadget World is your one-stop destination for premium gadgets and accessories. We bring you the latest tech with unbeatable quality and trust.',
           style: TextStyle(fontSize: 14, color: AppTheme.greyText, height: 1.5),
         ),
       ],

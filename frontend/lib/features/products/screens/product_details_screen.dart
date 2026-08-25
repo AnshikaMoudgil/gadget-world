@@ -79,7 +79,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               );
               // ignore: deprecated_member_use
               await Share.share(
-                'Check out ${_product.name} for ${formatCurrency.format(_product.price)} at Gadget Store!',
+                'Check out ${_product.name} for ${formatCurrency.format(_product.price)} at Gadget World!',
               );
             },
           ),
