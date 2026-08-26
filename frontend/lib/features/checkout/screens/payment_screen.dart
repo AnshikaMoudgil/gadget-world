@@ -184,9 +184,9 @@ class _PaymentScreenState extends State<PaymentScreen>
       var options = {
         'key': keyId,
         'amount': orderData['amount'],
-        'name': 'Gadget Store',
+        'name': 'Gadget World',
         'order_id': orderId,
-        'description': 'Purchase from Gadget Store',
+        'description': 'Purchase from Gadget World',
         'retry': {'enabled': true, 'max_count': 1},
         'prefill': {
           'email': Supabase.instance.client.auth.currentUser?.email ?? '',
@@ -722,7 +722,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text(
-                        'Gadget Store',
+                        'Gadget World',
                         style: TextStyle(
                           color: AppTheme.black,
                           fontSize: 16,

@@ -43,11 +43,6 @@ jobs:
             printf 'BACKEND_URL=%s\n' "$BACKEND_URL"
           } > .env
 
-      - name: Backend health smoke test
-        env:
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
-        run: curl --fail --retry 3 --retry-delay 5 "$BACKEND_URL/health"
-
       - name: Install dependencies
         run: flutter pub get
 
@@ -60,11 +55,17 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Build Android APK (debug)
-        run: flutter build apk --debug
+      - name: Build Android APK (release)
+        run: flutter build apk --release
 
-      - name: Build Web
-        run: flutter build web
+      - name: Build Android App Bundle (release)
+        run: flutter build appbundle --release
+
+      - name: Build Web (release)
+        run: flutter build web --release
+
+      - name: Check Flutter dependency freshness
+        run: flutter pub outdated --no-dev-dependencies
 
   backend-dart:
     name: Backend - Lint, Analyze & Test
@@ -96,3 +97,103 @@ jobs:
       - name: Run tests
         if: hashFiles('backend/test/**') != ''
         run: dart test
+
+      - name: Check backend dependency freshness
+        run: dart pub outdated --no-dev-dependencies
+
+  database-integration:
+    name: Fresh Supabase Migration & Security Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start a fresh local Supabase stack
+        run: supabase start
+
+      - name: Reapply every migration from an empty database
+        run: supabase db reset --local
+
+      - name: Run database integration assertions
+        run: psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/tests/security_integration.sql
+
+  backend-container:
+    name: Backend Docker Build & Runtime Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build --tag gadget-world-backend:ci ./backend
+
+      - name: Run backend container
+        run: |
+          docker run --detach --name gadget-world-backend-ci --publish 18080:8080 \
+            --env SUPABASE_URL=http://127.0.0.1:54321 \
+            --env SUPABASE_PUBLISHABLE_KEY=ci-anon-key \
+            --env SUPABASE_SECRET_KEY=ci-service-role-key \
+            --env RAZORPAY_WEBHOOK_SECRET=ci-webhook-secret \
+            --env ALLOWED_ORIGINS=https://shop.example.com \
+            gadget-world-backend:ci
+
+      - name: Verify container health endpoint
+        run: |
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:18080/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs gadget-world-backend-ci
+          exit 1
+
+      - name: Stop backend container
+        if: always()
+        run: docker rm --force gadget-world-backend-ci
+
+  admin-security:
+    name: Admin Lint, Type Check & Dependency Audit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./admin
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: admin/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Lint admin application
+        run: npm run lint
+
+      - name: Type-check admin application
+        run: npx tsc --noEmit
+
+      - name: Build admin application with public client configuration
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          test -n "$NEXT_PUBLIC_SUPABASE_URL"
+          test -n "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
+          npm run build
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

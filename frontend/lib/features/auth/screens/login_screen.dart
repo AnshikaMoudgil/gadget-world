@@ -408,7 +408,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Terms & Privacy Notice
                   const Text(
-                    'By continuing, you agree to GadgetStore Terms of Service & Privacy Policy',
+                    'By continuing, you agree to Gadget World Terms of Service & Privacy Policy',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 11,

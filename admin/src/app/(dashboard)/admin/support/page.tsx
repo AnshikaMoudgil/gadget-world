@@ -30,7 +30,11 @@ export default function SupportTicketsPage() {
     setLoading(true);
     let query = supabase
       .from("support_tickets")
-      .select("*, profile:profiles!support_tickets_user_id_fkey(*)", { count: "exact" })
+      .select(`
+        id, user_id, order_id, ticket_number, subject, category, status,
+        priority, assigned_to, resolved_at, created_at, updated_at,
+        profile:profiles!support_tickets_user_id_fkey(id, full_name, email)
+      `, { count: "exact" })
       .order("updated_at", { ascending: false })
       .range(page * pageSize, (page + 1) * pageSize - 1);
 
@@ -43,7 +47,7 @@ export default function SupportTicketsPage() {
     if (error) {
       setToast({ type: "error", message: getGenericErrorMessage(error, "Failed to load support tickets") });
     } else {
-      setTickets((data as SupportTicket[]) ?? []);
+      setTickets((data as unknown as SupportTicket[]) ?? []);
       setTotal(count ?? 0);
     }
     setLoading(false);
@@ -57,14 +61,17 @@ export default function SupportTicketsPage() {
     setLoadingMessages(true);
     const { data, error } = await supabase
       .from("support_messages")
-      .select("*, sender:profiles!support_messages_sender_id_fkey(*)")
+      .select(`
+        id, ticket_id, sender_id, sender_role, message, attachments, is_internal, created_at,
+        sender:profiles!support_messages_sender_id_fkey(id, full_name, email)
+      `)
       .eq("ticket_id", ticketId)
       .order("created_at", { ascending: true });
 
     if (error) {
-      setToast({ type: "error", message: `Failed to load thread: ${error.message}` });
+      setToast({ type: "error", message: getGenericErrorMessage(error, "Failed to load support thread") });
     } else {
-      setMessages((data as SupportMessage[]) ?? []);
+      setMessages((data as unknown as SupportMessage[]) ?? []);
     }
     setLoadingMessages(false);
   };
@@ -89,7 +96,7 @@ export default function SupportTicketsPage() {
       .eq("id", ticketId);
 
     if (error) {
-      setToast({ type: "error", message: `Failed to update status: ${error.message}` });
+      setToast({ type: "error", message: getGenericErrorMessage(error, "Failed to update ticket status") });
     } else {
       setToast({ type: "success", message: `Ticket status updated to ${newStatus}` });
       if (selectedTicket && selectedTicket.id === ticketId) {
@@ -106,7 +113,7 @@ export default function SupportTicketsPage() {
       .eq("id", ticketId);
 
     if (error) {
-      setToast({ type: "error", message: `Failed to update priority: ${error.message}` });
+      setToast({ type: "error", message: getGenericErrorMessage(error, "Failed to update ticket priority") });
     } else {
       setToast({ type: "success", message: `Ticket priority updated to ${newPriority}` });
       if (selectedTicket && selectedTicket.id === ticketId) {
@@ -136,7 +143,7 @@ export default function SupportTicketsPage() {
     });
 
     if (error) {
-      setToast({ type: "error", message: `Failed to send reply: ${error.message}` });
+      setToast({ type: "error", message: getGenericErrorMessage(error, "Failed to send reply") });
     } else {
       setToast({ type: "success", message: isInternalNote ? "Internal note added" : "Reply sent to customer" });
       setReplyText("");

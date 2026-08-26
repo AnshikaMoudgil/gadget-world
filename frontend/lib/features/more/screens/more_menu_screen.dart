@@ -212,7 +212,7 @@ class MoreMenuScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Text(
-                  'Gadget Store',
+                  'Gadget World',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

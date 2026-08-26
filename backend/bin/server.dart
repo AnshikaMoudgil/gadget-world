@@ -48,7 +48,7 @@ void main(List<String> args) async {
   // Initialize the App Router
   final appRouter = AppRouter();
 
-  // Configure a pipeline that logs requests.
+  // Configure a pipeline that logs sanitized request metadata.
   final handler = Pipeline()
       .addMiddleware(safeErrorMiddleware())
       .addMiddleware(securityHeadersMiddleware(
@@ -64,7 +64,7 @@ void main(List<String> args) async {
         timeout: Duration(seconds: Env.requestTimeoutSeconds),
       ))
       .addMiddleware(corsMiddleware(Env.allowedOrigins))
-      .addMiddleware(logRequests())
+      .addMiddleware(safeRequestLoggingMiddleware())
       .addHandler(appRouter.router.call);
 
   final server = await io.serve(handler, ip, port);

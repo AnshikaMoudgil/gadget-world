@@ -145,7 +145,6 @@ class PaymentService {
 
     return {
       'orderId': razorpayOrderId,
-      'internalOrderId': checkoutResult.data!['order_id'],
       'amount': amountSubunits,
       'currency': currency,
       'keyId': Env.getOrNull('RAZORPAY_KEY_ID') ??
@@ -314,12 +313,29 @@ class PaymentService {
     }
     final payload = jsonDecode(body) as Map<String, dynamic>;
     final event = payload['event'] as String?;
+    final eventPayload = payload['payload'];
+    final paymentEntity = eventPayload is Map<String, dynamic>
+        ? eventPayload['payment'] is Map<String, dynamic>
+            ? (eventPayload['payment'] as Map<String, dynamic>)['entity']
+            : null
+        : null;
+    final paymentAudit = paymentEntity is Map<String, dynamic>
+        ? (<String, dynamic>{
+            'payment_id': paymentEntity['id'],
+            'order_id': paymentEntity['order_id'],
+            'status': paymentEntity['status'],
+            'amount': paymentEntity['amount'],
+            'currency': paymentEntity['currency'],
+          }..removeWhere((_, value) => value == null))
+        : <String, dynamic>{};
 
     final claim = await SupabaseDb.querySingle<bool>(() async =>
         await SupabaseDb.adminClient.rpc('claim_razorpay_webhook', params: {
           'p_event_id': eventId,
           'p_event_type': event ?? 'unknown',
-          'p_payload': payload,
+          // Store only identifiers and payment-state metadata required for an
+          // audit trail. Never persist the raw provider/customer payload.
+          'p_payload': paymentAudit,
         }) as bool);
     if (claim.isError) {
       throw Exception('Unable to claim webhook event: ${claim.message}');
@@ -328,7 +344,6 @@ class PaymentService {
 
     try {
       if (event == 'payment.captured') {
-        final paymentEntity = payload['payload']?['payment']?['entity'];
         if (paymentEntity is! Map<String, dynamic>) {
           throw Exception('Captured webhook is missing payment details');
         }

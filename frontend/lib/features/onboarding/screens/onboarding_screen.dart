@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/core/widgets/primary_button.dart';
 import 'package:gadget_store/features/auth/screens/login_screen.dart';
+import 'package:gadget_store/core/navigation/app_transitions.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -15,14 +16,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasCompletedOnboarding', true);
+    await prefs.setBool('hasSeenOnboarding', true);
     if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
+    Navigator.pushReplacement(context, fadeScaleRoute(const LoginScreen()));
   }
 
   @override
@@ -40,7 +44,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 style: TextStyle(fontSize: 18, color: AppTheme.black),
               ),
               const Text(
-                'Gadget Store',
+                'Gadget World',
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w900,
@@ -84,6 +88,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: 20),
+              _buildAnimatedIndicators(),
               const SizedBox(height: 24),
               PrimaryButton(
                 text: 'Get Started',
@@ -153,24 +159,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              3,
-              (index) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _currentPage == index
-                      ? AppTheme.black
-                      : AppTheme.greyBorder,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
           Text(
             title,
             textAlign: TextAlign.center,
@@ -188,6 +176,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAnimatedIndicators() {
+    return AnimatedBuilder(
+      animation: _pageController,
+      builder: (_, _) {
+        final page = _pageController.hasClients
+            ? (_pageController.page ?? _currentPage.toDouble())
+            : _currentPage.toDouble();
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(3, (index) {
+            final proximity = (1 - (page - index).abs()).clamp(0.0, 1.0);
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: 8 + (22 * proximity),
+              height: 8,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(99),
+                color: Color.lerp(
+                  AppTheme.greyBorder,
+                  AppTheme.black,
+                  proximity,
+                ),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 }

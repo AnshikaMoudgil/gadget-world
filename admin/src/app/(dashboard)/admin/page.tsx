@@ -55,12 +55,20 @@ export default function DashboardPage() {
         supabase.from("support_tickets").select("id, status, priority"),
         supabase
           .from("orders")
-          .select("*, profile:profiles(full_name, email)")
+          .select(`
+            id, user_id, order_number, status, payment_status, payment_method,
+            total_amount, subtotal, shipping_fee, tax_amount, notes,
+            created_at, updated_at, profile:profiles(full_name, email)
+          `)
           .order("created_at", { ascending: false })
           .limit(5),
         supabase
           .from("support_tickets")
-          .select("*, profile:profiles(full_name, email)")
+          .select(`
+            id, user_id, order_id, ticket_number, subject, category, status,
+            priority, assigned_to, resolved_at, created_at, updated_at,
+            profile:profiles(full_name, email)
+          `)
           .order("created_at", { ascending: false })
           .limit(4),
       ]);
@@ -93,8 +101,8 @@ export default function DashboardPage() {
         urgentTickets,
       });
 
-      setRecentOrders((recentOrdersRes.data as Order[]) ?? []);
-      setRecentTickets((recentTicketsRes.data as SupportTicket[]) ?? []);
+      setRecentOrders((recentOrdersRes.data as unknown as Order[]) ?? []);
+      setRecentTickets((recentTicketsRes.data as unknown as SupportTicket[]) ?? []);
     } catch (err) {
       console.error("Error loading dashboard metrics:", err);
     } finally {

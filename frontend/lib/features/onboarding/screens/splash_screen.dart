@@ -7,6 +7,8 @@ import 'package:gadget_store/features/auth/screens/login_screen.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/auth/services/session_service.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:lottie/lottie.dart';
+import 'package:gadget_store/core/navigation/app_transitions.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -39,18 +41,12 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!hasSeenOnboarding) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+        fadeScaleRoute(const OnboardingScreen()),
       );
     } else if (!isLoggedIn) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      Navigator.pushReplacement(context, fadeScaleRoute(const LoginScreen()));
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-      );
+      Navigator.pushReplacement(context, fadeScaleRoute(const MainScreen()));
     }
   }
 
@@ -69,7 +65,32 @@ class _SplashScreenState extends State<SplashScreen> {
               right: 0,
               child: Column(
                 children: [
-                  const LogoWidget(size: 100),
+                  SizedBox(
+                    width: 150,
+                    height: 150,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Lottie.asset(
+                          'assets/animations/logo_reveal.json',
+                          width: 150,
+                          height: 150,
+                          repeat: false,
+                          fit: BoxFit.contain,
+                        ),
+                        TweenAnimationBuilder<double>(
+                          duration: const Duration(milliseconds: 950),
+                          curve: Curves.elasticOut,
+                          tween: Tween(begin: 0, end: 1),
+                          builder: (_, value, child) => Opacity(
+                            opacity: value.clamp(0, 1),
+                            child: Transform.scale(scale: value, child: child),
+                          ),
+                          child: const LogoWidget(size: 100),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   RichText(
                     text: const TextSpan(

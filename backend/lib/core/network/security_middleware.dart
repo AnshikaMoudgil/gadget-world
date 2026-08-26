@@ -2,6 +2,34 @@ import 'dart:io';
 
 import 'package:shelf/shelf.dart';
 
+typedef RequestLogSink = void Function(String message);
+
+/// Logs only operational request metadata. Query strings, headers, request
+/// bodies, exception messages, and stack traces are intentionally excluded.
+Middleware safeRequestLoggingMiddleware({RequestLogSink? log}) {
+  final sink = log ?? stdout.writeln;
+
+  return (Handler innerHandler) => (Request request) async {
+        final stopwatch = Stopwatch()..start();
+        try {
+          final response = await innerHandler(request);
+          stopwatch.stop();
+          sink(
+            '${request.method} /${request.url.path} '
+            '${response.statusCode} ${stopwatch.elapsedMilliseconds}ms',
+          );
+          return response;
+        } catch (_) {
+          stopwatch.stop();
+          sink(
+            '${request.method} /${request.url.path} '
+            '500 ${stopwatch.elapsedMilliseconds}ms error',
+          );
+          rethrow;
+        }
+      };
+}
+
 Middleware securityHeadersMiddleware({
   required bool requireHttps,
   required bool trustProxy,

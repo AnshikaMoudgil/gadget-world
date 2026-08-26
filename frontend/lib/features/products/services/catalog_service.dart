@@ -7,12 +7,20 @@ import '../models/category_model.dart';
 import '../models/product_model.dart';
 
 class CatalogService {
+  static const int _pageSize = 100;
+  static const int _maxPages = 100;
   final http.Client _client;
+  final String? _configuredBaseUrl;
 
-  CatalogService({http.Client? client}) : _client = client ?? http.Client();
+  CatalogService({http.Client? client, String? baseUrl})
+    : _client = client ?? http.Client(),
+      _configuredBaseUrl = baseUrl;
 
   String get _baseUrl {
-    final configured = dotenv.env['BACKEND_URL'] ?? dotenv.env['API_BASE_URL'];
+    final configured =
+        _configuredBaseUrl ??
+        dotenv.env['BACKEND_URL'] ??
+        dotenv.env['API_BASE_URL'];
     if (configured == null || configured.trim().isEmpty) {
       throw StateError('BACKEND_URL is not configured in .env file');
     }
@@ -31,33 +39,47 @@ class CatalogService {
     String? categoryId,
     String? search,
     bool? featured,
-    int? limit,
+    int limit = _pageSize,
     double? minPrice,
     double? maxPrice,
     String? brandId,
     bool? inStock,
     String? sort,
   }) async {
-    final query = <String, String>{};
+    if (limit < 1 || limit > _pageSize) {
+      throw ArgumentError.value(limit, 'limit', 'must be between 1 and 100');
+    }
+
+    final baseQuery = <String, String>{};
     if (categoryId != null && categoryId.isNotEmpty) {
-      query['categoryId'] = categoryId;
+      baseQuery['categoryId'] = categoryId;
     }
     if (search != null && search.trim().isNotEmpty) {
-      query['search'] = search.trim();
+      baseQuery['search'] = search.trim();
     }
-    if (featured != null) query['featured'] = '$featured';
-    if (limit != null) query['limit'] = '$limit';
-    if (minPrice != null) query['minPrice'] = '$minPrice';
-    if (maxPrice != null) query['maxPrice'] = '$maxPrice';
-    if (brandId != null) query['brandId'] = brandId;
-    if (inStock != null) query['inStock'] = '$inStock';
-    if (sort != null) query['sort'] = sort;
+    if (featured != null) baseQuery['featured'] = '$featured';
+    if (minPrice != null) baseQuery['minPrice'] = '$minPrice';
+    if (maxPrice != null) baseQuery['maxPrice'] = '$maxPrice';
+    if (brandId != null) baseQuery['brandId'] = brandId;
+    if (inStock != null) baseQuery['inStock'] = '$inStock';
+    if (sort != null) baseQuery['sort'] = sort;
 
-    final response = await _get('/api/catalog/products', query: query);
-    final data = jsonDecode(response.body) as List;
-    return data
-        .map((item) => ProductModel.fromJson(Map<String, dynamic>.from(item)))
-        .toList();
+    final products = <ProductModel>[];
+    for (var page = 1; page <= _maxPages; page++) {
+      final response = await _get(
+        '/api/catalog/products',
+        query: {...baseQuery, 'page': '$page', 'limit': '$limit'},
+      );
+      final data = jsonDecode(response.body) as List;
+      products.addAll(
+        data.map(
+          (item) => ProductModel.fromJson(Map<String, dynamic>.from(item)),
+        ),
+      );
+      if (data.length < limit) return products;
+    }
+
+    throw StateError('Catalog pagination exceeded the safe page limit');
   }
 
   Future<ProductModel> getProduct(String id) async {
