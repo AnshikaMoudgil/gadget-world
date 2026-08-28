@@ -42,7 +42,6 @@ class Env {
       'SUPABASE_URL',
       'SUPABASE_PUBLISHABLE_KEY',
       'SUPABASE_SECRET_KEY',
-      'RAZORPAY_WEBHOOK_SECRET',
     ]);
   }
 
