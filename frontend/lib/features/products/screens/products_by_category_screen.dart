@@ -114,9 +114,17 @@ class _ProductsByCategoryScreenState extends State<ProductsByCategoryScreen> {
                   ),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.85,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                        MediaQuery.orientationOf(context) ==
+                            Orientation.landscape
+                        ? 4
+                        : 2,
+                    childAspectRatio:
+                        MediaQuery.orientationOf(context) ==
+                            Orientation.landscape
+                        ? 1.0
+                        : 0.85,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),

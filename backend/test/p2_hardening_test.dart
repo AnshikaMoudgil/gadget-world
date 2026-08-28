@@ -86,7 +86,7 @@ void main() {
     final controller = PaymentController();
 
     test('requires a provider event ID for replay protection', () async {
-      final response = await controller.handleWebhook(Request(
+      final response = await controller.webhook(Request(
         'POST',
         Uri.parse('http://localhost/webhook'),
         headers: {'x-razorpay-signature': 'signature'},
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('rejects an oversized declared body before processing', () async {
-      final response = await controller.handleWebhook(Request(
+      final response = await controller.webhook(Request(
         'POST',
         Uri.parse('http://localhost/webhook'),
         headers: {

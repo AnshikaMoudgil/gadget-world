@@ -6,10 +6,13 @@ import 'package:gadget_store/features/orders/models/order.dart';
 class InvoiceGenerator {
   static Future<void> generateAndPrintInvoice(Order order) async {
     final pdf = pw.Document();
+    final baseFont = await PdfGoogleFonts.notoSansRegular();
+    final boldFont = await PdfGoogleFonts.notoSansBold();
 
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
+        theme: pw.ThemeData.withFont(base: baseFont, bold: boldFont),
         build: (pw.Context context) {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,

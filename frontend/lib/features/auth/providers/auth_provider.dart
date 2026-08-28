@@ -43,13 +43,16 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(true);
     _setError(null);
     try {
-      await _googleAuthService.signInWithGoogle();
-      return true;
+      final response = await _googleAuthService.signInWithGoogle();
+      return response?.session != null || _sessionService.hasSession;
     } on AuthException catch (e) {
       _setError(e.message);
       return false;
+    } on GoogleSignInFailure catch (e) {
+      _setError(e.message);
+      return false;
     } catch (e) {
-      _setError('Google sign in canceled or failed');
+      _setError('Unable to start Google sign-in: $e');
       return false;
     } finally {
       _setLoading(false);

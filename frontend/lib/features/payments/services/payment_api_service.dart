@@ -18,8 +18,6 @@ class PaymentApiService {
   Future<Map<String, dynamic>> createOrder({
     required String token,
     required String addressId,
-    required double shippingFee,
-    required double discount,
     String? couponCode,
   }) async {
     final response = await http.post(
@@ -30,8 +28,6 @@ class PaymentApiService {
       },
       body: jsonEncode({
         'addressId': addressId,
-        'shippingFee': shippingFee,
-        'discount': discount,
         // ignore: use_null_aware_elements
         if (couponCode != null) 'couponCode': couponCode,
       }),

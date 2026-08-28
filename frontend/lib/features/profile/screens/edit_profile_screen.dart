@@ -5,6 +5,7 @@ import 'package:gadget_store/features/profile/providers/profile_provider.dart';
 import 'package:gadget_store/features/profile/models/profile_model.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -18,6 +19,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _phoneController;
   DateTime? _selectedDate;
   bool _isInit = false;
+  XFile? _pendingAvatar;
+  Uint8List? _pendingAvatarBytes;
+  bool _removeAvatar = false;
 
   @override
   void didChangeDependencies() {
@@ -71,29 +75,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      imageQuality: 85,
+    );
 
     if (image != null && mounted) {
-      final provider = Provider.of<ProfileProvider>(context, listen: false);
-      final success = await provider.uploadAvatar(image);
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile picture updated successfully')),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              provider.errorMessage ?? 'Failed to update profile picture',
-            ),
-          ),
-        );
-      }
+      final bytes = await image.readAsBytes();
+      if (!mounted) return;
+      setState(() {
+        _pendingAvatar = image;
+        _pendingAvatarBytes = bytes;
+        _removeAvatar = false;
+      });
     }
   }
 
   Future<void> _saveChanges() async {
     final provider = Provider.of<ProfileProvider>(context, listen: false);
+    if (_removeAvatar) {
+      final avatarDeleted = await provider.deleteAvatar();
+      if (!avatarDeleted || !mounted) return;
+    } else if (_pendingAvatar != null) {
+      final avatarUploaded = await provider.uploadAvatar(_pendingAvatar!);
+      if (!avatarUploaded || !mounted) return;
+    }
+
     final currentProfile = provider.profile;
     if (currentProfile == null) return;
 
@@ -104,6 +113,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       phoneNumber: _phoneController.text,
       dateOfBirth: _selectedDate,
       createdAt: currentProfile.createdAt,
+      avatarUrl: currentProfile.avatarUrl,
     );
 
     final success = await provider.updateProfile(updatedProfile);
@@ -147,14 +157,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             decoration: BoxDecoration(
                               color: AppTheme.greyBackground,
                               shape: BoxShape.circle,
-                              image: profile?.avatarUrl != null
+                              image: _pendingAvatarBytes != null
+                                  ? DecorationImage(
+                                      image: MemoryImage(_pendingAvatarBytes!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : !_removeAvatar && profile?.avatarUrl != null
                                   ? DecorationImage(
                                       image: NetworkImage(profile!.avatarUrl!),
                                       fit: BoxFit.cover,
                                     )
                                   : null,
                             ),
-                            child: profile?.avatarUrl == null
+                            child:
+                                (_pendingAvatarBytes == null &&
+                                    (_removeAvatar ||
+                                        profile?.avatarUrl == null))
                                 ? const Icon(
                                     PhosphorIcons.userFill,
                                     size: 48,
@@ -194,39 +212,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                             ),
                           ),
-                          if (profile?.avatarUrl != null)
+                          if (_pendingAvatarBytes != null ||
+                              (!_removeAvatar && profile?.avatarUrl != null))
                             Positioned(
                               bottom: 0,
                               left: 0,
                               child: GestureDetector(
                                 onTap: provider.isLoading
                                     ? null
-                                    : () async {
-                                        final success = await provider
-                                            .deleteAvatar();
-                                        if (success && context.mounted) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Profile picture deleted successfully',
-                                              ),
-                                            ),
-                                          );
-                                        } else if (context.mounted) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                provider.errorMessage ??
-                                                    'Failed to delete profile picture',
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      },
+                                    : () => setState(() {
+                                        _pendingAvatar = null;
+                                        _pendingAvatarBytes = null;
+                                        _removeAvatar = true;
+                                      }),
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(

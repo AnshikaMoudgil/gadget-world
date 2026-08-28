@@ -80,9 +80,15 @@ class _BackendCategoryProductsScreenState
           }
           return GridView.builder(
             padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.78,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount:
+                  MediaQuery.orientationOf(context) == Orientation.landscape
+                  ? 4
+                  : 2,
+              childAspectRatio:
+                  MediaQuery.orientationOf(context) == Orientation.landscape
+                  ? 0.9
+                  : 0.78,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),

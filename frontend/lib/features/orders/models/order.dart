@@ -32,6 +32,7 @@ class Order {
   final String id;
   final String razorpayOrderId;
   final String status;
+  final String paymentStatus;
   final double amount;
   final double subtotal;
   final double shippingFee;
@@ -46,6 +47,7 @@ class Order {
     required this.id,
     required this.razorpayOrderId,
     required this.status,
+    required this.paymentStatus,
     required this.amount,
     required this.subtotal,
     required this.shippingFee,
@@ -74,6 +76,7 @@ class Order {
       id: json['id'] ?? '',
       razorpayOrderId: rzpOrderId,
       status: json['status'] ?? 'pending',
+      paymentStatus: json['payment_status'] ?? 'unpaid',
       amount: json['total_amount'] != null
           ? (double.tryParse(json['total_amount'].toString()) ?? 0.0)
           : 0.0,

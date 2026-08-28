@@ -167,27 +167,6 @@ class MyProfileScreen extends StatelessWidget {
               ],
             ),
           ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const EditProfileScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.black,
-              foregroundColor: AppTheme.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            ),
-            icon: const Icon(PhosphorIcons.pencilSimple, size: 14),
-            label: const Text(
-              'Edit Profile',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-          ),
         ],
       ),
     );
@@ -288,7 +267,7 @@ class MyProfileScreen extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              maxLines: 1,
+              maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 12, color: AppTheme.greyText),
             ),

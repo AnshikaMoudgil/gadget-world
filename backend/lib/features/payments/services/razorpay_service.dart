@@ -55,4 +55,67 @@ class RazorpayService {
       throw Exception('Failed to fetch Razorpay payment: ${response.body}');
     }
   }
+
+  Future<List<Map<String, dynamic>>> fetchOrderPayments(String orderId) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/orders/$orderId/payments'),
+      headers: {'Authorization': _basicAuth},
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final decoded = Map<String, dynamic>.from(
+        jsonDecode(response.body) as Map,
+      );
+      final items = decoded['items'] as List<dynamic>? ?? const [];
+      return items
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    }
+
+    throw Exception(
+      'Failed to fetch payments for Razorpay order: ${response.body}',
+    );
+  }
+
+  Future<Map<String, dynamic>> capturePayment({
+    required String paymentId,
+    required int amountSubunits,
+    required String currency,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/payments/$paymentId/capture'),
+      headers: {
+        'Authorization': _basicAuth,
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'amount': amountSubunits,
+        'currency': currency,
+      }),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return Map<String, dynamic>.from(jsonDecode(response.body) as Map);
+    }
+
+    throw Exception('Failed to capture Razorpay payment: ${response.body}');
+  }
+
+  Future<Map<String, dynamic>> refundPayment(String paymentId) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/payments/$paymentId/refund'),
+      headers: {
+        'Authorization': _basicAuth,
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'speed': 'normal'}),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return Map<String, dynamic>.from(jsonDecode(response.body) as Map);
+    }
+
+    throw Exception('Failed to refund Razorpay payment: ${response.body}');
+  }
 }

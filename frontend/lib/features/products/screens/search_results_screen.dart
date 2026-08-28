@@ -28,6 +28,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<CatalogProvider>(context, listen: false);
       provider.loadRecentSearches();
+      provider.fetchCategories();
+      provider.fetchProducts();
     });
   }
 
@@ -50,6 +52,19 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       provider.addRecentSearch(q);
       provider.searchProducts(q);
     }
+  }
+
+  void _searchCategory(String categoryId, String categoryName) {
+    setState(() {
+      _query = categoryName;
+      _searchController.text = categoryName;
+      _searchController.selection = TextSelection.collapsed(
+        offset: categoryName.length,
+      );
+    });
+    final provider = context.read<CatalogProvider>();
+    provider.addRecentSearch(categoryName);
+    provider.searchProductsByCategory(categoryId);
   }
 
   PreferredSizeWidget _buildAppBar() {
@@ -449,8 +464,31 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   }
 
   Widget _buildSuggestions(CatalogProvider provider) {
-    final suggestions = provider.categories.take(5).map((e) => e.name).toList();
-    if (suggestions.isEmpty) return const SizedBox.shrink();
+    final keyword = _searchController.text.trim().toLowerCase();
+    final categorySuggestions = provider.categories
+        .where(
+          (category) =>
+              keyword.isEmpty || category.name.toLowerCase().contains(keyword),
+        )
+        .take(5)
+        .toList();
+    final productSuggestions = provider.products
+        .where(
+          (product) =>
+              keyword.isNotEmpty &&
+              product.name.toLowerCase().contains(keyword),
+        )
+        .take(5)
+        .map((product) => product.name)
+        .where(
+          (name) => !categorySuggestions.any(
+            (category) => category.name.toLowerCase() == name.toLowerCase(),
+          ),
+        )
+        .toList();
+    if (categorySuggestions.isEmpty && productSuggestions.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,22 +501,44 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: suggestions.map((s) {
-            return GestureDetector(
-              onTap: () => _search(s),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
+          children: [
+            ...categorySuggestions.map((category) {
+              return GestureDetector(
+                onTap: () => _searchCategory(category.id, category.name),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.greyBackground,
+                    border: Border.all(color: AppTheme.greyBorder),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    category.name,
+                    style: const TextStyle(fontSize: 12),
+                  ),
                 ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.greyBorder),
-                  borderRadius: BorderRadius.circular(20),
+              );
+            }),
+            ...productSuggestions.map((s) {
+              return GestureDetector(
+                onTap: () => _search(s),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppTheme.greyBorder),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(s, style: const TextStyle(fontSize: 12)),
                 ),
-                child: Text(s, style: const TextStyle(fontSize: 12)),
-              ),
-            );
-          }).toList(),
+              );
+            }),
+          ],
         ),
       ],
     );

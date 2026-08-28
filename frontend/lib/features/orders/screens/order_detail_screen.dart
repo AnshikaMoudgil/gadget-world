@@ -3,6 +3,7 @@ import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/orders/models/order.dart';
 import 'package:gadget_store/features/orders/utils/invoice_generator.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:gadget_store/core/widgets/optimized_network_image.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final Order order;
@@ -62,12 +63,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       onTap: () {
                         InvoiceGenerator.generateAndPrintInvoice(widget.order);
                       },
-                    ),
-                    const SizedBox(height: 12),
-                    _buildActionTile(
-                      Icons.local_shipping_outlined,
-                      'Track Package',
-                      onTap: () {},
                     ),
                     const SizedBox(height: 12),
                     _buildActionTile(
@@ -445,7 +440,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           child: imageUrl != null && imageUrl.isNotEmpty
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(imageUrl, fit: BoxFit.cover),
+                  child: OptimizedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
                 )
               : const Icon(PhosphorIcons.shoppingBag, color: AppTheme.black),
         ),
@@ -879,7 +879,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   Widget _buildPaymentInfoCard() {
     final date = _formatDate(widget.order.createdAt);
-    final isPaid = widget.order.status != 'pending_payment';
+    final isPaid = widget.order.paymentStatus == 'paid';
 
     return Container(
       padding: const EdgeInsets.all(16),

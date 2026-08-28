@@ -108,12 +108,14 @@ class AuthGuard extends StatefulWidget {
 
 class _AuthGuardState extends State<AuthGuard> {
   late AuthProvider _authProvider;
+  late bool _wasAuthenticated;
 
   @override
   void initState() {
     super.initState();
     // Listen to auth changes safely
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _wasAuthenticated = _authProvider.isAuthenticated;
     _authProvider.addListener(_handleAuthStateChange);
 
     // Explicitly handle the initial state in case the auth event fired before this listener was added
@@ -133,6 +135,8 @@ class _AuthGuardState extends State<AuthGuard> {
   void _handleAuthStateChange() {
     if (!mounted) return;
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final wasAuthenticated = _wasAuthenticated;
+    _wasAuthenticated = authProvider.isAuthenticated;
     final profileProvider = Provider.of<ProfileProvider>(
       context,
       listen: false,
@@ -156,12 +160,16 @@ class _AuthGuardState extends State<AuthGuard> {
       wishlistProvider.fetchWishlist();
       supportProvider.fetchTickets();
     } else {
-      // User is logged out, clear profile data and redirect to Login Screen
+      // Supabase emits an initial signed-out event while the splash screen is
+      // deciding whether to show onboarding or login. Do not let that event
+      // replace the startup flow. Redirect only for a real logout transition.
       profileProvider.clearProfile();
       cartProvider.clearCartLocal();
       orderProvider.clearOrders();
       wishlistProvider.clearWishlistLocal();
       supportProvider.clearTicketsLocal();
+      if (!wasAuthenticated) return;
+
       String? currentRoute;
       rootNavigatorKey.currentState?.popUntil((route) {
         currentRoute = route.settings.name;

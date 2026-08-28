@@ -10,7 +10,7 @@ class PaymentRoutes {
     final router = Router();
 
     // Webhook - Unauthenticated
-    router.post('/webhook', _controller.handleWebhook);
+    router.post('/webhook', _controller.webhook);
 
     // Authenticated handler wrapper
     Handler withAuth(Handler inner) =>

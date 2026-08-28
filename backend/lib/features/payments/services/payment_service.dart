@@ -32,12 +32,22 @@ class PaymentService {
       throw Exception('Cart is empty');
     }
 
+    final requestedCouponCode = couponCode == null || couponCode.trim().isEmpty
+        ? null
+        : couponCode.trim().toUpperCase();
+
     // Avoid creating another provider order for a sequential retry. The atomic
     // checkout RPC enforces the same rule under a cart-row lock for races.
     final activeCheckout = await SupabaseDb.querySingle(() => SupabaseDb
         .adminClient
         .from('orders')
-        .select('id')
+        .select('''
+          id,
+          shipping_address_id,
+          coupon_code,
+          order_items(product_id, variant_id, quantity),
+          payments!inner(razorpay_order_id, amount, currency, status)
+        ''')
         .eq('checkout_cart_id', cart.id)
         .inFilter('status', ['pending_payment', 'pending'])
         .gt('stock_reservation_expires_at',
@@ -45,8 +55,111 @@ class PaymentService {
         .limit(1)
         .maybeSingle());
     if (!activeCheckout.isError && activeCheckout.data != null) {
-      throw Exception(
-          'An active checkout already exists for this cart. Complete or cancel it before retrying.');
+      final existingAddressId =
+          activeCheckout.data!['shipping_address_id'] as String?;
+      final existingCouponCode =
+          (activeCheckout.data!['coupon_code'] as String?)?.toUpperCase();
+      final existingOrderItems =
+          activeCheckout.data!['order_items'] as List<dynamic>? ?? const [];
+      final checkoutInputsMatch = existingAddressId == addressId &&
+          existingCouponCode == requestedCouponCode &&
+          _cartContentsMatch(cart.items, existingOrderItems);
+      final existingPayments =
+          activeCheckout.data!['payments'] as List<dynamic>? ?? const [];
+      final existingPayment =
+          existingPayments.whereType<Map<String, dynamic>>().firstOrNull;
+      final existingProviderOrderId =
+          existingPayment?['razorpay_order_id'] as String?;
+      final existingAmount = existingPayment?['amount'] as num?;
+      if (checkoutInputsMatch &&
+          existingPayment?['status'] == 'created' &&
+          existingProviderOrderId != null &&
+          existingAmount != null) {
+        return {
+          'orderId': existingProviderOrderId,
+          'amount': (existingAmount.toDouble() * 100).round(),
+          'currency': existingPayment?['currency'] as String? ?? 'INR',
+          'keyId': Env.getOrNull('RAZORPAY_KEY_ID') ??
+              Env.getOr('RAZORPAY_KEY_ID_A', 'rzp_test_mock'),
+          'reused': true,
+        };
+      }
+
+      // Before replacing a checkout, reconcile Razorpay. A captured or
+      // authorized payment must be confirmed, never cancelled as unpaid.
+      if (existingProviderOrderId != null && existingAmount != null) {
+        final providerPayments = await _razorpayService.fetchOrderPayments(
+          existingProviderOrderId,
+        );
+        Map<String, dynamic>? payablePayment;
+        for (final providerPayment in providerPayments) {
+          if (providerPayment['status'] == 'captured' ||
+              providerPayment['status'] == 'authorized') {
+            payablePayment = providerPayment;
+            break;
+          }
+        }
+
+        if (payablePayment != null) {
+          final paymentId = payablePayment['id'] as String?;
+          final expectedSubunits = (existingAmount.toDouble() * 100).round();
+          if (paymentId == null ||
+              payablePayment['order_id'] != existingProviderOrderId ||
+              payablePayment['amount'] is! num ||
+              (payablePayment['amount'] as num).toInt() != expectedSubunits) {
+            throw Exception('Existing Razorpay payment failed reconciliation');
+          }
+
+          if (payablePayment['status'] == 'authorized') {
+            payablePayment = await _razorpayService.capturePayment(
+              paymentId: paymentId,
+              amountSubunits: expectedSubunits,
+              currency: existingPayment?['currency'] as String? ?? 'INR',
+            );
+          }
+          if (payablePayment['status'] != 'captured') {
+            throw Exception('Existing Razorpay payment is not captured');
+          }
+
+          final confirmation = await SupabaseDb.execute(
+            () => SupabaseDb.adminClient.rpc(
+              'confirm_order_payment',
+              params: {
+                'p_order_id': activeCheckout.data!['id'],
+                'p_razorpay_payment_id': paymentId,
+                'p_razorpay_order_id': existingProviderOrderId,
+                'p_razorpay_signature': 'provider_reconciliation',
+                'p_amount': existingAmount.toDouble(),
+                'p_user_id': userId,
+              },
+            ),
+          );
+          if (confirmation.isError) {
+            throw Exception(
+              'Captured payment could not be reconciled: ${confirmation.message}',
+            );
+          }
+          return {
+            'alreadyPaid': true,
+            'orderId': existingProviderOrderId,
+            'amount': expectedSubunits,
+            'currency': existingPayment?['currency'] as String? ?? 'INR',
+          };
+        }
+      }
+
+      // Only a provider order with no captured/authorized payment may be
+      // replaced. Cancellation releases stock and coupon reservations.
+      final cancelled = await SupabaseDb.execute(() => SupabaseDb.adminClient
+          .from('orders')
+          .update({'status': 'cancelled'})
+          .eq('id', activeCheckout.data!['id'])
+          .eq('user_id', userId)
+          .inFilter('status', ['pending_payment', 'pending']));
+      if (cancelled.isError) {
+        throw Exception(
+            'Unable to replace the previous checkout: ${cancelled.message}');
+      }
     }
     if (activeCheckout.isError && activeCheckout.statusCode != 404) {
       throw Exception(
@@ -94,12 +207,12 @@ class PaymentService {
     double discount = 0.0;
     String? validCouponCode;
 
-    if (couponCode != null && couponCode.isNotEmpty) {
-      final couponRes =
-          await _couponService.validateCoupon(couponCode, subtotal, userId);
+    if (requestedCouponCode != null) {
+      final couponRes = await _couponService.validateCoupon(
+          requestedCouponCode, subtotal, userId);
       if (couponRes['valid'] == true) {
         discount = (couponRes['discount_amount'] as num).toDouble();
-        validCouponCode = couponCode.toUpperCase();
+        validCouponCode = requestedCouponCode;
         if (couponRes['coupon'] != null) {
           if (couponRes['coupon']['discount_type'] == 'free_shipping') {
             shippingFee = 0.0;
@@ -152,6 +265,31 @@ class PaymentService {
     };
   }
 
+  bool _cartContentsMatch(
+    List<dynamic> cartItems,
+    List<dynamic> orderItems,
+  ) {
+    String signature(dynamic item, bool cartItem) {
+      final productId = cartItem ? item.productId : item['product_id'];
+      final variantId = cartItem ? item.variantId : item['variant_id'];
+      final quantity = cartItem ? item.quantity : item['quantity'];
+      return '$productId|${variantId ?? ''}|$quantity';
+    }
+
+    final cartSnapshot = cartItems.map((item) => signature(item, true)).toList()
+      ..sort();
+    final orderSnapshot = orderItems
+        .whereType<Map<String, dynamic>>()
+        .map((item) => signature(item, false))
+        .toList()
+      ..sort();
+    if (cartSnapshot.length != orderSnapshot.length) return false;
+    for (var index = 0; index < cartSnapshot.length; index++) {
+      if (cartSnapshot[index] != orderSnapshot[index]) return false;
+    }
+    return true;
+  }
+
   Future<void> verifyPayment({
     required String userId,
     required String razorpayOrderId,
@@ -174,7 +312,7 @@ class PaymentService {
     // 2. Fetch payment record to find order_id and ensure ownership
     final paymentRes = await SupabaseDb.querySingle(() => SupabaseDb.adminClient
         .from('payments')
-        .select('*, orders!inner(user_id)')
+        .select('*, orders!inner(user_id, status)')
         .eq('razorpay_order_id', razorpayOrderId)
         .eq('orders.user_id', userId)
         .maybeSingle());
@@ -186,25 +324,25 @@ class PaymentService {
     final String orderId = paymentRes.data!['order_id'];
     final double amount = (paymentRes.data!['amount'] as num).toDouble();
     final String currency = paymentRes.data!['currency'] as String? ?? 'INR';
+    final orderData = paymentRes.data!['orders'];
+    final orderStatus = orderData is Map<String, dynamic>
+        ? orderData['status'] as String?
+        : null;
 
     // 3. Verify the payment state with Razorpay. A valid checkout signature only
     // proves the IDs came from Razorpay; it does not prove the payment was
     // captured (for example, when manual capture is enabled).
-    final providerPayment =
+    var providerPayment =
         await _razorpayService.fetchPayment(razorpayPaymentId);
     if (providerPayment['id'] != razorpayPaymentId ||
         providerPayment['order_id'] != razorpayOrderId) {
       throw Exception('Razorpay payment does not match the supplied payment');
     }
 
-    if (providerPayment['status'] != 'captured') {
-      throw Exception(
-          'Razorpay payment is not captured (status: ${providerPayment['status'] ?? 'unknown'})');
-    }
-
     final providerAmount = providerPayment['amount'];
+    final expectedAmountSubunits = (amount * 100).round();
     if (providerAmount is! num ||
-        providerAmount.toInt() != (amount * 100).round()) {
+        providerAmount.toInt() != expectedAmountSubunits) {
       throw Exception('Razorpay payment amount mismatch');
     }
 
@@ -212,23 +350,42 @@ class PaymentService {
       throw Exception('Razorpay payment currency mismatch');
     }
 
-    // 4. Confirm the payment atomically in the database.
-    final rpcResult = await SupabaseDb.execute(() => SupabaseDb.adminClient.rpc(
-          'confirm_order_payment',
-          params: {
-            'p_order_id': orderId,
-            'p_razorpay_payment_id': razorpayPaymentId,
-            'p_razorpay_order_id': razorpayOrderId,
-            'p_razorpay_signature': razorpaySignature,
-            'p_amount': amount,
-            'p_user_id': userId,
-          },
-        ));
-
-    if (rpcResult.isError) {
-      throw Exception(
-          'Payment confirmation failed securely: ${rpcResult.message}');
+    // Razorpay can invoke the client success callback while a payment is only
+    // authorized, particularly when manual capture is enabled. Capture it on
+    // the trusted server only after all identity and amount checks above pass.
+    if (providerPayment['status'] == 'authorized') {
+      providerPayment = await _razorpayService.capturePayment(
+        paymentId: razorpayPaymentId,
+        amountSubunits: expectedAmountSubunits,
+        currency: currency,
+      );
     }
+
+    // Auto-capture can also take a moment to become visible through the fetch
+    // endpoint. Retry briefly without ever treating a non-captured state as
+    // paid.
+    for (var attempt = 0;
+        providerPayment['status'] != 'captured' && attempt < 3;
+        attempt++) {
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      providerPayment = await _razorpayService.fetchPayment(razorpayPaymentId);
+    }
+
+    if (providerPayment['status'] != 'captured') {
+      throw Exception(
+          'Razorpay payment is not captured (status: ${providerPayment['status'] ?? 'unknown'})');
+    }
+
+    // 4. Confirm the payment atomically in the database or refund if cancelled.
+    await _reconcilePayment(
+      orderId: orderId,
+      razorpayOrderId: razorpayOrderId,
+      razorpayPaymentId: razorpayPaymentId,
+      razorpaySignature: razorpaySignature,
+      amount: amount,
+      orderStatus: orderStatus,
+      userId: userId,
+    );
 
     // 5. Clear cart for user
     final cartRes = await SupabaseDb.adminClient
@@ -299,26 +456,19 @@ class PaymentService {
   }
 
   Future<void> processWebhook(
-      String eventId, String signature, String body) async {
-    final webhookSecret = Env.getOrNull('RAZORPAY_WEBHOOK_SECRET');
-
-    if (webhookSecret == null) {
-      throw Exception('RAZORPAY_WEBHOOK_SECRET is missing. Webhooks disabled.');
-    }
-
-    final hmac = Hmac(sha256, utf8.encode(webhookSecret));
-    final digest = hmac.convert(utf8.encode(body));
-    if (digest.toString() != signature) {
-      throw Exception('Invalid webhook signature');
-    }
-    final payload = jsonDecode(body) as Map<String, dynamic>;
+      String eventId, Map<String, dynamic> payload, bool signatureVerified) async {
     final event = payload['event'] as String?;
+    if (event != 'payment.captured' && event != 'order.paid' && event != 'payment.failed') {
+      return;
+    }
+
     final eventPayload = payload['payload'];
     final paymentEntity = eventPayload is Map<String, dynamic>
         ? eventPayload['payment'] is Map<String, dynamic>
             ? (eventPayload['payment'] as Map<String, dynamic>)['entity']
             : null
         : null;
+
     final paymentAudit = paymentEntity is Map<String, dynamic>
         ? (<String, dynamic>{
             'payment_id': paymentEntity['id'],
@@ -333,63 +483,88 @@ class PaymentService {
         await SupabaseDb.adminClient.rpc('claim_razorpay_webhook', params: {
           'p_event_id': eventId,
           'p_event_type': event ?? 'unknown',
-          // Store only identifiers and payment-state metadata required for an
-          // audit trail. Never persist the raw provider/customer payload.
           'p_payload': paymentAudit,
+          'p_signature_verified': signatureVerified,
         }) as bool);
+
     if (claim.isError) {
       throw Exception('Unable to claim webhook event: ${claim.message}');
     }
     if (claim.data != true) return;
 
     try {
-      if (event == 'payment.captured') {
-        if (paymentEntity is! Map<String, dynamic>) {
-          throw Exception('Captured webhook is missing payment details');
-        }
+      if (paymentEntity is! Map<String, dynamic>) {
+        throw Exception('Webhook is missing payment details');
+      }
 
-        final razorpayOrderId = paymentEntity['order_id'] as String?;
-        final razorpayPaymentId = paymentEntity['id'] as String?;
-        final razorpayAmount = paymentEntity['amount'] as num?;
-        if (razorpayOrderId == null ||
-            razorpayOrderId.isEmpty ||
-            razorpayPaymentId == null ||
-            razorpayPaymentId.isEmpty ||
-            razorpayAmount == null) {
-          throw Exception('Captured webhook has invalid payment details');
-        }
+      final razorpayOrderId = paymentEntity['order_id'] as String?;
+      final razorpayPaymentId = paymentEntity['id'] as String?;
+      final razorpayAmount = paymentEntity['amount'] as num?;
+      final razorpayCurrency = paymentEntity['currency'] as String?;
 
-        final paymentResult = await SupabaseDb.querySingle(() => SupabaseDb
-            .adminClient
-            .from('payments')
-            .select()
-            .eq('razorpay_order_id', razorpayOrderId)
-            .maybeSingle());
+      if (razorpayOrderId == null ||
+          razorpayOrderId.isEmpty ||
+          razorpayPaymentId == null ||
+          razorpayPaymentId.isEmpty ||
+          razorpayAmount == null) {
+        throw Exception('Webhook has invalid payment details');
+      }
 
-        if (paymentResult.isError || paymentResult.data == null) {
-          throw Exception('Webhook payment does not match a known order');
-        }
+      final paymentResult = await SupabaseDb.querySingle(() => SupabaseDb
+          .adminClient
+          .from('payments')
+          .select('*, orders!inner(status, payment_status)')
+          .eq('razorpay_order_id', razorpayOrderId)
+          .maybeSingle());
 
-        final orderId = paymentResult.data!['order_id'];
-        final amount = (paymentResult.data!['amount'] as num).toDouble();
-        if (razorpayAmount.toInt() != (amount * 100).round()) {
-          throw Exception('Webhook payment amount mismatch');
-        }
+      if (paymentResult.isError || paymentResult.data == null) {
+        throw Exception('Webhook payment does not match a known order');
+      }
 
-        final rpcResult = await SupabaseDb.execute(
-            () => SupabaseDb.adminClient.rpc('confirm_order_payment', params: {
-                  'p_order_id': orderId,
-                  'p_razorpay_payment_id': razorpayPaymentId,
-                  'p_razorpay_order_id': razorpayOrderId,
-                  'p_razorpay_signature': 'webhook',
-                  'p_amount': amount,
-                }));
+      final orderId = paymentResult.data!['order_id'];
+      final amount = (paymentResult.data!['amount'] as num).toDouble();
+      final currency = paymentResult.data!['currency'] as String?;
 
-        if (rpcResult.isError) {
-          throw Exception(
-              'Webhook payment confirmation failed: ${rpcResult.message}');
+      if (razorpayCurrency != currency) {
+        throw Exception('Webhook payment currency mismatch');
+      }
+
+      if (razorpayAmount.toInt() != (amount * 100).round()) {
+        throw Exception('Webhook payment amount mismatch');
+      }
+
+      final orderData = paymentResult.data!['orders'];
+      final orderStatus = orderData is Map<String, dynamic>
+          ? orderData['status'] as String?
+          : null;
+
+      if (event == 'payment.captured' || event == 'order.paid') {
+        await _reconcilePayment(
+          orderId: orderId,
+          razorpayOrderId: razorpayOrderId,
+          razorpayPaymentId: razorpayPaymentId,
+          razorpaySignature: 'webhook',
+          amount: amount,
+          orderStatus: orderStatus,
+        );
+      } else if (event == 'payment.failed') {
+        final updateResult = await SupabaseDb.execute(() async {
+          await SupabaseDb.adminClient.from('payments').upsert({
+            'order_id': orderId,
+            'razorpay_order_id': razorpayOrderId,
+            'razorpay_payment_id': razorpayPaymentId,
+            'amount': amount,
+            'status': 'failed',
+          }, onConflict: 'razorpay_payment_id');
+          await SupabaseDb.adminClient
+              .from('orders')
+              .update({'payment_status': 'failed'}).eq('id', orderId);
+        });
+        if (updateResult.isError) {
+          throw Exception('Failed to process payment.failed event: ${updateResult.message}');
         }
       }
+
       final completed = await SupabaseDb.execute(() => SupabaseDb.adminClient
           .rpc('complete_razorpay_webhook', params: {'p_event_id': eventId}));
       if (completed.isError) {
@@ -400,6 +575,78 @@ class PaymentService {
       await SupabaseDb.execute(() => SupabaseDb.adminClient
           .rpc('release_razorpay_webhook', params: {'p_event_id': eventId}));
       rethrow;
+    }
+  }
+
+  Future<void> _reconcilePayment({
+    required String orderId,
+    required String razorpayOrderId,
+    required String razorpayPaymentId,
+    required String razorpaySignature,
+    required double amount,
+    required String? orderStatus,
+    String? userId,
+  }) async {
+    // A capture that arrives after the ten-minute checkout window must not
+    // resurrect an order whose stock reservation has been released.
+    if (orderStatus == 'cancelled') {
+      try {
+        await _razorpayService.refundPayment(razorpayPaymentId);
+      } catch (e) {
+        final errorString = e.toString().toLowerCase();
+        // Treat as success if Razorpay says it's already refunded
+        if (!errorString.contains('already refunded') &&
+            !errorString.contains('has been refunded')) {
+          rethrow;
+        }
+      }
+
+      final existingPayment = await SupabaseDb.querySingle(() => SupabaseDb.adminClient
+          .from('payments')
+          .select('order_id, razorpay_order_id')
+          .eq('razorpay_payment_id', razorpayPaymentId)
+          .maybeSingle());
+          
+      if (existingPayment.data != null) {
+        if (existingPayment.data!['order_id'] != orderId || 
+            existingPayment.data!['razorpay_order_id'] != razorpayOrderId) {
+          throw Exception('Payment ID belongs to a different order');
+        }
+      }
+
+      final refundUpdate = await SupabaseDb.execute(() async {
+        await SupabaseDb.adminClient.from('payments').upsert({
+          'order_id': orderId,
+          'razorpay_order_id': razorpayOrderId,
+          'razorpay_payment_id': razorpayPaymentId,
+          'amount': amount,
+          'status': 'refunded',
+        }, onConflict: 'razorpay_payment_id');
+
+        await SupabaseDb.adminClient
+            .from('orders')
+            .update({'payment_status': 'refunded'}).eq('id', orderId);
+      });
+
+      if (refundUpdate.isError) {
+        throw Exception(
+            'Late payment was refunded but its local status could not be updated: ${refundUpdate.message}');
+      }
+    } else {
+      final rpcResult = await SupabaseDb.execute(() =>
+          SupabaseDb.adminClient.rpc('confirm_order_payment', params: {
+            'p_order_id': orderId,
+            'p_razorpay_payment_id': razorpayPaymentId,
+            'p_razorpay_order_id': razorpayOrderId,
+            'p_razorpay_signature': razorpaySignature,
+            'p_amount': amount,
+            if (userId != null) 'p_user_id': userId,
+          }));
+
+      if (rpcResult.isError) {
+        throw Exception(
+            'Payment confirmation failed securely: ${rpcResult.message}');
+      }
     }
   }
 }

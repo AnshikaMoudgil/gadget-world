@@ -13,6 +13,7 @@ import 'package:gadget_store/features/orders/screens/orders_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/orders/screens/reorder_screen.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:gadget_store/core/widgets/optimized_network_image.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -321,13 +322,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             clipBehavior: Clip.hardEdge,
             child: imageUrl != null && imageUrl.isNotEmpty
-                ? Image.network(
-                    imageUrl,
+                ? OptimizedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 50,
+                    height: 50,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      PhosphorIcons.shoppingBag,
-                      color: AppTheme.black,
-                    ),
+                    errorIcon: PhosphorIcons.shoppingBag,
                   )
                 : const Icon(PhosphorIcons.shoppingBag, color: AppTheme.black),
           ),
@@ -607,25 +607,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Reorder',
                 'Buy again easily',
                 Colors.blue,
+                centerContent: true,
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const ReorderScreen()),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildActionTile(
-                PhosphorIcons.truck,
-                'Track Order',
-                'Check delivery status',
-                Colors.green,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const OrdersScreen()),
                   );
                 },
               ),
@@ -675,6 +661,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String title,
     String subtitle,
     Color color, {
+    bool centerContent = false,
     required VoidCallback onTap,
   }) {
     return InkWell(
@@ -688,7 +675,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: centerContent
+              ? CrossAxisAlignment.center
+              : CrossAxisAlignment.start,
           children: [
             Container(
               padding: const EdgeInsets.all(8),
@@ -701,6 +690,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 12),
             Text(
               title,
+              textAlign: centerContent ? TextAlign.center : TextAlign.start,
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
@@ -710,6 +700,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 4),
             Text(
               subtitle,
+              textAlign: centerContent ? TextAlign.center : TextAlign.start,
               style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
             ),
           ],

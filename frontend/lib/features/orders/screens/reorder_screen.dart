@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:gadget_store/features/products/screens/categories_screen.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:gadget_store/core/widgets/optimized_network_image.dart';
 
 class ReorderScreen extends StatefulWidget {
   const ReorderScreen({super.key});
@@ -495,14 +496,11 @@ class _ReorderScreenState extends State<ReorderScreen> {
                   child: imageUrl != null && imageUrl.isNotEmpty
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            imageUrl,
+                          child: OptimizedNetworkImage(
+                            imageUrl: imageUrl,
+                            width: 80,
+                            height: 80,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(
-                                  PhosphorIcons.imageBroken,
-                                  color: AppTheme.greyText,
-                                ),
                           ),
                         )
                       : const Icon(

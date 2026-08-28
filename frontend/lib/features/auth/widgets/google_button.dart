@@ -1,8 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'web_button_stub.dart' if (dart.library.html) 'web_button_web.dart';
 
-class GoogleButton extends StatelessWidget {
+class GoogleButton extends StatefulWidget {
   final VoidCallback onPressed;
   final bool isLoading;
 
@@ -13,81 +15,121 @@ class GoogleButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    // On web: stack the invisible GIS renderButton on top of the custom styled button.
-    // The GIS iframe handles the actual Google auth popup.
-    // On mobile: the custom button triggers onPressed directly.
-    if (kIsWeb) {
-      return SizedBox(
-        height: 52,
-        width: double.infinity,
-        child: Stack(
-          children: [
-            // Visual layer: the custom styled button
-            Positioned.fill(child: _buildStyledButton()),
-            // Interaction layer: the invisible GIS button on top
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.01, // Nearly invisible but still tappable
-                child: buildWebButton(),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+  State<GoogleButton> createState() => _GoogleButtonState();
+}
 
-    return _buildStyledButton();
+class _GoogleButtonState extends State<GoogleButton> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final visualButton = _buildStyledButton();
+    final button = kIsWeb
+        ? SizedBox(
+            height: 52,
+            width: double.infinity,
+            child: Stack(
+              children: [
+                Positioned.fill(child: visualButton),
+                Positioned.fill(
+                  child: Opacity(opacity: 0.01, child: buildWebButton()),
+                ),
+              ],
+            ),
+          )
+        : GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: widget.isLoading ? null : widget.onPressed,
+            child: visualButton,
+          );
+
+    return MouseRegion(
+      cursor: widget.isLoading
+          ? SystemMouseCursors.basic
+          : SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() {
+        _isHovered = false;
+        _isPressed = false;
+      }),
+      child: Listener(
+        onPointerDown: widget.isLoading
+            ? null
+            : (_) => setState(() => _isPressed = true),
+        onPointerUp: (_) => setState(() => _isPressed = false),
+        onPointerCancel: (_) => setState(() => _isPressed = false),
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 130),
+          curve: Curves.easeOutCubic,
+          scale: _isPressed ? .975 : 1,
+          child: button,
+        ),
+      ),
+    );
   }
 
   Widget _buildStyledButton() {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
       height: 52,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: const Color(
+              0xFF4285F4,
+            ).withValues(alpha: _isHovered ? .16 : .06),
+            blurRadius: _isHovered ? 22 : 12,
+            offset: Offset(0, _isHovered ? 7 : 3),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: isLoading ? null : onPressed,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: isLoading
-                ? const Center(
-                    child: SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2.2),
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildGoogleIcon(),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Continue with Google',
-                        style: TextStyle(
-                          color: Color(0xFF0F172A),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.2,
-                        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: _isHovered ? .88 : .72),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: _isHovered
+                    ? const Color(0xFF8AB4F8)
+                    : Colors.white.withValues(alpha: .9),
+                width: 1.2,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: widget.isLoading
+                  ? const Center(
+                      child: SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2.2),
                       ),
-                    ],
-                  ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildGoogleIcon(),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Continue with Google',
+                          style: TextStyle(
+                            color: Color(0xFF0F172A),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
           ),
         ),
       ),

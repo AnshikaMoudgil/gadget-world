@@ -8,6 +8,7 @@ import 'package:gadget_store/features/orders/models/order.dart';
 import 'package:gadget_store/features/auth/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:gadget_store/core/widgets/optimized_network_image.dart';
 
 enum OrdersState { loaded, loading, empty }
 
@@ -501,15 +502,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ),
                   clipBehavior: Clip.hardEdge,
                   child: imageUrl != null && imageUrl.isNotEmpty
-                      ? Image.network(
-                          imageUrl,
+                      ? OptimizedNetworkImage(
+                          imageUrl: imageUrl,
+                          width: 60,
+                          height: 60,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                                PhosphorIcons.shoppingBag,
-                                color: AppTheme.greyText,
-                                size: 30,
-                              ),
+                          errorIcon: PhosphorIcons.shoppingBag,
                         )
                       : const Icon(
                           PhosphorIcons.shoppingBag,
