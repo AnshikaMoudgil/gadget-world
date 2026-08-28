@@ -73,7 +73,7 @@ class PaymentController {
         'payment.verify',
         e,
         statusCode: 400,
-        message: 'Payment verification failed.',
+        message: 'Payment verification failed: \${e.toString()}',
       );
     }
   }

@@ -640,7 +640,6 @@ class PaymentService {
             'p_razorpay_order_id': razorpayOrderId,
             'p_razorpay_signature': razorpaySignature,
             'p_amount': amount,
-            if (userId != null) 'p_user_id': userId,
           }));
 
       if (rpcResult.isError) {
