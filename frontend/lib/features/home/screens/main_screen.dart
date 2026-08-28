@@ -53,12 +53,14 @@ class _MainScreenState extends State<MainScreen> {
           items: [
             const BottomNavigationBarItem(
               icon: Icon(PhosphorIcons.house),
-              activeIcon: Icon(PhosphorIcons.houseFill),
+              activeIcon: _BouncyNavIcon(child: Icon(PhosphorIcons.houseFill)),
               label: 'Home',
             ),
             const BottomNavigationBarItem(
               icon: Icon(PhosphorIcons.squaresFour),
-              activeIcon: Icon(PhosphorIcons.squaresFourFill),
+              activeIcon: _BouncyNavIcon(
+                child: Icon(PhosphorIcons.squaresFourFill),
+              ),
               label: 'Categories',
             ),
             BottomNavigationBarItem(
@@ -98,56 +100,86 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ],
               ),
-              activeIcon: Stack(
-                children: [
-                  const Icon(PhosphorIcons.shoppingCartFill),
-                  Consumer<CartProvider>(
-                    builder: (context, cartProvider, child) {
-                      if (cartProvider.itemCount == 0) {
-                        return const SizedBox.shrink();
-                      }
-                      return Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
-                            color: AppTheme.black,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 14,
-                            minHeight: 14,
-                          ),
-                          child: Text(
-                            '${cartProvider.itemCount}',
-                            style: const TextStyle(
-                              color: AppTheme.white,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
+              activeIcon: _BouncyNavIcon(
+                child: Stack(
+                  children: [
+                    const Icon(PhosphorIcons.shoppingCartFill),
+                    Consumer<CartProvider>(
+                      builder: (context, cartProvider, child) {
+                        if (cartProvider.itemCount == 0) {
+                          return const SizedBox.shrink();
+                        }
+                        return Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: AppTheme.black,
+                              shape: BoxShape.circle,
                             ),
-                            textAlign: TextAlign.center,
+                            constraints: const BoxConstraints(
+                              minWidth: 14,
+                              minHeight: 14,
+                            ),
+                            child: Text(
+                              '${cartProvider.itemCount}',
+                              style: const TextStyle(
+                                color: AppTheme.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
               label: 'Cart',
             ),
             const BottomNavigationBarItem(
               icon: Icon(PhosphorIcons.receipt),
-              activeIcon: Icon(PhosphorIcons.receiptFill),
+              activeIcon: _BouncyNavIcon(
+                child: Icon(PhosphorIcons.receiptFill),
+              ),
               label: 'Orders',
             ),
             const BottomNavigationBarItem(
               icon: Icon(PhosphorIcons.user),
-              activeIcon: Icon(PhosphorIcons.userFill),
+              activeIcon: _BouncyNavIcon(child: Icon(PhosphorIcons.userFill)),
               label: 'Account',
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _BouncyNavIcon extends StatelessWidget {
+  const _BouncyNavIcon({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 420),
+      curve: Curves.easeOutBack,
+      builder: (context, value, child) => Transform.translate(
+        offset: Offset(0, -3 * value),
+        child: Transform.scale(scale: .72 + .28 * value, child: child),
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppTheme.black.withValues(alpha: .08),
+          shape: BoxShape.circle,
+        ),
+        child: Padding(padding: const EdgeInsets.all(5), child: child),
       ),
     );
   }

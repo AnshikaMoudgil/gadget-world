@@ -6,6 +6,7 @@ import 'package:gadget_store/features/products/screens/product_details_screen.da
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:gadget_store/features/more/models/wishlist.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:gadget_store/core/widgets/optimized_network_image.dart';
 
 class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
@@ -265,7 +266,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.62, // Adjusted to prevent overflow
+        childAspectRatio: 0.55,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -311,15 +312,11 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   children: [
                     Center(
                       child: product.imageUrl != null
-                          ? Image.network(
-                              product.imageUrl!,
+                          ? OptimizedNetworkImage(
+                              imageUrl: product.imageUrl!,
+                              width: double.infinity,
+                              height: double.infinity,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(
-                                    PhosphorIcons.imageBroken,
-                                    size: 48,
-                                    color: AppTheme.greyText,
-                                  ),
                             )
                           : const Icon(
                               PhosphorIcons.image,

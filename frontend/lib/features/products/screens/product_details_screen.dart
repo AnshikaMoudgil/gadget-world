@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/core/widgets/optimized_network_image.dart';
 import '../models/product_model.dart';
 import '../providers/catalog_provider.dart';
 import '../../cart/providers/cart_provider.dart';
@@ -419,11 +420,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       child:
                           _product.imageUrl != null &&
                               _product.imageUrl!.isNotEmpty
-                          ? Image.network(
-                              _product.imageUrl!,
+                          ? OptimizedNetworkImage(
+                              imageUrl: _product.imageUrl!,
+                              width: 60,
+                              height: 60,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) =>
-                                  const Icon(PhosphorIcons.image),
+                              errorIcon: PhosphorIcons.image,
                             )
                           : const Icon(PhosphorIcons.image),
                     ),
@@ -610,10 +612,10 @@ class _ProductImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return Image.network(
-        imageUrl,
+      return OptimizedNetworkImage(
+        imageUrl: imageUrl,
         fit: BoxFit.contain,
-        errorBuilder: (_, _, _) => const Icon(PhosphorIcons.image),
+        errorIcon: PhosphorIcons.image,
       );
     }
     return Image.asset(imageUrl, fit: BoxFit.contain);

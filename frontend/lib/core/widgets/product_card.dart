@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../../features/products/models/product_model.dart';
 import '../../features/more/providers/wishlist_provider.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'optimized_network_image.dart';
 
 class ProductCard extends StatelessWidget {
   final String? productId;
@@ -268,10 +269,10 @@ class _ProductImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return Image.network(
-        imageUrl,
+      return OptimizedNetworkImage(
+        imageUrl: imageUrl,
         fit: BoxFit.contain,
-        errorBuilder: (_, _, _) => const Icon(PhosphorIcons.image),
+        errorIcon: PhosphorIcons.image,
       );
     }
     return Image.asset(imageUrl, fit: BoxFit.contain);

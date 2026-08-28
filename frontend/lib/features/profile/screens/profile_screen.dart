@@ -607,25 +607,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Reorder',
                 'Buy again easily',
                 Colors.blue,
+                centerContent: true,
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const ReorderScreen()),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildActionTile(
-                PhosphorIcons.truck,
-                'Track Order',
-                'Check delivery status',
-                Colors.green,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const OrdersScreen()),
                   );
                 },
               ),
@@ -675,6 +661,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String title,
     String subtitle,
     Color color, {
+    bool centerContent = false,
     required VoidCallback onTap,
   }) {
     return InkWell(
@@ -688,7 +675,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: centerContent
+              ? CrossAxisAlignment.center
+              : CrossAxisAlignment.start,
           children: [
             Container(
               padding: const EdgeInsets.all(8),
@@ -701,6 +690,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 12),
             Text(
               title,
+              textAlign: centerContent ? TextAlign.center : TextAlign.start,
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
@@ -710,6 +700,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 4),
             Text(
               subtitle,
+              textAlign: centerContent ? TextAlign.center : TextAlign.start,
               style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
             ),
           ],

@@ -71,7 +71,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      imageQuality: 85,
+    );
 
     if (image != null && mounted) {
       final provider = Provider.of<ProfileProvider>(context, listen: false);
@@ -104,6 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       phoneNumber: _phoneController.text,
       dateOfBirth: _selectedDate,
       createdAt: currentProfile.createdAt,
+      avatarUrl: currentProfile.avatarUrl,
     );
 
     final success = await provider.updateProfile(updatedProfile);

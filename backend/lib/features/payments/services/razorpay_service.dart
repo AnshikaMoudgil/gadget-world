@@ -55,4 +55,28 @@ class RazorpayService {
       throw Exception('Failed to fetch Razorpay payment: ${response.body}');
     }
   }
+
+  Future<Map<String, dynamic>> capturePayment({
+    required String paymentId,
+    required int amountSubunits,
+    required String currency,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/payments/$paymentId/capture'),
+      headers: {
+        'Authorization': _basicAuth,
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'amount': amountSubunits,
+        'currency': currency,
+      }),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return Map<String, dynamic>.from(jsonDecode(response.body) as Map);
+    }
+
+    throw Exception('Failed to capture Razorpay payment: ${response.body}');
+  }
 }

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/core/widgets/optimized_network_image.dart';
 import 'package:gadget_store/features/checkout/screens/payment_screen.dart';
+import 'package:gadget_store/features/checkout/screens/apply_coupon_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:gadget_store/features/profile/providers/address_provider.dart';
@@ -100,6 +102,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 _buildShippingAddress(),
                 _buildSectionTitle('2. Order Summary', false),
                 _buildOrderSummary(),
+                _buildCouponSection(),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Divider(
@@ -445,14 +448,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             clipBehavior: Clip.hardEdge,
             child: imageUrl != null && imageUrl.isNotEmpty
-                ? Image.network(
-                    imageUrl,
+                ? OptimizedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 64,
+                    height: 64,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      PhosphorIcons.shoppingBag,
-                      color: AppTheme.greyText,
-                      size: 32,
-                    ),
+                    errorIcon: PhosphorIcons.shoppingBag,
                   )
                 : const Icon(
                     PhosphorIcons.shoppingBag,
@@ -587,6 +588,105 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCouponSection() {
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, child) {
+        final couponCode = cartProvider.appliedCouponCode;
+        final hasCoupon = couponCode != null && couponCode.isNotEmpty;
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+          child: Material(
+            color: hasCoupon
+                ? Colors.green.withValues(alpha: 0.05)
+                : AppTheme.white,
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ApplyCouponScreen()),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: hasCoupon
+                        ? Colors.green.withValues(alpha: 0.35)
+                        : AppTheme.greyBorder,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: hasCoupon
+                            ? Colors.green.withValues(alpha: 0.12)
+                            : AppTheme.greyBackground,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        PhosphorIcons.ticket,
+                        size: 20,
+                        color: hasCoupon ? Colors.green : AppTheme.black,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            hasCoupon ? '$couponCode applied' : 'Apply Coupon',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.black,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            hasCoupon
+                                ? 'You saved ${NumberFormat.simpleCurrency(name: 'INR', decimalDigits: 0).format(cartProvider.discount)}'
+                                : 'View available offers and save on this order',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: hasCoupon
+                                  ? Colors.green
+                                  : AppTheme.greyText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      hasCoupon ? 'Change' : 'View offers',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.black,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(PhosphorIcons.caretRight, size: 16),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

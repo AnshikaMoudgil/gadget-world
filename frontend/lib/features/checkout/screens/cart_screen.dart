@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/core/widgets/primary_button.dart';
+import 'package:gadget_store/core/widgets/optimized_network_image.dart';
 import 'package:gadget_store/features/checkout/screens/apply_coupon_screen.dart';
 import 'package:gadget_store/features/checkout/screens/checkout_screen.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
@@ -177,13 +178,12 @@ class _CartScreenState extends State<CartScreen> {
                 child: imageUrl != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          imageUrl,
+                        child: OptimizedNetworkImage(
+                          imageUrl: imageUrl,
+                          width: 96,
+                          height: 96,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => const Icon(
-                            PhosphorIcons.image,
-                            color: AppTheme.greyText,
-                          ),
+                          errorIcon: PhosphorIcons.image,
                         ),
                       )
                     : const Icon(PhosphorIcons.image, color: AppTheme.greyText),
@@ -588,37 +588,82 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 )
               : items.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        PhosphorIcons.shoppingCart,
-                        size: 64,
-                        color: AppTheme.greyText,
+              ? SafeArea(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 24,
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Your cart is empty',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 340),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 220,
+                              height: 220,
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF7F1),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFFFA681,
+                                    ).withValues(alpha: 0.12),
+                                    blurRadius: 36,
+                                    spreadRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: Image.asset(
+                                'assets/images/empty_cart_3d.png',
+                                fit: BoxFit.contain,
+                                semanticLabel:
+                                    'Empty shopping cart with gadget parcels',
+                              ),
+                            ),
+                            const SizedBox(height: 28),
+                            const Text(
+                              'Your cart is waiting',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.black,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Discover something you love and it will show up right here.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                height: 1.45,
+                                fontSize: 13,
+                                color: AppTheme.greyText,
+                              ),
+                            ),
+                            const SizedBox(height: 28),
+                            SizedBox(
+                              width: 190,
+                              child: PrimaryButton(
+                                onPressed: () {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const MainScreen(),
+                                    ),
+                                    (route) => false,
+                                  );
+                                },
+                                text: 'Start Shopping',
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      PrimaryButton(
-                        onPressed: () {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const MainScreen(),
-                            ),
-                            (route) => false,
-                          );
-                        },
-                        text: 'Start Shopping',
-                      ),
-                    ],
+                    ),
                   ),
                 )
               : SafeArea(

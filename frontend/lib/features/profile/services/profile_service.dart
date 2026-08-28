@@ -6,12 +6,20 @@ class ProfileService {
 
   Future<Profile?> getProfile(String userId) async {
     try {
-      final data = await _supabase
+      var data = await _supabase
           .from('profiles')
           .select()
           .eq('id', userId)
           .maybeSingle();
 
+      if (data == null) {
+        await _supabase.rpc('ensure_my_profile');
+        data = await _supabase
+            .from('profiles')
+            .select()
+            .eq('id', userId)
+            .maybeSingle();
+      }
       if (data == null) return null;
       return Profile.fromJson(data);
     } catch (e) {

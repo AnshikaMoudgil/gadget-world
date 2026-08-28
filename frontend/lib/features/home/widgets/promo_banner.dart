@@ -1,9 +1,32 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/core/widgets/shimmer_skeleton.dart';
 import 'package:gadget_store/features/products/screens/best_sellers_screen.dart';
 import 'package:gadget_store/features/products/screens/new_arrivals_screen.dart';
 import 'package:gadget_store/features/products/screens/categories_screen.dart';
+
+Widget _bannerAsset(String path) {
+  return Image.asset(
+    path,
+    fit: BoxFit.cover,
+    frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+      if (!wasSynchronouslyLoaded && frame == null) {
+        return const ShimmerSkeleton(
+          width: double.infinity,
+          height: 200,
+          borderRadius: 20,
+        );
+      }
+      return AnimatedOpacity(
+        opacity: 1,
+        duration: const Duration(milliseconds: 280),
+        child: child,
+      );
+    },
+    errorBuilder: (_, _, _) => const SizedBox.shrink(),
+  );
+}
 
 class PromoBannerPainter extends CustomPainter {
   @override
@@ -137,11 +160,7 @@ class CustomPromoBanner extends StatelessWidget {
                   ).createShader(rect);
                 },
                 blendMode: BlendMode.dstIn,
-                child: Image.asset(
-                  'assets/images/banner_upgrade_tech.png',
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => const SizedBox(),
-                ),
+                child: _bannerAsset('assets/images/banner_upgrade_tech.png'),
               ),
             ),
             Padding(
@@ -225,7 +244,7 @@ class PromoBannerSlider extends StatefulWidget {
 }
 
 class _PromoBannerSliderState extends State<PromoBannerSlider> {
-  final PageController _pageController = PageController();
+  final PageController _pageController = PageController(viewportFraction: .94);
   int _currentPage = 0;
   Timer? _timer;
 
@@ -263,8 +282,9 @@ class _PromoBannerSliderState extends State<PromoBannerSlider> {
       children: [
         SizedBox(
           height: 200,
-          child: PageView(
+          child: PageView.builder(
             controller: _pageController,
+            itemCount: 3,
             onPageChanged: (int page) {
               setState(() {
                 _currentPage = page;
@@ -272,11 +292,30 @@ class _PromoBannerSliderState extends State<PromoBannerSlider> {
               _timer?.cancel();
               _startTimer();
             },
-            children: const [
-              CustomPromoBanner(),
-              PromoBannerGreen(),
-              PromoBannerOrange(),
-            ],
+            itemBuilder: (context, index) {
+              const banners = [
+                CustomPromoBanner(),
+                PromoBannerGreen(),
+                PromoBannerOrange(),
+              ];
+              return AnimatedBuilder(
+                animation: _pageController,
+                child: banners[index],
+                builder: (context, child) {
+                  final page = _pageController.hasClients
+                      ? (_pageController.page ?? _currentPage.toDouble())
+                      : _currentPage.toDouble();
+                  final delta = page - index;
+                  return Transform.translate(
+                    offset: Offset(delta * 30, 0),
+                    child: Transform.scale(
+                      scale: 1 - delta.abs().clamp(0.0, 1.0) * .035,
+                      child: child,
+                    ),
+                  );
+                },
+              );
+            },
           ),
         ),
         const SizedBox(height: 16),
@@ -333,11 +372,7 @@ class PromoBannerGreen extends StatelessWidget {
                   ).createShader(rect);
                 },
                 blendMode: BlendMode.dstIn,
-                child: Image.asset(
-                  'assets/images/banner_smart_gadgets.png',
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => const SizedBox(),
-                ),
+                child: _bannerAsset('assets/images/banner_smart_gadgets.png'),
               ),
             ),
             Padding(
@@ -445,11 +480,7 @@ class PromoBannerOrange extends StatelessWidget {
                   ).createShader(rect);
                 },
                 blendMode: BlendMode.dstIn,
-                child: Image.asset(
-                  'assets/images/banner_great_deals.png',
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => const SizedBox(),
-                ),
+                child: _bannerAsset('assets/images/banner_great_deals.png'),
               ),
             ),
             Padding(

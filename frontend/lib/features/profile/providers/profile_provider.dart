@@ -66,19 +66,39 @@ class ProfileProvider extends ChangeNotifier {
 
   Future<bool> uploadAvatar(XFile imageFile) async {
     final user = Supabase.instance.client.auth.currentUser;
-    if (user == null || _profile == null) return false;
+    if (user == null) {
+      _setError('Please sign in again before updating your profile picture.');
+      return false;
+    }
 
     _setLoading(true);
     _setError(null);
     try {
-      final fileExt = imageFile.name.split('.').last;
+      _profile ??= await _profileService.getProfile(user.id);
+      if (_profile == null) {
+        throw Exception('Your profile could not be loaded. Please try again.');
+      }
+
+      final rawExtension = imageFile.name.contains('.')
+          ? imageFile.name.split('.').last.toLowerCase()
+          : 'jpg';
+      final fileExtension = rawExtension == 'jpeg' ? 'jpg' : rawExtension;
+      final contentType = switch (fileExtension) {
+        'png' => 'image/png',
+        'webp' => 'image/webp',
+        _ => 'image/jpeg',
+      };
       final fileName =
-          '${user.id}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+          '${user.id}/avatar_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
       final imageBytes = await imageFile.readAsBytes();
 
       await Supabase.instance.client.storage
           .from('avatars')
-          .uploadBinary(fileName, imageBytes);
+          .uploadBinary(
+            fileName,
+            imageBytes,
+            fileOptions: FileOptions(contentType: contentType, upsert: false),
+          );
 
       final imageUrl = Supabase.instance.client.storage
           .from('avatars')
@@ -87,6 +107,14 @@ class ProfileProvider extends ChangeNotifier {
       final updatedProfile = _profile!.copyWith(avatarUrl: imageUrl);
 
       _profile = await _profileService.updateProfile(updatedProfile);
+      try {
+        await Supabase.instance.client.auth.updateUser(
+          UserAttributes(data: {'avatar_url': imageUrl}),
+        );
+      } catch (_) {
+        // The profiles row is authoritative. Auth metadata is only a helpful
+        // fallback for surfaces that render before the profile is loaded.
+      }
       return true;
     } catch (e) {
       _setError(e.toString());

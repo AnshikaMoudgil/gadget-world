@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gadget_store/core/theme.dart';
+import 'package:gadget_store/core/widgets/optimized_network_image.dart';
 import 'package:gadget_store/features/home/screens/main_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
@@ -379,13 +380,12 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             ),
             clipBehavior: Clip.hardEdge,
             child: imageUrl != null && imageUrl.isNotEmpty
-                ? Image.network(
-                    imageUrl,
+                ? OptimizedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 56,
+                    height: 56,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      PhosphorIcons.shoppingBag,
-                      color: AppTheme.greyText,
-                    ),
+                    errorIcon: PhosphorIcons.shoppingBag,
                   )
                 : const Icon(
                     PhosphorIcons.shoppingBag,

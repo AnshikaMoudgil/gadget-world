@@ -37,7 +37,8 @@ class PaymentService {
     final activeCheckout = await SupabaseDb.querySingle(() => SupabaseDb
         .adminClient
         .from('orders')
-        .select('id')
+        .select(
+            'id, payments!inner(razorpay_order_id, amount, currency, status)')
         .eq('checkout_cart_id', cart.id)
         .inFilter('status', ['pending_payment', 'pending'])
         .gt('stock_reservation_expires_at',
@@ -45,8 +46,26 @@ class PaymentService {
         .limit(1)
         .maybeSingle());
     if (!activeCheckout.isError && activeCheckout.data != null) {
-      throw Exception(
-          'An active checkout already exists for this cart. Complete or cancel it before retrying.');
+      final existingPayments =
+          activeCheckout.data!['payments'] as List<dynamic>? ?? const [];
+      final existingPayment = existingPayments
+          .whereType<Map<String, dynamic>>()
+          .where((payment) => payment['status'] == 'created')
+          .firstOrNull;
+      final existingProviderOrderId =
+          existingPayment?['razorpay_order_id'] as String?;
+      final existingAmount = existingPayment?['amount'] as num?;
+      if (existingProviderOrderId != null && existingAmount != null) {
+        return {
+          'orderId': existingProviderOrderId,
+          'amount': (existingAmount.toDouble() * 100).round(),
+          'currency': existingPayment?['currency'] as String? ?? 'INR',
+          'keyId': Env.getOrNull('RAZORPAY_KEY_ID') ??
+              Env.getOr('RAZORPAY_KEY_ID_A', 'rzp_test_mock'),
+          'reused': true,
+        };
+      }
+      throw Exception('An active checkout already exists for this cart.');
     }
     if (activeCheckout.isError && activeCheckout.statusCode != 404) {
       throw Exception(
@@ -190,26 +209,48 @@ class PaymentService {
     // 3. Verify the payment state with Razorpay. A valid checkout signature only
     // proves the IDs came from Razorpay; it does not prove the payment was
     // captured (for example, when manual capture is enabled).
-    final providerPayment =
+    var providerPayment =
         await _razorpayService.fetchPayment(razorpayPaymentId);
     if (providerPayment['id'] != razorpayPaymentId ||
         providerPayment['order_id'] != razorpayOrderId) {
       throw Exception('Razorpay payment does not match the supplied payment');
     }
 
-    if (providerPayment['status'] != 'captured') {
-      throw Exception(
-          'Razorpay payment is not captured (status: ${providerPayment['status'] ?? 'unknown'})');
-    }
-
     final providerAmount = providerPayment['amount'];
+    final expectedAmountSubunits = (amount * 100).round();
     if (providerAmount is! num ||
-        providerAmount.toInt() != (amount * 100).round()) {
+        providerAmount.toInt() != expectedAmountSubunits) {
       throw Exception('Razorpay payment amount mismatch');
     }
 
     if (providerPayment['currency'] != currency) {
       throw Exception('Razorpay payment currency mismatch');
+    }
+
+    // Razorpay can invoke the client success callback while a payment is only
+    // authorized, particularly when manual capture is enabled. Capture it on
+    // the trusted server only after all identity and amount checks above pass.
+    if (providerPayment['status'] == 'authorized') {
+      providerPayment = await _razorpayService.capturePayment(
+        paymentId: razorpayPaymentId,
+        amountSubunits: expectedAmountSubunits,
+        currency: currency,
+      );
+    }
+
+    // Auto-capture can also take a moment to become visible through the fetch
+    // endpoint. Retry briefly without ever treating a non-captured state as
+    // paid.
+    for (var attempt = 0;
+        providerPayment['status'] != 'captured' && attempt < 3;
+        attempt++) {
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      providerPayment = await _razorpayService.fetchPayment(razorpayPaymentId);
+    }
+
+    if (providerPayment['status'] != 'captured') {
+      throw Exception(
+          'Razorpay payment is not captured (status: ${providerPayment['status'] ?? 'unknown'})');
     }
 
     // 4. Confirm the payment atomically in the database.

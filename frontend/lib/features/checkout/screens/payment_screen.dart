@@ -173,8 +173,6 @@ class _PaymentScreenState extends State<PaymentScreen>
       final orderData = await _paymentApiService.createOrder(
         token: token,
         addressId: widget.addressId,
-        shippingFee: widget.shippingFee,
-        discount: widget.discount,
         couponCode: cartProvider.appliedCouponCode,
       );
 

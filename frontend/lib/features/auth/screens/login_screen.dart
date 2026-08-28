@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_auth/smart_auth.dart';
 import 'package:gadget_store/core/widgets/custom_text_field.dart';
 import 'package:gadget_store/core/widgets/logo_widget.dart';
 import 'package:gadget_store/features/auth/providers/auth_provider.dart';
@@ -23,6 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isOtpSent = false;
   String _currentOtp = '';
+  String? _retrievedOtp;
+  int _otpShakeTrigger = 0;
   String? _lastError;
   Timer? _otpCooldownTimer;
   int _otpCooldownSeconds = 0;
@@ -57,7 +61,30 @@ class _LoginScreenState extends State<LoginScreen> {
     _phoneController.dispose();
     _otpCooldownTimer?.cancel();
     _authSubscription?.cancel();
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      unawaited(SmartAuth.instance.removeSmsRetrieverApiListener());
+    }
     super.dispose();
+  }
+
+  Future<void> _listenForOtp() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+
+    final signature = await SmartAuth.instance.getAppSignature();
+    if (signature.hasData) {
+      debugPrint('SMS Retriever app signature: ${signature.requireData}');
+    }
+    final result = await SmartAuth.instance.getSmsWithRetrieverApi(
+      matcher: r'\b\d{6}\b',
+    );
+    if (!mounted || !result.hasData) return;
+
+    final code = result.requireData.code?.replaceAll(RegExp(r'[^0-9]'), '');
+    if (code == null || code.length != 6) return;
+    setState(() {
+      _currentOtp = code;
+      _retrievedOtp = code;
+    });
   }
 
   void _startOtpCooldown() {
@@ -104,6 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success && mounted) {
       _onSuccess();
     } else if (!success && auth.errorMessage != null && mounted) {
+      setState(() => _otpShakeTrigger++);
       _showError(auth.errorMessage!);
     }
   }
@@ -116,10 +144,15 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     final fullPhoneNumber = '$_selectedCountryCode$phoneDigits';
-
     final auth = Provider.of<AuthProvider>(context, listen: false);
+
+    // Start listening before requesting the SMS so a fast message is not lost.
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      await SmartAuth.instance.removeSmsRetrieverApiListener();
+    }
+    unawaited(_listenForOtp());
     final success = await auth.sendOTP(fullPhoneNumber);
-    if (success) {
+    if (success && mounted) {
       setState(() => _isOtpSent = true);
       _startOtpCooldown();
     } else if (auth.errorMessage != null && mounted) {
@@ -341,7 +374,21 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           TextButton(
-                            onPressed: () => setState(() => _isOtpSent = false),
+                            onPressed: () {
+                              if (!kIsWeb &&
+                                  defaultTargetPlatform ==
+                                      TargetPlatform.android) {
+                                unawaited(
+                                  SmartAuth.instance
+                                      .removeSmsRetrieverApiListener(),
+                                );
+                              }
+                              setState(() {
+                                _isOtpSent = false;
+                                _currentOtp = '';
+                                _retrievedOtp = null;
+                              });
+                            },
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -364,7 +411,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 20),
 
-                    OTPInput(length: 6, onChanged: (val) => _currentOtp = val),
+                    OTPInput(
+                      length: 6,
+                      autofillCode: _retrievedOtp,
+                      shakeTrigger: _otpShakeTrigger,
+                      onChanged: (val) => _currentOtp = val,
+                    ),
 
                     const SizedBox(height: 20),
 
