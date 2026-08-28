@@ -455,7 +455,6 @@ class PaymentService {
     return List<Map<String, dynamic>>.from(result.data as List);
   }
 
-  }
 
   Future<void> _reconcilePayment({
     required String orderId,
