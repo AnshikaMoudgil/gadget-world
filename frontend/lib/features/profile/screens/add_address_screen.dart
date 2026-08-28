@@ -3,9 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/profile/providers/address_provider.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:gadget_store/features/profile/models/address.dart';
 
 class AddAddressScreen extends StatefulWidget {
-  const AddAddressScreen({super.key});
+  final Address? address;
+
+  const AddAddressScreen({super.key, this.address});
 
   @override
   State<AddAddressScreen> createState() => _AddAddressScreenState();
@@ -25,6 +28,25 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   final _cityController = TextEditingController();
   final _stateController = TextEditingController();
   final _landmarkController = TextEditingController();
+
+  bool get _isEditing => widget.address != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final address = widget.address;
+    if (address == null) return;
+    _selectedType = address.addressType.name;
+    _isDefault = address.isDefault;
+    _nameController.text = address.recipientName;
+    _phoneController.text = address.phoneNumber;
+    _pincodeController.text = address.postalCode;
+    _addressLine1Controller.text = address.addressLine1;
+    _addressLine2Controller.text = address.addressLine2 ?? '';
+    _cityController.text = address.city;
+    _stateController.text = address.state;
+    _landmarkController.text = address.landmark ?? '';
+  }
 
   @override
   void dispose() {
@@ -58,10 +80,20 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     };
 
     try {
-      await provider.createAddress(data);
+      if (_isEditing) {
+        await provider.updateAddress(widget.address!.id!, data);
+      } else {
+        await provider.createAddress(data);
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Address saved successfully!')),
+          SnackBar(
+            content: Text(
+              _isEditing
+                  ? 'Address updated successfully!'
+                  : 'Address saved successfully!',
+            ),
+          ),
         );
         Navigator.pop(context);
       }

@@ -432,7 +432,7 @@ class PaymentService {
         final paymentResult = await SupabaseDb.querySingle(() => SupabaseDb
             .adminClient
             .from('payments')
-            .select()
+            .select('*, orders!inner(status, payment_status)')
             .eq('razorpay_order_id', razorpayOrderId)
             .maybeSingle());
 
@@ -446,18 +446,42 @@ class PaymentService {
           throw Exception('Webhook payment amount mismatch');
         }
 
-        final rpcResult = await SupabaseDb.execute(
-            () => SupabaseDb.adminClient.rpc('confirm_order_payment', params: {
-                  'p_order_id': orderId,
-                  'p_razorpay_payment_id': razorpayPaymentId,
-                  'p_razorpay_order_id': razorpayOrderId,
-                  'p_razorpay_signature': 'webhook',
-                  'p_amount': amount,
-                }));
+        final orderData = paymentResult.data!['orders'];
+        final orderStatus = orderData is Map<String, dynamic>
+            ? orderData['status'] as String?
+            : null;
 
-        if (rpcResult.isError) {
-          throw Exception(
-              'Webhook payment confirmation failed: ${rpcResult.message}');
+        // A capture that arrives after the ten-minute checkout window must not
+        // resurrect an order whose stock reservation has been released.
+        if (orderStatus == 'cancelled') {
+          await _razorpayService.refundPayment(razorpayPaymentId);
+          final refundUpdate = await SupabaseDb.execute(() async {
+            await SupabaseDb.adminClient.from('payments').update({
+              'razorpay_payment_id': razorpayPaymentId,
+              'status': 'refunded',
+            }).eq('order_id', orderId);
+            await SupabaseDb.adminClient
+                .from('orders')
+                .update({'payment_status': 'refunded'}).eq('id', orderId);
+          });
+          if (refundUpdate.isError) {
+            throw Exception(
+                'Late payment was refunded but its local status could not be updated');
+          }
+        } else {
+          final rpcResult = await SupabaseDb.execute(() =>
+              SupabaseDb.adminClient.rpc('confirm_order_payment', params: {
+                'p_order_id': orderId,
+                'p_razorpay_payment_id': razorpayPaymentId,
+                'p_razorpay_order_id': razorpayOrderId,
+                'p_razorpay_signature': 'webhook',
+                'p_amount': amount,
+              }));
+
+          if (rpcResult.isError) {
+            throw Exception(
+                'Webhook payment confirmation failed: ${rpcResult.message}');
+          }
         }
       }
       final completed = await SupabaseDb.execute(() => SupabaseDb.adminClient

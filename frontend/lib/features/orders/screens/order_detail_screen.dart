@@ -879,7 +879,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   Widget _buildPaymentInfoCard() {
     final date = _formatDate(widget.order.createdAt);
-    final isPaid = widget.order.status != 'pending_payment';
+    final isPaid = widget.order.paymentStatus == 'paid';
 
     return Container(
       padding: const EdgeInsets.all(16),

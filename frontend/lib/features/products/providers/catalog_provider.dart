@@ -178,6 +178,21 @@ class CatalogProvider with ChangeNotifier {
     }
   }
 
+  Future<void> searchProductsByCategory(String categoryId) async {
+    _isLoadingProducts = true;
+    _productsError = null;
+    _searchResults = [];
+    notifyListeners();
+    try {
+      _searchResults = await _service.getProducts(categoryId: categoryId);
+    } catch (error) {
+      _productsError = error.toString();
+    } finally {
+      _isLoadingProducts = false;
+      notifyListeners();
+    }
+  }
+
   Future<ProductModel?> fetchProduct(String id) async {
     _isLoadingProduct = true;
     _productError = null;

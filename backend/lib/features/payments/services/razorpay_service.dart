@@ -79,4 +79,21 @@ class RazorpayService {
 
     throw Exception('Failed to capture Razorpay payment: ${response.body}');
   }
+
+  Future<Map<String, dynamic>> refundPayment(String paymentId) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/payments/$paymentId/refund'),
+      headers: {
+        'Authorization': _basicAuth,
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'speed': 'normal'}),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return Map<String, dynamic>.from(jsonDecode(response.body) as Map);
+    }
+
+    throw Exception('Failed to refund Razorpay payment: ${response.body}');
+  }
 }

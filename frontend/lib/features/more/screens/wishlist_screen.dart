@@ -7,6 +7,7 @@ import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:gadget_store/features/more/models/wishlist.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:gadget_store/core/widgets/optimized_network_image.dart';
+import 'package:gadget_store/features/home/screens/main_screen.dart';
 
 class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
@@ -517,8 +518,12 @@ class _WishlistScreenState extends State<WishlistScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Navigate to Categories or Home
-                  Navigator.pop(context);
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (_) => const MainScreen(initialIndex: 1),
+                    ),
+                    (route) => false,
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.black,

@@ -137,8 +137,14 @@ ${_messageController.text.trim()}
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: _currentState == ContactState.success
-          ? _buildSuccessView()
-          : _buildFormView(),
+          ? KeyedSubtree(
+              key: const ValueKey('ticket-success'),
+              child: _buildSuccessView(),
+            )
+          : KeyedSubtree(
+              key: const ValueKey('ticket-form'),
+              child: _buildFormView(),
+            ),
     );
   }
 
@@ -684,8 +690,10 @@ ${_messageController.text.trim()}
                   _emailController.clear();
                   _phoneController.clear();
                   _messageController.clear();
+                  _hasMessageError = false;
                   _currentState = ContactState.form;
                 });
+                _tabController.animateTo(1);
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.black,
@@ -701,7 +709,7 @@ ${_messageController.text.trim()}
                   Icon(Icons.mail_outline, size: 20),
                   SizedBox(width: 8),
                   Text(
-                    'Email Us Again',
+                    'Create Another Ticket',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 ],

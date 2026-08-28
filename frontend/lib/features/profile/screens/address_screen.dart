@@ -48,6 +48,22 @@ class _AddressScreenState extends State<AddressScreen> {
               ),
               const SizedBox(height: 16),
               ListTile(
+                leading: const Icon(
+                  PhosphorIcons.pencilSimple,
+                  color: AppTheme.black,
+                ),
+                title: const Text('Edit Address'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await Navigator.push(
+                    this.context,
+                    MaterialPageRoute(
+                      builder: (_) => AddAddressScreen(address: address),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.star_border, color: AppTheme.black),
                 title: const Text('Set as Default'),
                 onTap: () {

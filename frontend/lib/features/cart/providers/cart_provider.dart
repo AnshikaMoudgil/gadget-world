@@ -14,6 +14,7 @@ class CartProvider extends ChangeNotifier {
   String? _appliedCouponCode;
   double _discountAmount = 0.0;
   String? _discountType;
+  int _pendingItemCount = 0;
 
   Cart? get cart => _cart;
   bool get isLoading => _isLoading;
@@ -24,7 +25,8 @@ class CartProvider extends ChangeNotifier {
 
   int get itemCount {
     if (_cart == null) return 0;
-    return _cart!.items.fold(0, (sum, item) => sum + item.quantity);
+    return _cart!.items.fold(0, (sum, item) => sum + item.quantity) +
+        _pendingItemCount;
   }
 
   double get subtotal {
@@ -119,7 +121,8 @@ class CartProvider extends ChangeNotifier {
     int quantity, {
     String? variantId,
   }) async {
-    _setLoading(true);
+    _pendingItemCount += quantity;
+    notifyListeners();
     _setError(null);
     try {
       _cart = await _apiService.addToCart(
@@ -130,34 +133,65 @@ class CartProvider extends ChangeNotifier {
     } catch (e) {
       _setError(e.toString());
     } finally {
+      _pendingItemCount -= quantity;
+      if (_pendingItemCount < 0) _pendingItemCount = 0;
       _checkCouponValidity();
-      _setLoading(false);
+      notifyListeners();
     }
   }
 
   Future<void> updateQuantity(String cartItemId, int quantity) async {
-    _setLoading(true);
+    final previousCart = _cart;
+    if (_cart != null) {
+      _cart = Cart(
+        id: _cart!.id,
+        items: _cart!.items
+            .map(
+              (item) => item.id == cartItemId
+                  ? CartItem(
+                      id: item.id,
+                      productId: item.productId,
+                      variantId: item.variantId,
+                      quantity: quantity,
+                      product: item.product,
+                      variant: item.variant,
+                    )
+                  : item,
+            )
+            .toList(),
+      );
+      notifyListeners();
+    }
     _setError(null);
     try {
       _cart = await _apiService.updateCartItem(cartItemId, quantity);
     } catch (e) {
+      _cart = previousCart;
       _setError(e.toString());
     } finally {
       _checkCouponValidity();
-      _setLoading(false);
+      notifyListeners();
     }
   }
 
   Future<void> removeFromCart(String cartItemId) async {
-    _setLoading(true);
+    final previousCart = _cart;
+    if (_cart != null) {
+      _cart = Cart(
+        id: _cart!.id,
+        items: _cart!.items.where((item) => item.id != cartItemId).toList(),
+      );
+      notifyListeners();
+    }
     _setError(null);
     try {
       _cart = await _apiService.removeFromCart(cartItemId);
     } catch (e) {
+      _cart = previousCart;
       _setError(e.toString());
     } finally {
       _checkCouponValidity();
-      _setLoading(false);
+      notifyListeners();
     }
   }
 
@@ -166,6 +200,7 @@ class CartProvider extends ChangeNotifier {
     _appliedCouponCode = null;
     _discountAmount = 0.0;
     _discountType = null;
+    _pendingItemCount = 0;
     notifyListeners();
   }
 }

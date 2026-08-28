@@ -105,6 +105,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
+      showCheckmark: false,
       onSelected: onSelected,
       backgroundColor: AppTheme.white,
       selectedColor: AppTheme.black,

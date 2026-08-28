@@ -212,14 +212,20 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         horizontal: 16,
                         vertical: 8,
                       ),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio:
-                                0.65, // Adjust for product card ratio
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                          ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            MediaQuery.orientationOf(context) ==
+                                Orientation.landscape
+                            ? 4
+                            : 2,
+                        childAspectRatio:
+                            MediaQuery.orientationOf(context) ==
+                                Orientation.landscape
+                            ? 0.72
+                            : 0.65,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
                       itemCount: products.length,
                       itemBuilder: (context, index) {
                         final product = products[index];

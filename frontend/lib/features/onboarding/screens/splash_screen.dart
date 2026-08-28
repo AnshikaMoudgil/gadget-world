@@ -25,7 +25,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkAppState() async {
-    await Future.delayed(const Duration(seconds: 2));
+    // Keep the branded launch experience visible long enough for its reveal
+    // animation to complete before starting the route transition.
+    await Future.delayed(const Duration(milliseconds: 3200));
     if (!mounted) return;
 
     final prefs = await SharedPreferences.getInstance();
