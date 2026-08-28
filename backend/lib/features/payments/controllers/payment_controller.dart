@@ -5,7 +5,6 @@ import '../../../core/network/json_request.dart';
 import '../services/payment_service.dart';
 
 class PaymentController {
-  static const _maxWebhookBytes = 256 * 1024;
   PaymentService? _paymentServiceInstance;
   PaymentService get _paymentService =>
       _paymentServiceInstance ??= PaymentService();
@@ -87,44 +86,6 @@ class PaymentController {
         'payment.get_orders',
         e,
         message: 'Unable to retrieve orders.',
-      );
-    }
-  }
-
-  Future<Response> handleWebhook(Request request) async {
-    try {
-      final signature = request.headers['x-razorpay-signature'];
-      final eventId = request.headers['x-razorpay-event-id'];
-      if (signature == null || signature.isEmpty) {
-        return Response.badRequest(body: 'Missing signature');
-      }
-      if (eventId == null || eventId.isEmpty || eventId.length > 200) {
-        return Response.badRequest(body: 'Missing or invalid event ID');
-      }
-      final declaredLength =
-          int.tryParse(request.headers['content-length'] ?? '');
-      if (declaredLength != null && declaredLength > _maxWebhookBytes) {
-        return Response(413, body: 'Webhook body is too large');
-      }
-      final bytes = <int>[];
-      await for (final chunk in request.read()) {
-        bytes.addAll(chunk);
-        if (bytes.length > _maxWebhookBytes) {
-          return Response(413, body: 'Webhook body is too large');
-        }
-      }
-      final body = utf8.decode(bytes);
-
-      await _paymentService.processWebhook(eventId, signature, body);
-
-      return Response.ok(jsonEncode({'status': 'ok'}),
-          headers: {'Content-Type': 'application/json'});
-    } catch (e) {
-      return SafeError.response(
-        'payment.webhook',
-        e,
-        statusCode: 400,
-        message: 'Webhook processing failed.',
       );
     }
   }

@@ -9,9 +9,6 @@ class PaymentRoutes {
   Router get router {
     final router = Router();
 
-    // Webhook - Unauthenticated
-    router.post('/webhook', _controller.handleWebhook);
-
     // Authenticated handler wrapper
     Handler withAuth(Handler inner) =>
         const Pipeline().addMiddleware(authMiddleware()).addHandler(inner);

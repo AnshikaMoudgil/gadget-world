@@ -81,31 +81,4 @@ void main() {
     );
     expect(request.validate(), isNotNull);
   });
-
-  group('payment webhook request bounds', () {
-    final controller = PaymentController();
-
-    test('requires a provider event ID for replay protection', () async {
-      final response = await controller.handleWebhook(Request(
-        'POST',
-        Uri.parse('http://localhost/webhook'),
-        headers: {'x-razorpay-signature': 'signature'},
-        body: '{}',
-      ));
-      expect(response.statusCode, 400);
-    });
-
-    test('rejects an oversized declared body before processing', () async {
-      final response = await controller.handleWebhook(Request(
-        'POST',
-        Uri.parse('http://localhost/webhook'),
-        headers: {
-          'x-razorpay-signature': 'signature',
-          'x-razorpay-event-id': 'event-1',
-        },
-        body: List.filled(256 * 1024 + 1, 0),
-      ));
-      expect(response.statusCode, 413);
-    });
-  });
 }
