@@ -480,10 +480,13 @@ class PaymentService {
       }
 
       final refundUpdate = await SupabaseDb.execute(() async {
-        await SupabaseDb.adminClient.from('payments').update({
+        await SupabaseDb.adminClient.from('payments').upsert({
+          'order_id': orderId,
+          'razorpay_order_id': razorpayOrderId,
           'razorpay_payment_id': razorpayPaymentId,
+          'amount': amount,
           'status': 'refunded',
-        }).eq('order_id', orderId).eq('razorpay_order_id', razorpayOrderId);
+        }, onConflict: 'razorpay_payment_id');
 
         await SupabaseDb.adminClient
             .from('orders')
