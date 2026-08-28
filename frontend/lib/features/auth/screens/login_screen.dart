@@ -62,29 +62,42 @@ class _LoginScreenState extends State<LoginScreen> {
     _otpCooldownTimer?.cancel();
     _authSubscription?.cancel();
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      unawaited(SmartAuth.instance.removeSmsRetrieverApiListener());
+      unawaited(_stopOtpListener());
     }
     super.dispose();
   }
 
   Future<void> _listenForOtp() async {
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    try {
+      final signature = await SmartAuth.instance.getAppSignature();
+      if (signature.hasData) {
+        debugPrint('SMS Retriever app signature: ${signature.requireData}');
+      }
+      final result = await SmartAuth.instance.getSmsWithRetrieverApi(
+        matcher: r'\b\d{6}\b',
+      );
+      if (!mounted || !result.hasData) return;
 
-    final signature = await SmartAuth.instance.getAppSignature();
-    if (signature.hasData) {
-      debugPrint('SMS Retriever app signature: ${signature.requireData}');
+      final code = result.requireData.code?.replaceAll(RegExp(r'[^0-9]'), '');
+      if (code == null || code.length != 6) return;
+      setState(() {
+        _currentOtp = code;
+        _retrievedOtp = code;
+      });
+    } catch (error) {
+      // SMS Retriever is an optional convenience. Plugin/platform failures
+      // must never prevent the OTP request or manual code entry.
+      debugPrint('SMS Retriever unavailable; using manual OTP entry: $error');
     }
-    final result = await SmartAuth.instance.getSmsWithRetrieverApi(
-      matcher: r'\b\d{6}\b',
-    );
-    if (!mounted || !result.hasData) return;
+  }
 
-    final code = result.requireData.code?.replaceAll(RegExp(r'[^0-9]'), '');
-    if (code == null || code.length != 6) return;
-    setState(() {
-      _currentOtp = code;
-      _retrievedOtp = code;
-    });
+  Future<void> _stopOtpListener() async {
+    try {
+      await SmartAuth.instance.removeSmsRetrieverApiListener();
+    } catch (error) {
+      debugPrint('Unable to stop SMS Retriever listener: $error');
+    }
   }
 
   void _startOtpCooldown() {
@@ -148,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Start listening before requesting the SMS so a fast message is not lost.
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      await SmartAuth.instance.removeSmsRetrieverApiListener();
+      await _stopOtpListener();
     }
     unawaited(_listenForOtp());
     final success = await auth.sendOTP(fullPhoneNumber);
@@ -378,10 +391,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               if (!kIsWeb &&
                                   defaultTargetPlatform ==
                                       TargetPlatform.android) {
-                                unawaited(
-                                  SmartAuth.instance
-                                      .removeSmsRetrieverApiListener(),
-                                );
+                                unawaited(_stopOtpListener());
                               }
                               setState(() {
                                 _isOtpSent = false;

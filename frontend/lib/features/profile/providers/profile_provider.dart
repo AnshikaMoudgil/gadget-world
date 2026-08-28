@@ -73,6 +73,7 @@ class ProfileProvider extends ChangeNotifier {
 
     _setLoading(true);
     _setError(null);
+    String? uploadedPath;
     try {
       _profile ??= await _profileService.getProfile(user.id);
       if (_profile == null) {
@@ -90,6 +91,7 @@ class ProfileProvider extends ChangeNotifier {
       };
       final fileName =
           '${user.id}/avatar_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
+      uploadedPath = fileName;
       final imageBytes = await imageFile.readAsBytes();
 
       await Supabase.instance.client.storage
@@ -104,9 +106,11 @@ class ProfileProvider extends ChangeNotifier {
           .from('avatars')
           .getPublicUrl(fileName);
 
+      final previousAvatarUrl = _profile!.avatarUrl;
       final updatedProfile = _profile!.copyWith(avatarUrl: imageUrl);
 
       _profile = await _profileService.updateProfile(updatedProfile);
+      await _removeStoredAvatar(previousAvatarUrl, exceptPath: fileName);
       try {
         await Supabase.instance.client.auth.updateUser(
           UserAttributes(data: {'avatar_url': imageUrl}),
@@ -117,6 +121,15 @@ class ProfileProvider extends ChangeNotifier {
       }
       return true;
     } catch (e) {
+      if (uploadedPath != null) {
+        try {
+          await Supabase.instance.client.storage.from('avatars').remove([
+            uploadedPath,
+          ]);
+        } catch (_) {
+          // Preserve the original profile error; cleanup can be retried later.
+        }
+      }
       _setError(e.toString());
       return false;
     } finally {
@@ -131,14 +144,43 @@ class ProfileProvider extends ChangeNotifier {
     _setLoading(true);
     _setError(null);
     try {
+      final previousAvatarUrl = _profile!.avatarUrl;
       final updatedProfile = _profile!.copyWith(clearAvatarUrl: true);
       _profile = await _profileService.updateProfile(updatedProfile);
+      await _removeStoredAvatar(previousAvatarUrl);
+      try {
+        await Supabase.instance.client.auth.updateUser(
+          UserAttributes(data: {'avatar_url': null}),
+        );
+      } catch (_) {
+        // Profile data remains authoritative.
+      }
       return true;
     } catch (e) {
       _setError(e.toString());
       return false;
     } finally {
       _setLoading(false);
+    }
+  }
+
+  Future<void> _removeStoredAvatar(
+    String? publicUrl, {
+    String? exceptPath,
+  }) async {
+    if (publicUrl == null || publicUrl.isEmpty) return;
+    final uri = Uri.tryParse(publicUrl);
+    if (uri == null) return;
+    final bucketIndex = uri.pathSegments.indexOf('avatars');
+    if (bucketIndex < 0 || bucketIndex == uri.pathSegments.length - 1) return;
+    final objectPath = uri.pathSegments.sublist(bucketIndex + 1).join('/');
+    if (objectPath.isEmpty || objectPath == exceptPath) return;
+    try {
+      await Supabase.instance.client.storage.from('avatars').remove([
+        objectPath,
+      ]);
+    } catch (error) {
+      debugPrint('Unable to remove previous avatar object: $error');
     }
   }
 }

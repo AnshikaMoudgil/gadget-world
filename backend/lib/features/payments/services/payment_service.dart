@@ -45,6 +45,7 @@ class PaymentService {
           id,
           shipping_address_id,
           coupon_code,
+          order_items(product_id, variant_id, quantity),
           payments!inner(razorpay_order_id, amount, currency, status)
         ''')
         .eq('checkout_cart_id', cart.id)
@@ -58,18 +59,20 @@ class PaymentService {
           activeCheckout.data!['shipping_address_id'] as String?;
       final existingCouponCode =
           (activeCheckout.data!['coupon_code'] as String?)?.toUpperCase();
+      final existingOrderItems =
+          activeCheckout.data!['order_items'] as List<dynamic>? ?? const [];
       final checkoutInputsMatch = existingAddressId == addressId &&
-          existingCouponCode == requestedCouponCode;
+          existingCouponCode == requestedCouponCode &&
+          _cartContentsMatch(cart.items, existingOrderItems);
       final existingPayments =
           activeCheckout.data!['payments'] as List<dynamic>? ?? const [];
-      final existingPayment = existingPayments
-          .whereType<Map<String, dynamic>>()
-          .where((payment) => payment['status'] == 'created')
-          .firstOrNull;
+      final existingPayment =
+          existingPayments.whereType<Map<String, dynamic>>().firstOrNull;
       final existingProviderOrderId =
           existingPayment?['razorpay_order_id'] as String?;
       final existingAmount = existingPayment?['amount'] as num?;
       if (checkoutInputsMatch &&
+          existingPayment?['status'] == 'created' &&
           existingProviderOrderId != null &&
           existingAmount != null) {
         return {
@@ -82,9 +85,71 @@ class PaymentService {
         };
       }
 
-      // Address/coupon changes must never reuse a provider order created from
-      // older checkout inputs. Cancelling also releases its stock and coupon
-      // reservation through the database status-change trigger.
+      // Before replacing a checkout, reconcile Razorpay. A captured or
+      // authorized payment must be confirmed, never cancelled as unpaid.
+      if (existingProviderOrderId != null && existingAmount != null) {
+        final providerPayments = await _razorpayService.fetchOrderPayments(
+          existingProviderOrderId,
+        );
+        Map<String, dynamic>? payablePayment;
+        for (final providerPayment in providerPayments) {
+          if (providerPayment['status'] == 'captured' ||
+              providerPayment['status'] == 'authorized') {
+            payablePayment = providerPayment;
+            break;
+          }
+        }
+
+        if (payablePayment != null) {
+          final paymentId = payablePayment['id'] as String?;
+          final expectedSubunits = (existingAmount.toDouble() * 100).round();
+          if (paymentId == null ||
+              payablePayment['order_id'] != existingProviderOrderId ||
+              payablePayment['amount'] is! num ||
+              (payablePayment['amount'] as num).toInt() != expectedSubunits) {
+            throw Exception('Existing Razorpay payment failed reconciliation');
+          }
+
+          if (payablePayment['status'] == 'authorized') {
+            payablePayment = await _razorpayService.capturePayment(
+              paymentId: paymentId,
+              amountSubunits: expectedSubunits,
+              currency: existingPayment?['currency'] as String? ?? 'INR',
+            );
+          }
+          if (payablePayment['status'] != 'captured') {
+            throw Exception('Existing Razorpay payment is not captured');
+          }
+
+          final confirmation = await SupabaseDb.execute(
+            () => SupabaseDb.adminClient.rpc(
+              'confirm_order_payment',
+              params: {
+                'p_order_id': activeCheckout.data!['id'],
+                'p_razorpay_payment_id': paymentId,
+                'p_razorpay_order_id': existingProviderOrderId,
+                'p_razorpay_signature': 'provider_reconciliation',
+                'p_amount': existingAmount.toDouble(),
+                'p_user_id': userId,
+              },
+            ),
+          );
+          if (confirmation.isError) {
+            throw Exception(
+              'Captured payment could not be reconciled: ${confirmation.message}',
+            );
+          }
+          return {
+            'alreadyPaid': true,
+            'orderId': existingProviderOrderId,
+            'amount': expectedSubunits,
+            'currency': existingPayment?['currency'] as String? ?? 'INR',
+          };
+        }
+      }
+
+      // Only a provider order with no captured/authorized payment may be
+      // replaced. Cancellation releases stock and coupon reservations.
       final cancelled = await SupabaseDb.execute(() => SupabaseDb.adminClient
           .from('orders')
           .update({'status': 'cancelled'})
@@ -198,6 +263,31 @@ class PaymentService {
       'keyId': Env.getOrNull('RAZORPAY_KEY_ID') ??
           Env.getOr('RAZORPAY_KEY_ID_A', 'rzp_test_mock'),
     };
+  }
+
+  bool _cartContentsMatch(
+    List<dynamic> cartItems,
+    List<dynamic> orderItems,
+  ) {
+    String signature(dynamic item, bool cartItem) {
+      final productId = cartItem ? item.productId : item['product_id'];
+      final variantId = cartItem ? item.variantId : item['variant_id'];
+      final quantity = cartItem ? item.quantity : item['quantity'];
+      return '$productId|${variantId ?? ''}|$quantity';
+    }
+
+    final cartSnapshot = cartItems.map((item) => signature(item, true)).toList()
+      ..sort();
+    final orderSnapshot = orderItems
+        .whereType<Map<String, dynamic>>()
+        .map((item) => signature(item, false))
+        .toList()
+      ..sort();
+    if (cartSnapshot.length != orderSnapshot.length) return false;
+    for (var index = 0; index < cartSnapshot.length; index++) {
+      if (cartSnapshot[index] != orderSnapshot[index]) return false;
+    }
+    return true;
   }
 
   Future<void> verifyPayment({

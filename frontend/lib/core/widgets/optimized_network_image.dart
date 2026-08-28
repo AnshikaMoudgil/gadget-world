@@ -31,10 +31,10 @@ class OptimizedNetworkImage extends StatelessWidget {
     final hasFiniteHeight = height != null && height!.isFinite && height! > 0;
     final cacheWidth = !hasFiniteWidth
         ? 720
-        : (width! * pixelRatio).round().clamp(64, 1080);
+        : (width! * pixelRatio).round().clamp(64, 1080).toInt();
     final cacheHeight = !hasFiniteHeight
         ? null
-        : (height! * pixelRatio).round().clamp(64, 1080);
+        : (height! * pixelRatio).round().clamp(64, 1080).toInt();
 
     return CachedNetworkImage(
       imageUrl: imageUrl,

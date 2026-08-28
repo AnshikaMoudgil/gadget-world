@@ -13,6 +13,7 @@ import 'package:gadget_store/features/orders/screens/orders_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gadget_store/features/orders/screens/reorder_screen.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:gadget_store/core/widgets/optimized_network_image.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -321,13 +322,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             clipBehavior: Clip.hardEdge,
             child: imageUrl != null && imageUrl.isNotEmpty
-                ? Image.network(
-                    imageUrl,
+                ? OptimizedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 50,
+                    height: 50,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      PhosphorIcons.shoppingBag,
-                      color: AppTheme.black,
-                    ),
+                    errorIcon: PhosphorIcons.shoppingBag,
                   )
                 : const Icon(PhosphorIcons.shoppingBag, color: AppTheme.black),
           ),

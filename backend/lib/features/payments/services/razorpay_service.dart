@@ -56,6 +56,28 @@ class RazorpayService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchOrderPayments(String orderId) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/orders/$orderId/payments'),
+      headers: {'Authorization': _basicAuth},
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final decoded = Map<String, dynamic>.from(
+        jsonDecode(response.body) as Map,
+      );
+      final items = decoded['items'] as List<dynamic>? ?? const [];
+      return items
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    }
+
+    throw Exception(
+      'Failed to fetch payments for Razorpay order: ${response.body}',
+    );
+  }
+
   Future<Map<String, dynamic>> capturePayment({
     required String paymentId,
     required int amountSubunits,

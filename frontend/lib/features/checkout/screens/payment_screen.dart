@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:gadget_store/features/cart/providers/cart_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:gadget_store/features/home/screens/main_screen.dart';
 
 enum PaymentState { initial, processing }
 
@@ -178,6 +179,22 @@ class _PaymentScreenState extends State<PaymentScreen>
         addressId: widget.addressId,
         couponCode: cartProvider.appliedCouponCode,
       );
+
+      if (orderData['alreadyPaid'] == true) {
+        if (!mounted) return;
+        await Provider.of<OrderProvider>(context, listen: false).fetchOrders();
+        if (!mounted) return;
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 3)),
+          (route) => false,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Payment confirmed. Your order is in Orders.'),
+          ),
+        );
+        return;
+      }
 
       final keyId = orderData['keyId'] as String? ?? '';
       final orderId = orderData['orderId'] as String? ?? '';
