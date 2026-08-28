@@ -37,6 +37,7 @@ class _PaymentScreenState extends State<PaymentScreen>
   final PaymentApiService _paymentApiService = PaymentApiService();
   bool _isProcessing = false;
   bool _showOrderDetails = false;
+  int? _authoritativeAmountSubunits;
 
   @override
   void initState() {
@@ -69,7 +70,9 @@ class _PaymentScreenState extends State<PaymentScreen>
       final email = Supabase.instance.client.auth.currentUser?.email ?? '';
       final itemsCount = cartProvider.itemCount;
 
-      final total = cartProvider.total;
+      final total = _authoritativeAmountSubunits != null
+          ? _authoritativeAmountSubunits! / 100
+          : cartProvider.total;
       final totalAmountStr = '₹${total.toStringAsFixed(0)}';
 
       final orderId = response.orderId ?? '';
@@ -178,10 +181,15 @@ class _PaymentScreenState extends State<PaymentScreen>
 
       final keyId = orderData['keyId'] as String? ?? '';
       final orderId = orderData['orderId'] as String? ?? '';
+      final amount = orderData['amount'];
+      if (amount is! num || amount <= 0) {
+        throw Exception('Backend returned an invalid checkout amount');
+      }
+      _authoritativeAmountSubunits = amount.toInt();
 
       var options = {
         'key': keyId,
-        'amount': orderData['amount'],
+        'amount': _authoritativeAmountSubunits,
         'name': 'Gadget World',
         'order_id': orderId,
         'description': 'Purchase from Gadget World',

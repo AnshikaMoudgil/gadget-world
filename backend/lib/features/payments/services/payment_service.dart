@@ -32,13 +32,21 @@ class PaymentService {
       throw Exception('Cart is empty');
     }
 
+    final requestedCouponCode = couponCode == null || couponCode.trim().isEmpty
+        ? null
+        : couponCode.trim().toUpperCase();
+
     // Avoid creating another provider order for a sequential retry. The atomic
     // checkout RPC enforces the same rule under a cart-row lock for races.
     final activeCheckout = await SupabaseDb.querySingle(() => SupabaseDb
         .adminClient
         .from('orders')
-        .select(
-            'id, payments!inner(razorpay_order_id, amount, currency, status)')
+        .select('''
+          id,
+          shipping_address_id,
+          coupon_code,
+          payments!inner(razorpay_order_id, amount, currency, status)
+        ''')
         .eq('checkout_cart_id', cart.id)
         .inFilter('status', ['pending_payment', 'pending'])
         .gt('stock_reservation_expires_at',
@@ -46,6 +54,12 @@ class PaymentService {
         .limit(1)
         .maybeSingle());
     if (!activeCheckout.isError && activeCheckout.data != null) {
+      final existingAddressId =
+          activeCheckout.data!['shipping_address_id'] as String?;
+      final existingCouponCode =
+          (activeCheckout.data!['coupon_code'] as String?)?.toUpperCase();
+      final checkoutInputsMatch = existingAddressId == addressId &&
+          existingCouponCode == requestedCouponCode;
       final existingPayments =
           activeCheckout.data!['payments'] as List<dynamic>? ?? const [];
       final existingPayment = existingPayments
@@ -55,7 +69,9 @@ class PaymentService {
       final existingProviderOrderId =
           existingPayment?['razorpay_order_id'] as String?;
       final existingAmount = existingPayment?['amount'] as num?;
-      if (existingProviderOrderId != null && existingAmount != null) {
+      if (checkoutInputsMatch &&
+          existingProviderOrderId != null &&
+          existingAmount != null) {
         return {
           'orderId': existingProviderOrderId,
           'amount': (existingAmount.toDouble() * 100).round(),
@@ -65,7 +81,20 @@ class PaymentService {
           'reused': true,
         };
       }
-      throw Exception('An active checkout already exists for this cart.');
+
+      // Address/coupon changes must never reuse a provider order created from
+      // older checkout inputs. Cancelling also releases its stock and coupon
+      // reservation through the database status-change trigger.
+      final cancelled = await SupabaseDb.execute(() => SupabaseDb.adminClient
+          .from('orders')
+          .update({'status': 'cancelled'})
+          .eq('id', activeCheckout.data!['id'])
+          .eq('user_id', userId)
+          .inFilter('status', ['pending_payment', 'pending']));
+      if (cancelled.isError) {
+        throw Exception(
+            'Unable to replace the previous checkout: ${cancelled.message}');
+      }
     }
     if (activeCheckout.isError && activeCheckout.statusCode != 404) {
       throw Exception(
@@ -113,12 +142,12 @@ class PaymentService {
     double discount = 0.0;
     String? validCouponCode;
 
-    if (couponCode != null && couponCode.isNotEmpty) {
-      final couponRes =
-          await _couponService.validateCoupon(couponCode, subtotal, userId);
+    if (requestedCouponCode != null) {
+      final couponRes = await _couponService.validateCoupon(
+          requestedCouponCode, subtotal, userId);
       if (couponRes['valid'] == true) {
         discount = (couponRes['discount_amount'] as num).toDouble();
-        validCouponCode = couponCode.toUpperCase();
+        validCouponCode = requestedCouponCode;
         if (couponRes['coupon'] != null) {
           if (couponRes['coupon']['discount_type'] == 'free_shipping') {
             shippingFee = 0.0;

@@ -45,6 +45,7 @@ class CartProvider extends ChangeNotifier {
 
   double get shippingFee {
     if (_cart == null || _cart!.items.isEmpty) return 0.0;
+    if (_discountType == 'free_shipping') return 0.0;
     return subtotal > 50000 ? 0.0 : 299.0;
   }
 
