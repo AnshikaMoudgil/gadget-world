@@ -29,6 +29,8 @@ class OptimizedNetworkImage extends StatelessWidget {
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     final hasFiniteWidth = width != null && width!.isFinite && width! > 0;
     final hasFiniteHeight = height != null && height!.isFinite && height! > 0;
+    final displayWidth = hasFiniteWidth ? width : null;
+    final displayHeight = hasFiniteHeight ? height : null;
     final cacheWidth = !hasFiniteWidth
         ? 720
         : (width! * pixelRatio).round().clamp(64, 1080).toInt();
@@ -38,8 +40,8 @@ class OptimizedNetworkImage extends StatelessWidget {
 
     return CachedNetworkImage(
       imageUrl: imageUrl,
-      width: width,
-      height: height,
+      width: displayWidth,
+      height: displayHeight,
       fit: fit,
       memCacheWidth: cacheWidth,
       memCacheHeight: cacheHeight,
@@ -48,8 +50,8 @@ class OptimizedNetworkImage extends StatelessWidget {
       fadeInDuration: const Duration(milliseconds: 120),
       fadeOutDuration: const Duration(milliseconds: 80),
       placeholder: (_, _) => Container(
-        width: width,
-        height: height,
+        width: displayWidth,
+        height: displayHeight,
         color: AppTheme.greyBackground,
         alignment: Alignment.center,
         child: const SizedBox(
@@ -59,8 +61,8 @@ class OptimizedNetworkImage extends StatelessWidget {
         ),
       ),
       errorWidget: (_, _, _) => Container(
-        width: width,
-        height: height,
+        width: displayWidth,
+        height: displayHeight,
         color: AppTheme.greyBackground,
         alignment: Alignment.center,
         child: Icon(errorIcon, color: AppTheme.greyText),

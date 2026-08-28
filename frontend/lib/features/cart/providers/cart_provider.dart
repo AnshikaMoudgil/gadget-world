@@ -121,6 +121,7 @@ class CartProvider extends ChangeNotifier {
     int quantity, {
     String? variantId,
   }) async {
+    _setLoading(true);
     _pendingItemCount += quantity;
     notifyListeners();
     _setError(null);
@@ -136,11 +137,12 @@ class CartProvider extends ChangeNotifier {
       _pendingItemCount -= quantity;
       if (_pendingItemCount < 0) _pendingItemCount = 0;
       _checkCouponValidity();
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
   Future<void> updateQuantity(String cartItemId, int quantity) async {
+    _setLoading(true);
     final previousCart = _cart;
     if (_cart != null) {
       _cart = Cart(
@@ -170,11 +172,12 @@ class CartProvider extends ChangeNotifier {
       _setError(e.toString());
     } finally {
       _checkCouponValidity();
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
   Future<void> removeFromCart(String cartItemId) async {
+    _setLoading(true);
     final previousCart = _cart;
     if (_cart != null) {
       _cart = Cart(
@@ -191,7 +194,7 @@ class CartProvider extends ChangeNotifier {
       _setError(e.toString());
     } finally {
       _checkCouponValidity();
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
