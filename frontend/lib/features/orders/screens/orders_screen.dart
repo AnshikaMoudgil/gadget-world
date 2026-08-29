@@ -131,6 +131,22 @@ class _OrdersScreenState extends State<OrdersScreen> {
               errorText.contains('expired') ||
               errorText.contains('authentication failed') ||
               errorText.contains('403');
+          final isNetworkError = 
+              errorText.contains('socketexception') ||
+              errorText.contains('failed host lookup') ||
+              errorText.contains('connection');
+
+          String title = isAuthError 
+              ? 'Your session has expired.' 
+              : (isNetworkError ? 'No Internet Connection' : 'Something went wrong.');
+          
+          String message = isAuthError 
+              ? 'Please log in again to view your orders.' 
+              : (isNetworkError ? 'Please check your internet connection and try again.' : orderProvider.error!);
+          
+          IconData icon = isAuthError 
+              ? Icons.lock_clock 
+              : (isNetworkError ? PhosphorIcons.wifiSlash : Icons.error_outline);
 
           return Center(
             child: Padding(
@@ -139,26 +155,23 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    isAuthError ? Icons.lock_clock : Icons.error_outline,
+                    icon,
                     size: 48,
                     color: AppTheme.greyText,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    isAuthError
-                        ? 'Your session has expired.'
-                        : 'Something went wrong.',
+                    title,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.black,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    isAuthError
-                        ? 'Please log in again to view your orders.'
-                        : orderProvider.error!,
+                    message,
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: AppTheme.greyText),
                   ),
@@ -363,13 +376,27 @@ class _OrdersScreenState extends State<OrdersScreen> {
           if (imagesData is List && imagesData.isNotEmpty) {
             firstImageUrl = imagesData[0].toString();
           } else if (imagesData is String && imagesData.isNotEmpty) {
-            try {
-              final parsed = jsonDecode(imagesData);
-              if (parsed is List && parsed.isNotEmpty) {
-                firstImageUrl = parsed[0].toString();
+            final str = imagesData.trim();
+            if (str.startsWith('{') && str.endsWith('}')) {
+              final inner = str.substring(1, str.length - 1);
+              if (inner.isNotEmpty) {
+                final parts = inner.split(',');
+                if (parts.isNotEmpty) {
+                  firstImageUrl = parts[0].trim().replaceAll('"', '').replaceAll("'", "");
+                }
               }
-            } catch (_) {}
-          } else if (details['image_url'] != null) {
+            } else if (str.startsWith('[') && str.endsWith(']')) {
+              try {
+                final parsed = jsonDecode(str);
+                if (parsed is List && parsed.isNotEmpty) {
+                  firstImageUrl = parsed[0].toString();
+                }
+              } catch (_) {}
+            } else {
+              firstImageUrl = str;
+            }
+          }
+          if (firstImageUrl == null && details['image_url'] != null) {
             firstImageUrl = details['image_url'].toString();
           }
         }
@@ -387,6 +414,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         }
 
         final shortId = order.id.split('-').first.toUpperCase().substring(0, 6);
+        final localCreatedAt = order.createdAt.toLocal();
 
         return _buildOrderItemCard(
           order: order,
@@ -394,7 +422,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
           shortId: '#$shortId',
           status: order.status.toUpperCase(),
           date:
-              '${order.createdAt.day} ${_getMonth(order.createdAt.month)} ${order.createdAt.year}, ${_formatTime(order.createdAt)}',
+              '${localCreatedAt.day} ${_getMonth(localCreatedAt.month)} ${localCreatedAt.year}, ${_formatTime(localCreatedAt)}',
           price: '₹${order.amount.toStringAsFixed(0)}',
           items: itemCount == 1 ? '1 Item' : '$itemCount Items',
           imageUrl: firstImageUrl,

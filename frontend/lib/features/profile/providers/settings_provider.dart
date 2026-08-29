@@ -22,6 +22,16 @@ class SettingsProvider with ChangeNotifier {
       _settings = await _apiService.getSettings(token);
     } catch (e) {
       _error = e.toString();
+      // Provide fallback settings so the UI can still load
+      _settings = UserSettings(
+        id: 'fallback_id',
+        userId: 'fallback_uid',
+        orderUpdatesSms: true,
+        orderUpdatesEmail: true,
+        promotionsEmail: false,
+        preferredTheme: 'system',
+        preferredLanguage: 'en',
+      );
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -86,12 +86,25 @@ class _PaymentScreenState extends State<PaymentScreen>
               if (imagesData is List && imagesData.isNotEmpty) {
                 firstImageUrl = imagesData[0].toString();
               } else if (imagesData is String && imagesData.isNotEmpty) {
-                try {
-                  final parsed = jsonDecode(imagesData);
-                  if (parsed is List && parsed.isNotEmpty) {
-                    firstImageUrl = parsed[0].toString();
+                final str = imagesData.trim();
+                if (str.startsWith('{') && str.endsWith('}')) {
+                  final inner = str.substring(1, str.length - 1);
+                  if (inner.isNotEmpty) {
+                    final parts = inner.split(',');
+                    if (parts.isNotEmpty) {
+                      firstImageUrl = parts[0].trim().replaceAll('"', '').replaceAll("'", "");
+                    }
                   }
-                } catch (_) {}
+                } else if (str.startsWith('[') && str.endsWith(']')) {
+                  try {
+                    final parsed = jsonDecode(str);
+                    if (parsed is List && parsed.isNotEmpty) {
+                      firstImageUrl = parsed[0].toString();
+                    }
+                  } catch (_) {}
+                } else {
+                  firstImageUrl = str;
+                }
               }
             }
             return {

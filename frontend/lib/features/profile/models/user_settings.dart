@@ -19,8 +19,8 @@ class UserSettings {
 
   factory UserSettings.fromJson(Map<String, dynamic> json) {
     return UserSettings(
-      id: json['id'] as String,
-      userId: json['user_id'] as String,
+      id: json['id'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
       orderUpdatesSms: json['order_updates_sms'] as bool? ?? true,
       orderUpdatesEmail: json['order_updates_email'] as bool? ?? true,
       promotionsEmail: json['promotions_email'] as bool? ?? false,

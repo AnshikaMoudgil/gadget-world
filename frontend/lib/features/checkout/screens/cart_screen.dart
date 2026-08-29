@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/core/widgets/primary_button.dart';
 import 'package:gadget_store/core/widgets/optimized_network_image.dart';
@@ -129,18 +130,28 @@ class _CartScreenState extends State<CartScreen> {
         : 0.0;
 
     String? imageUrl;
-    final images = product['images'];
-    if (images is List && images.isNotEmpty) {
-      imageUrl = images.first?.toString();
-    } else if (images is String && images.isNotEmpty) {
-      imageUrl = images;
-      if (imageUrl.startsWith('{') && imageUrl.endsWith('}')) {
-        imageUrl = imageUrl
-            .substring(1, imageUrl.length - 1)
-            .split(',')
-            .first
-            .replaceAll('"', '')
-            .trim();
+    final imagesData = product['images'];
+    if (imagesData is List && imagesData.isNotEmpty) {
+      imageUrl = imagesData.first?.toString();
+    } else if (imagesData is String && imagesData.isNotEmpty) {
+      final str = imagesData.trim();
+      if (str.startsWith('{') && str.endsWith('}')) {
+        final inner = str.substring(1, str.length - 1);
+        if (inner.isNotEmpty) {
+          final parts = inner.split(',');
+          if (parts.isNotEmpty) {
+            imageUrl = parts[0].trim().replaceAll('"', '').replaceAll("'", "");
+          }
+        }
+      } else if (str.startsWith('[') && str.endsWith(']')) {
+        try {
+          final parsed = jsonDecode(str);
+          if (parsed is List && parsed.isNotEmpty) {
+            imageUrl = parsed[0].toString();
+          }
+        } catch (_) {}
+      } else {
+        imageUrl = str;
       }
     }
 
@@ -568,6 +579,59 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  Widget _buildErrorState(String error) {
+    bool isNetworkError = error.toLowerCase().contains('socketexception') ||
+                          error.toLowerCase().contains('failed host lookup') ||
+                          error.toLowerCase().contains('connection');
+
+    String title = isNetworkError ? 'No Internet Connection' : 'Oops, something went wrong';
+    String message = isNetworkError 
+        ? 'Please check your internet connection and try again.' 
+        : error;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isNetworkError ? PhosphorIcons.wifiSlash : PhosphorIcons.warningCircle,
+              size: 64,
+              color: AppTheme.greyText,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              style: const TextStyle(color: AppTheme.greyText, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: 150,
+              child: PrimaryButton(
+                onPressed: () {
+                  Provider.of<CartProvider>(context, listen: false).loadCart();
+                },
+                text: 'Try Again',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(
@@ -581,12 +645,7 @@ class _CartScreenState extends State<CartScreen> {
           body: cartProvider.isLoading && items.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : cartProvider.error != null
-              ? Center(
-                  child: Text(
-                    'Error loading cart: ${cartProvider.error}',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                )
+              ? _buildErrorState(cartProvider.error!)
               : items.isEmpty
               ? SafeArea(
                   child: Center(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:gadget_store/core/theme.dart';
 import 'package:gadget_store/features/orders/models/order.dart';
 import 'package:gadget_store/features/orders/utils/invoice_generator.dart';
@@ -391,11 +392,32 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           final subtitle = details?['category'] ?? 'Category';
           String? imageUrl;
           if (details != null) {
-            if (details['images'] != null &&
-                (details['images'] as List).isNotEmpty) {
-              imageUrl = (details['images'] as List).first as String;
-            } else {
-              imageUrl = details['image_url'] as String?;
+            dynamic imagesData = details['images'];
+            if (imagesData is List && imagesData.isNotEmpty) {
+              imageUrl = imagesData[0].toString();
+            } else if (imagesData is String && imagesData.isNotEmpty) {
+              final str = imagesData.trim();
+              if (str.startsWith('{') && str.endsWith('}')) {
+                final inner = str.substring(1, str.length - 1);
+                if (inner.isNotEmpty) {
+                  final parts = inner.split(',');
+                  if (parts.isNotEmpty) {
+                    imageUrl = parts[0].trim().replaceAll('"', '').replaceAll("'", "");
+                  }
+                }
+              } else if (str.startsWith('[') && str.endsWith(']')) {
+                try {
+                  final parsed = jsonDecode(str);
+                  if (parsed is List && parsed.isNotEmpty) {
+                    imageUrl = parsed[0].toString();
+                  }
+                } catch (_) {}
+              } else {
+                imageUrl = str;
+              }
+            }
+            if (imageUrl == null && details['image_url'] != null) {
+              imageUrl = details['image_url'].toString();
             }
           }
           return Column(

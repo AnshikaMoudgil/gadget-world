@@ -23,6 +23,20 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   CheckoutState _currentState = CheckoutState.normal;
+  Address? _selectedCheckoutAddress;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+      if (addressProvider.defaultAddress != null) {
+        setState(() {
+          _selectedCheckoutAddress = addressProvider.defaultAddress;
+        });
+      }
+    });
+  }
 
   void _cycleState() {
     setState(() {
@@ -90,12 +104,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     );
                     if (selected != null && context.mounted) {
-                      try {
-                        await Provider.of<AddressProvider>(
-                          context,
-                          listen: false,
-                        ).setDefaultAddress((selected as Address).id!);
-                      } catch (_) {}
+                      setState(() {
+                        _selectedCheckoutAddress = selected as Address;
+                      });
                     }
                   },
                 ),
@@ -275,7 +286,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildShippingAddress() {
     final addressProvider = Provider.of<AddressProvider>(context);
-    final address = addressProvider.defaultAddress;
+    final address = _selectedCheckoutAddress ?? addressProvider.defaultAddress;
 
     if (address == null) {
       return Container(
@@ -397,12 +408,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 if (imagesData is List && imagesData.isNotEmpty) {
                   firstImageUrl = imagesData[0].toString();
                 } else if (imagesData is String && imagesData.isNotEmpty) {
-                  try {
-                    final parsed = jsonDecode(imagesData);
-                    if (parsed is List && parsed.isNotEmpty) {
-                      firstImageUrl = parsed[0].toString();
+                  final str = imagesData.trim();
+                  if (str.startsWith('{') && str.endsWith('}')) {
+                    final inner = str.substring(1, str.length - 1);
+                    if (inner.isNotEmpty) {
+                      final parts = inner.split(',');
+                      if (parts.isNotEmpty) {
+                        firstImageUrl = parts[0].trim().replaceAll('"', '').replaceAll("'", "");
+                      }
                     }
-                  } catch (_) {}
+                  } else if (str.startsWith('[') && str.endsWith(']')) {
+                    try {
+                      final parsed = jsonDecode(str);
+                      if (parsed is List && parsed.isNotEmpty) {
+                        firstImageUrl = parsed[0].toString();
+                      }
+                    } catch (_) {}
+                  } else {
+                    firstImageUrl = str;
+                  }
                 }
               }
 

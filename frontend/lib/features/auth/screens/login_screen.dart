@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,9 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _retrievedOtp;
   int _otpShakeTrigger = 0;
   String? _lastError;
+  bool _isGoogleLoading = false;
+  bool _isOtpLoading = false;
+  bool _isVerifyLoading = false;
   Timer? _otpCooldownTimer;
   int _otpCooldownSeconds = 0;
   StreamSubscription? _authSubscription;
@@ -139,8 +143,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _loginWithGoogle() async {
+    setState(() => _isGoogleLoading = true);
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final success = await auth.signInWithGoogle();
+    if (mounted) setState(() => _isGoogleLoading = false);
     if (success && mounted) {
       _onSuccess();
     } else if (!success && auth.errorMessage != null && mounted) {
@@ -164,7 +170,11 @@ class _LoginScreenState extends State<LoginScreen> {
       await _stopOtpListener();
     }
     unawaited(_listenForOtp());
+    
+    setState(() => _isOtpLoading = true);
     final success = await auth.sendOTP(fullPhoneNumber);
+    if (mounted) setState(() => _isOtpLoading = false);
+    
     if (success && mounted) {
       setState(() => _isOtpSent = true);
       _startOtpCooldown();
@@ -181,8 +191,11 @@ class _LoginScreenState extends State<LoginScreen> {
     final fullPhoneNumber =
         '$_selectedCountryCode${_phoneController.text.trim()}';
 
+    setState(() => _isVerifyLoading = true);
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final success = await auth.verifyOTP(fullPhoneNumber, _currentOtp);
+    if (mounted) setState(() => _isVerifyLoading = false);
+    
     if (success && mounted) {
       _onSuccess();
     } else if (!success && auth.errorMessage != null && mounted) {
@@ -193,7 +206,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
-    final isLoading = auth.isLoading;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
@@ -290,7 +302,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Google Sign-In Option
                   GoogleButton(
-                    isLoading: isLoading,
+                    isLoading: _isGoogleLoading,
                     onPressed: _loginWithGoogle,
                   ),
 
@@ -327,6 +339,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       label: 'Phone Number',
                       hintText: '98765 43210',
                       keyboardType: TextInputType.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
                       controller: _phoneController,
                       prefixWidget: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -357,7 +373,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
                     LoadingButton(
                       text: 'Send OTP',
-                      isLoading: isLoading,
+                      isLoading: _isOtpLoading,
                       onPressed: _sendOtp,
                     ),
                   ] else ...[
@@ -432,7 +448,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     LoadingButton(
                       text: 'Verify OTP',
-                      isLoading: isLoading,
+                      isLoading: _isVerifyLoading,
                       onPressed: _verifyOtp,
                     ),
 
