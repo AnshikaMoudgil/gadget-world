@@ -429,6 +429,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   }
                 }
               }
+              
+              if (firstImageUrl == null && product != null && product['image_url'] != null) {
+                firstImageUrl = product['image_url'].toString();
+              }
 
               return _buildOrderItem(
                 title: product?['name'] as String? ?? 'Unknown Product',

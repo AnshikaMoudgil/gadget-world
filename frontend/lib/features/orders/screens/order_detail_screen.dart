@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:gadget_store/core/theme.dart';
+import 'package:flutter/services.dart';
 import 'package:gadget_store/features/orders/models/order.dart';
 import 'package:gadget_store/features/orders/utils/invoice_generator.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:gadget_store/core/widgets/optimized_network_image.dart';
+import 'package:gadget_store/features/more/screens/contact_us_screen.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final Order order;
@@ -69,7 +71,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     _buildActionTile(
                       Icons.verified_user_outlined,
                       'Need help? Contact support',
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ContactUsScreen(),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 48),
                   ],
@@ -113,14 +122,45 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   Icons.headphones_outlined,
                   color: AppTheme.black,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ContactUsScreen(),
+                    ),
+                  );
+                },
               ),
-              IconButton(
-                icon: const Icon(
-                  PhosphorIcons.dotsThreeVertical,
-                  color: AppTheme.black,
-                ),
-                onPressed: () {},
+              PopupMenuButton<String>(
+                icon: const Icon(PhosphorIcons.dotsThreeVertical, color: AppTheme.black),
+                onSelected: (value) {
+                  if (value == 'invoice') {
+                    InvoiceGenerator.generateAndPrintInvoice(widget.order);
+                  } else if (value == 'copy_id') {
+                    String orderId = widget.order.razorpayOrderId;
+                    if (orderId.isEmpty) {
+                      orderId = widget.order.id.length > 8
+                          ? widget.order.id.substring(0, 8).toUpperCase()
+                          : widget.order.id.toUpperCase();
+                    } else {
+                      orderId = orderId.replaceFirst('order_', '').toUpperCase();
+                    }
+                    Clipboard.setData(ClipboardData(text: orderId));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Order ID #$orderId copied to clipboard')),
+                    );
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  const PopupMenuItem(
+                    value: 'invoice',
+                    child: Text('Download Invoice'),
+                  ),
+                  const PopupMenuItem(
+                    value: 'copy_id',
+                    child: Text('Copy Order ID'),
+                  ),
+                ],
               ),
             ],
           ),

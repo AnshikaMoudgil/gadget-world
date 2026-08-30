@@ -4,6 +4,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/coupon_response.dart';
 
+class CouponApiException implements Exception {
+  final String message;
+  CouponApiException(this.message);
+  @override
+  String toString() => message;
+}
+
 class CouponApiService {
   static String get _baseUrl {
     final configured =
@@ -25,6 +32,16 @@ class CouponApiService {
     };
   }
 
+  String _parseError(String responseBody, String defaultMsg) {
+    try {
+      final data = jsonDecode(responseBody);
+      if (data is Map && data['error'] != null) {
+        return '$defaultMsg: ${data['error']}';
+      }
+    } catch (_) {}
+    return defaultMsg;
+  }
+
   Future<CouponResponse> validateCoupon(String code, double cartTotal) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/coupons/validate'),
@@ -35,7 +52,7 @@ class CouponApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return CouponResponse.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to validate coupon: ${response.body}');
+      throw CouponApiException(_parseError(response.body, 'Failed to validate coupon'));
     }
   }
 
@@ -49,7 +66,7 @@ class CouponApiService {
       final List data = jsonDecode(response.body);
       return data.cast<Map<String, dynamic>>();
     } else {
-      throw Exception('Failed to load available coupons: ${response.body}');
+      throw CouponApiException(_parseError(response.body, 'Failed to load available coupons'));
     }
   }
 }

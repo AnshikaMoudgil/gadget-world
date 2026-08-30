@@ -19,6 +19,16 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   String _selectedType = 'home';
   bool _isDefault = false;
+  String? _selectedState;
+
+  final List<String> _indianStates = [
+    'Andaman and Nicobar Islands', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 
+    'Chandigarh', 'Chhattisgarh', 'Dadra and Nagar Haveli and Daman and Diu', 'Delhi', 'Goa', 
+    'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jammu and Kashmir', 'Jharkhand', 'Karnataka', 
+    'Kerala', 'Ladakh', 'Lakshadweep', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 
+    'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 
+    'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
+  ];
 
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -45,6 +55,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     _addressLine2Controller.text = address.addressLine2 ?? '';
     _cityController.text = address.city;
     _stateController.text = address.state;
+    _selectedState = _indianStates.contains(address.state) ? address.state : null;
     _landmarkController.text = address.landmark ?? '';
   }
 
@@ -101,7 +112,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Failed to save address: $e')));
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -223,13 +234,30 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     _buildLabel('State'),
-                                    _buildTextField(
-                                      controller: _stateController,
-                                      hintText: 'Enter state',
-                                      validator: (val) =>
-                                          val == null || val.isEmpty
-                                          ? 'Required'
-                                          : null,
+                                    DropdownButtonFormField<String>(
+                                      initialValue: _selectedState,
+                                      hint: const Text('Select state', style: TextStyle(color: AppTheme.greyText, fontSize: 14)),
+                                      style: const TextStyle(fontSize: 14, color: AppTheme.black),
+                                      isExpanded: true,
+                                      decoration: InputDecoration(
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                        filled: true,
+                                        fillColor: AppTheme.greyBackground.withValues(alpha: 0.5),
+                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.black, width: 1)),
+                                        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red, width: 1)),
+                                      ),
+                                      items: _indianStates.map((state) {
+                                        return DropdownMenuItem(value: state, child: Text(state, overflow: TextOverflow.ellipsis));
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _selectedState = val;
+                                          _stateController.text = val ?? '';
+                                        });
+                                      },
+                                      validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                                     ),
                                   ],
                                 ),

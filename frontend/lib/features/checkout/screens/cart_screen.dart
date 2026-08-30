@@ -154,6 +154,10 @@ class _CartScreenState extends State<CartScreen> {
         imageUrl = str;
       }
     }
+    
+    if (imageUrl == null && product['image_url'] != null) {
+      imageUrl = product['image_url'].toString();
+    }
 
     final variantName = item.variant != null
         ? (item.variant!['name'] ?? item.variant!['variant_name'])
@@ -587,7 +591,7 @@ class _CartScreenState extends State<CartScreen> {
     String title = isNetworkError ? 'No Internet Connection' : 'Oops, something went wrong';
     String message = isNetworkError 
         ? 'Please check your internet connection and try again.' 
-        : error;
+        : 'An unexpected error occurred. Please try again.';
 
     return Center(
       child: Padding(

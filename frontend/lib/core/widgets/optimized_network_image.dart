@@ -42,6 +42,8 @@ class OptimizedNetworkImage extends StatelessWidget {
       imageUrl: imageUrl,
       width: displayWidth,
       height: displayHeight,
+      memCacheWidth: cacheWidth,
+      memCacheHeight: cacheHeight,
       fit: fit,
       fadeInDuration: const Duration(milliseconds: 120),
       fadeOutDuration: const Duration(milliseconds: 80),

@@ -4,6 +4,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/cart.dart';
 
+class CartApiException implements Exception {
+  final String message;
+  CartApiException(this.message);
+  @override
+  String toString() => message;
+}
+
 class CartApiService {
   // Dynamically get base URL from environment
   static String get baseUrl {
@@ -23,6 +30,16 @@ class CartApiService {
     };
   }
 
+  String _parseError(String responseBody, String defaultMsg) {
+    try {
+      final data = jsonDecode(responseBody);
+      if (data is Map && data['error'] != null) {
+        return '$defaultMsg: ${data['error']}';
+      }
+    } catch (_) {}
+    return defaultMsg;
+  }
+
   Future<Cart> getCart() async {
     final response = await http.get(
       Uri.parse('$baseUrl/'),
@@ -32,7 +49,7 @@ class CartApiService {
     if (response.statusCode == 200) {
       return Cart.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to load cart: ${response.body}');
+      throw CartApiException(_parseError(response.body, 'Failed to load cart'));
     }
   }
 
@@ -53,7 +70,7 @@ class CartApiService {
     if (response.statusCode == 200) {
       return Cart.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to add to cart: ${response.body}');
+      throw CartApiException(_parseError(response.body, 'Failed to add to cart'));
     }
   }
 
@@ -67,7 +84,7 @@ class CartApiService {
     if (response.statusCode == 200) {
       return Cart.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to update cart item: ${response.body}');
+      throw CartApiException(_parseError(response.body, 'Failed to update cart item'));
     }
   }
 
@@ -80,7 +97,7 @@ class CartApiService {
     if (response.statusCode == 200) {
       return Cart.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to remove from cart: ${response.body}');
+      throw CartApiException(_parseError(response.body, 'Failed to remove from cart'));
     }
   }
 }

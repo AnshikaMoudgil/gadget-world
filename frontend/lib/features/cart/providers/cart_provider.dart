@@ -23,6 +23,20 @@ class CartProvider extends ChangeNotifier {
   String? get appliedCouponCode => _appliedCouponCode;
   String? get discountType => _discountType;
 
+  bool isInCart(String productId) {
+    if (_cart == null) return false;
+    return _cart!.items.any((item) => item.productId == productId);
+  }
+
+  CartItem? getCartItem(String productId) {
+    if (_cart == null) return null;
+    try {
+      return _cart!.items.firstWhere((item) => item.productId == productId);
+    } catch (_) {
+      return null;
+    }
+  }
+
   int get itemCount {
     if (_cart == null) return 0;
     return _cart!.items.fold(0, (sum, item) => sum + item.quantity) +

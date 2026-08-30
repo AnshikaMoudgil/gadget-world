@@ -6,6 +6,17 @@ class OrderFailedScreen extends StatelessWidget {
 
   const OrderFailedScreen({super.key, required this.errorMessage});
 
+  String _getFriendlyErrorMessage() {
+    if (errorMessage.isEmpty || errorMessage.toLowerCase() == 'undefined') {
+      return 'The payment was cancelled or could not be completed successfully. No amount was deducted.';
+    }
+    var cleanError = errorMessage;
+    if (cleanError.startsWith('Exception: ')) {
+      cleanError = cleanError.substring(11);
+    }
+    return cleanError;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,8 +90,8 @@ class OrderFailedScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.white,
-        border: Border.all(color: Colors.red.shade200),
+        color: Colors.red.withValues(alpha: 0.05),
+        border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -102,12 +113,11 @@ class OrderFailedScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  errorMessage.isNotEmpty
-                      ? errorMessage
-                      : 'Unknown error occurred.',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.greyText,
+                  _getFriendlyErrorMessage(),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.red.shade700,
+                    height: 1.4,
                   ),
                 ),
               ],

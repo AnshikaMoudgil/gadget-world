@@ -107,6 +107,11 @@ class _PaymentScreenState extends State<PaymentScreen>
                 }
               }
             }
+            
+            if (firstImageUrl == null && item.product != null && item.product!['image_url'] != null) {
+              firstImageUrl = item.product!['image_url'].toString();
+            }
+
             return {
               'title': item.product?['name']?.toString() ?? 'Product',
               'subtitle': 'Standard',
@@ -234,15 +239,7 @@ class _PaymentScreenState extends State<PaymentScreen>
       if (!mounted) return;
       _razorpay.open(options, context: context);
 
-      // Also set a 15 second timeout to reset the button if Razorpay fails to open
-      Future.delayed(const Duration(seconds: 15), () {
-        if (mounted && _isProcessing) {
-          setState(() => _isProcessing = false);
-          _showErrorSnackbar(
-            'Razorpay UI did not load. Check your internet connection or adblocker.',
-          );
-        }
-      });
+      // Removed 15-second timeout that was firing while users were entering payment details
     } catch (e) {
       _showErrorSnackbar(e.toString());
       setState(() => _isProcessing = false);

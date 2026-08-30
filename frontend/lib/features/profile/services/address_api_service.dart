@@ -3,6 +3,13 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gadget_store/features/profile/models/address.dart';
 
+class AddressApiException implements Exception {
+  final String message;
+  AddressApiException(this.message);
+  @override
+  String toString() => message;
+}
+
 class AddressApiService {
   static String get baseUrl {
     final configured = dotenv.env['BACKEND_URL'] ?? dotenv.env['API_BASE_URL'];
@@ -26,7 +33,7 @@ class AddressApiService {
       final List<dynamic> data = json.decode(response.body);
       return data.map((json) => Address.fromJson(json)).toList();
     } else {
-      throw Exception('Failed to load addresses');
+      throw AddressApiException('Failed to load addresses');
     }
   }
 
@@ -44,7 +51,7 @@ class AddressApiService {
       return Address.fromJson(json.decode(response.body));
     } else {
       final error = json.decode(response.body)['error'] ?? 'Unknown error';
-      throw Exception('Failed to create address: $error');
+      throw AddressApiException('Failed to create address: $error');
     }
   }
 
@@ -66,7 +73,7 @@ class AddressApiService {
       return Address.fromJson(json.decode(response.body));
     } else {
       final error = json.decode(response.body)['error'] ?? 'Unknown error';
-      throw Exception('Failed to update address: $error');
+      throw AddressApiException('Failed to update address: $error');
     }
   }
 
@@ -80,7 +87,7 @@ class AddressApiService {
     );
 
     if (response.statusCode != 204 && response.statusCode != 200) {
-      throw Exception('Failed to delete address');
+      throw AddressApiException('Failed to delete address');
     }
   }
 
@@ -94,7 +101,7 @@ class AddressApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to set default address');
+      throw AddressApiException('Failed to set default address');
     }
   }
 }
