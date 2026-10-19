@@ -335,3 +335,5 @@ This project is private and proprietary. All rights reserved © Tensorik Tech.
 <div align="center">
   Built with ❤️ by <a href="https://github.com/AnshikaMoudgil">AnshikaMoudgil</a> & the <strong>Tensorik Tech</strong> team
 </div>
+#   g a d g e t - w o r l d  
+ 
